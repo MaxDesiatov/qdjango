@@ -7,8 +7,9 @@
 #include <QtTest/QtTest>
 
 #include "queryset.h"
-#include "tests.h"
-#include "tests/user.h"
+
+#include "main.h"
+#include "user.h"
 
 void TestModel::initTestCase()
 {
