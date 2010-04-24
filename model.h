@@ -32,6 +32,7 @@ public:
     bool save();
 
 private:
+    int m_id;
     QString m_pkName;
 };
 

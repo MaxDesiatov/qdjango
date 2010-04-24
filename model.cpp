@@ -10,13 +10,17 @@
 static QSqlDatabase *db = 0;
 
 QDjangoModel::QDjangoModel(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), m_pkName("id")
 {
 }
 
 QVariant QDjangoModel::pk() const
 {
-    return property(databasePkName().toLatin1());
+    QString pkName = databasePkName();
+    if (pkName == "id")
+        return m_id;
+    else
+        return property(pkName.toLatin1());
 }
 
 QSqlDatabase &QDjangoModel::database()
