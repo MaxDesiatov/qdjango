@@ -24,6 +24,7 @@
 #include <QStringList>
 #include <QSqlQuery>
 
+#include "model.h"
 #include "query.h"
 
 template <class T>
@@ -100,7 +101,6 @@ int QDjangoQuerySet<T>::size()
     if (!query.exec())
         return 0;
     query.next();
-    qDebug() << "size" << query.value(0).toInt();
     return query.value(0).toInt();
 }
 
@@ -147,7 +147,7 @@ QSqlQuery QDjangoQuerySet<T>::sqlQuery(const QString &baseSql) const
             bits << key + " = :" + key;
         sql += bits.join(" AND ");
     }
-    qDebug() << sql;
+    sqlDebug() << sql;
     QSqlQuery query(sql, model.database());
     foreach (const QString &key, m_filters.keys())
         query.bindValue(":" + key, m_filters[key]);
