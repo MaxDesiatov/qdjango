@@ -24,10 +24,15 @@ public:
 
     QString databaseTable() const;
     QString databasePkName() const;
+    void setPrimaryKey(const QString &key);
+
     QStringList databaseFields() const;
 
     bool remove();
     bool save();
+
+private:
+    QString m_pkName;
 };
 
 #endif
