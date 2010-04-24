@@ -24,8 +24,9 @@
 
 class QDjangoModel;
 class QSqlDatabase;
+class QSqlQuery;
 
-QDebug sqlDebug();
+void sqlDebug(const QSqlQuery &query);
 
 class QDjangoModel : public QObject
 {

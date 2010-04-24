@@ -147,10 +147,10 @@ QSqlQuery QDjangoQuerySet<T>::sqlQuery(const QString &baseSql) const
             bits << key + " = :" + key;
         sql += bits.join(" AND ");
     }
-    sqlDebug() << sql;
     QSqlQuery query(sql, model.database());
     foreach (const QString &key, m_filters.keys())
         query.bindValue(":" + key, m_filters[key]);
+    sqlDebug(query);
     return query;
 }
 

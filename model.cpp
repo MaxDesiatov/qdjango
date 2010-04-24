@@ -28,9 +28,9 @@
 
 static QSqlDatabase *db = 0;
 
-QDebug sqlDebug()
+void sqlDebug(const QSqlQuery &query)
 {
-    return qDebug() << "SQL";
+    qDebug() << "SQL" << query.lastQuery();
 }
 
 QDjangoModel::QDjangoModel(QObject *parent)
@@ -85,8 +85,8 @@ bool QDjangoModel::createTable() const
     }
 
     QString sql = QString("CREATE TABLE %1 (%2)").arg(databaseTable(), propSql.join(", "));
-    sqlDebug() << sql;
     QSqlQuery createQuery(sql, *db);
+    sqlDebug(createQuery);
     if (false && !createQuery.exec())
     {
         qWarning() << "Query failed" << sql << createQuery.lastError();
@@ -98,8 +98,8 @@ bool QDjangoModel::createTable() const
     {
         QString indexName = m_pkName;
         sql = QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, databaseTable(), m_pkName);
-        sqlDebug() << sql;
         QSqlQuery indexQuery(sql, *db);
+        sqlDebug(indexQuery);
         if (false && !indexQuery.exec())
         {
             qWarning() << "Query failed" << sql << indexQuery.lastError();
@@ -147,9 +147,9 @@ bool QDjangoModel::remove()
 {
     QString sql = QString("DELETE FROM %1 WHERE %2 = :pk")
                   .arg(databaseTable(), m_pkName);
-    sqlDebug() << sql;
     QSqlQuery query(sql, *db);
     query.bindValue(":pk", pk());
+    sqlDebug(query);
     return query.exec();
 }
 
@@ -176,12 +176,11 @@ bool QDjangoModel::save()
 
             QString sql = QString("UPDATE %1 SET %2 WHERE %3 = :pk")
                   .arg(databaseTable(), fieldAssign.join(", "), m_pkName);
-            sqlDebug() << sql;
             QSqlQuery query(sql, *db);
             foreach (const QString &name, fieldNames)
                 query.bindValue(":" + name, property(name.toLatin1()));
             query.bindValue(":pk", pk());
-
+            sqlDebug(query);
             return query.exec();
         }
     }
@@ -193,10 +192,10 @@ bool QDjangoModel::save()
 
     QString sql = QString("INSERT INTO %1 (%2) VALUES(%3)")
                   .arg(databaseTable(), fieldNames.join(", "), fieldHolders.join(", "));
-    sqlDebug() << sql;
     QSqlQuery query(sql, *db);
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
+    sqlDebug(query);
 
     bool ret = query.exec();
     if (m_pkName == "id")
