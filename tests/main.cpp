@@ -6,8 +6,8 @@
 #include <QVariant>
 #include <QtTest/QtTest>
 
-#include "query.h"
 #include "queryset.h"
+#include "where.h"
 
 #include "main.h"
 #include "user.h"
@@ -141,25 +141,25 @@ void TestModel::cleanupTestCase()
 
 void TestQuery::simpleWhere()
 {
-    QDjangoQuery queryId("id", QDjangoQuery::Equals, 1);
+    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
     QCOMPARE(queryId.sql(), QString::fromLatin1("id = :id"));
 }
 
 void TestQuery::andWhere()
 {
-    QDjangoQuery queryId("id", QDjangoQuery::Equals, 1);
-    QDjangoQuery queryUsername("username", QDjangoQuery::Equals, "foo");
+    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
+    QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
-    QDjangoQuery queryAnd = queryId && queryUsername;
+    QDjangoWhere queryAnd = queryId && queryUsername;
     QCOMPARE(queryAnd.sql(), QString::fromLatin1("id = :id AND username = :username"));
 }
 
 void TestQuery::orWhere()
 {
-    QDjangoQuery queryId("id", QDjangoQuery::Equals, 1);
-    QDjangoQuery queryUsername("username", QDjangoQuery::Equals, "foo");
+    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
+    QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
-    QDjangoQuery queryAnd = queryId || queryUsername;
+    QDjangoWhere queryAnd = queryId || queryUsername;
     QCOMPARE(queryAnd.sql(), QString::fromLatin1("id = :id OR username = :username"));
 }
 

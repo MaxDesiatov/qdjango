@@ -19,38 +19,38 @@
 
 #include <QStringList>
 
-#include "query.h"
+#include "where.h"
 
-QDjangoQuery::QDjangoQuery()
+QDjangoWhere::QDjangoWhere()
     :  m_operation(None), m_combine(NoCombine)
 {
 }
 
-QDjangoQuery::QDjangoQuery(const QString &key, QDjangoQuery::Operation operation, QVariant data)
+QDjangoWhere::QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant data)
     :  m_key(key), m_operation(operation), m_data(data), m_combine(NoCombine)
 {
 }
 
-QDjangoQuery QDjangoQuery::operator&&(const QDjangoQuery &other) const
+QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
 {
-    QDjangoQuery result;
+    QDjangoWhere result;
     result.m_combine = AndCombine;
     result.m_children << *this << other;
     return result;
 }
 
-QDjangoQuery QDjangoQuery::operator||(const QDjangoQuery &other) const
+QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
 {
-    QDjangoQuery result;
+    QDjangoWhere result;
     result.m_combine = OrCombine;
     result.m_children << *this << other;
     return result;
 }
 
-QString QDjangoQuery::sql() const
+QString QDjangoWhere::sql() const
 {
     QStringList bits;
-    foreach (const QDjangoQuery &child, m_children)
+    foreach (const QDjangoWhere &child, m_children)
         bits << child.sql();
     if (m_combine == AndCombine)
         return bits.join(" AND ");
