@@ -26,17 +26,29 @@ void TestModel::createTable()
 
 void TestModel::createUser()
 {
+    User *other;
+
     User user;
     user.setUsername("foouser");
     user.setPassword("foopass");
-
-    bool result = user.save();
-    QCOMPARE(result, true);
+    QCOMPARE(user.save(), true);
     QCOMPARE(QDjangoQuerySet<User>().size(), 1);
 
-    User *other = QDjangoQuerySet<User>().get("username", "foouser");
+    other = QDjangoQuerySet<User>().get("username", "foouser");
+    QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QString::fromLatin1("foouser"));
     QCOMPARE(other->password(), QString::fromLatin1("foopass"));
+
+    User user2;
+    user2.setUsername("baruser");
+    user2.setPassword("barpass");
+    QCOMPARE(user2.save(), true);
+    QCOMPARE(QDjangoQuerySet<User>().size(), 2);
+
+    other = QDjangoQuerySet<User>().get("username", "baruser");
+    QCOMPARE(other->pk(), QVariant(2));
+    QCOMPARE(other->username(), QString::fromLatin1("baruser"));
+    QCOMPARE(other->password(), QString::fromLatin1("barpass"));
 }
 
 void TestModel::removeUser()

@@ -23,6 +23,15 @@ QVariant QDjangoModel::pk() const
         return property(pkName.toLatin1());
 }
 
+void QDjangoModel::setPk(const QVariant &pk)
+{
+    QString pkName = databasePkName();
+    if (pkName == "id")
+        m_id = pk.toInt();
+    else
+        setProperty(pkName.toLatin1(), pk);
+}
+
 QSqlDatabase &QDjangoModel::database()
 {
     return *db;
@@ -38,9 +47,8 @@ bool QDjangoModel::createTable() const
     const QMetaObject* meta = metaObject();
 
     QStringList propSql;
-    QString pkName = databasePkName();
-    if (pkName == "id")
-        propSql << pkName + " INTEGER";
+    if (m_pkName == "id")
+        propSql << m_pkName + " INTEGER PRIMARY KEY AUTOINCREMENT";
     for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
     {
         const QString field = QString::fromLatin1(meta->property(i).name());
@@ -64,16 +72,18 @@ bool QDjangoModel::createTable() const
     }
 
     // FIXME: make generic
-    QString indexName = pkName;
-    sql = QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, databaseTable(), pkName);
-    qDebug() << "SQL" << sql;
-    QSqlQuery indexQuery(sql, *db);
-    if (false && !indexQuery.exec())
+    if (m_pkName != "id")
     {
-        qWarning() << "Query failed" << sql << indexQuery.lastError();
-        return false;
+        QString indexName = m_pkName;
+        sql = QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, databaseTable(), m_pkName);
+        qDebug() << "SQL" << sql;
+        QSqlQuery indexQuery(sql, *db);
+        if (false && !indexQuery.exec())
+        {
+            qWarning() << "Query failed" << sql << indexQuery.lastError();
+            return false;
+        }
     }
-
     return true;
 }
 
@@ -93,6 +103,8 @@ QStringList QDjangoModel::databaseFields() const
 {
     const QMetaObject* meta = metaObject();
     QStringList properties;
+    if (m_pkName == "id")
+        properties << m_pkName;
     for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
         properties << QString::fromLatin1(meta->property(i).name());
     return properties;
@@ -100,7 +112,7 @@ QStringList QDjangoModel::databaseFields() const
 
 QString QDjangoModel::databasePkName() const
 {
-    return m_pkName.isEmpty() ? "id" : m_pkName;
+    return m_pkName;
 }
 
 QString QDjangoModel::databaseTable() const
@@ -125,6 +137,8 @@ bool QDjangoModel::save()
     const QMetaObject* meta = metaObject();
 
     QStringList fieldNames = databaseFields();
+    fieldNames.removeAll(m_pkName);
+
     QStringList fieldHolders;
     foreach (const QString &name, fieldNames)
         fieldHolders << ":" + name;

@@ -15,6 +15,7 @@ public:
     QDjangoModel(QObject *parent = 0);
 
     QVariant pk() const;
+    void setPk(const QVariant &pk);
 
     bool createTable() const;
     bool dropTable() const;

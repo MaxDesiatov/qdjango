@@ -92,6 +92,7 @@ void QDjangoQuerySet<T>::sqlFetch()
 
     T model;
     QStringList fields = model.databaseFields();
+    QString pkField = model.databasePkName();
     QSqlQuery query = sqlQuery("SELECT " + fields.join(", "));
     if (query.exec())
     {
@@ -99,7 +100,12 @@ void QDjangoQuerySet<T>::sqlFetch()
         {
             T *entry = new T;
             for (int i = 0; i < fields.size(); ++i)
-                entry->setProperty(fields[i].toLatin1(), query.value(i));
+            {
+                if (fields[i] == pkField)
+                    entry->setPk(query.value(i));
+                else
+                    entry->setProperty(fields[i].toLatin1(), query.value(i));
+            }
             m_results.append(entry);
         }
     }
