@@ -143,6 +143,9 @@ void TestQuery::simpleWhere()
 {
     QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
     QCOMPARE(queryId.sql(), QString::fromLatin1("id = :id"));
+
+    QDjangoWhere queryNotId("id", QDjangoWhere::NotEquals, 1);
+    QCOMPARE(queryNotId.sql(), QString::fromLatin1("id != :id"));
 }
 
 void TestQuery::andWhere()

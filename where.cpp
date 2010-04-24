@@ -66,6 +66,8 @@ QString QDjangoWhere::sql() const
 {
     if (m_operation == Equals)
         return m_key + " = :" + m_key;
+    else if (m_operation == NotEquals)
+        return m_key + " != :" + m_key;
     else if (m_combine != NoCombine)
     {
         QStringList bits;
