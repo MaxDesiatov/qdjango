@@ -20,5 +20,4 @@ add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
 set_target_properties(qdjango PROPERTIES SOVERSION 0)
 target_link_libraries(qdjango ${QT_LIBRARIES})
 
-add_subdirectory(plugins)
 add_subdirectory(tests)
