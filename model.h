@@ -4,25 +4,8 @@
 #include <QObject>
 
 class QDjangoModel;
-class QDjangoModelPrivate;
 class QSqlDatabase;
 
-/*
-class QDjangoManager
-{
-public:
-    QDjangoManager(QDjangoModel *model);
-    QDjangoQuerySet all();
-    QDjangoQuerySet exclude();
-    QDjangoQuerySet filter();
-    QDjangoModel *get(const QVariant &pk);
-
-    int size();
-
-private:
-    QDjangoModel *m_model;
-};
-*/
 
 class QDjangoModel : public QObject
 {
@@ -30,7 +13,6 @@ class QDjangoModel : public QObject
 
 public:
     QDjangoModel(QObject *parent = 0);
-    //QDjangoManager *objects();
 
     QVariant pk() const;
 
@@ -46,9 +28,6 @@ public:
 
     bool remove();
     bool save();
-
-private:
-    QDjangoModelPrivate *d;
 };
 
 #endif

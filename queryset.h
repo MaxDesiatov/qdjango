@@ -18,9 +18,10 @@ public:
     QDjangoQuerySet filter(const QString &key, const QVariant &value) const;
     T *at(int index);
     T *get(const QString &key, const QVariant &value);
-    int size() const;
+    int size();
 
 private:
+    void sqlFetch(); 
     QSqlQuery sqlQuery(const QString &baseSql) const;
 
     QHash<QString, QVariant> m_filters;
@@ -42,24 +43,7 @@ QDjangoQuerySet<T>::~QDjangoQuerySet()
 template <class T>
 T *QDjangoQuerySet<T>::at(int index)
 {
-    if (!m_haveResults)
-    {
-        T model;
-        QStringList fields = model.databaseFields();
-        QSqlQuery query = sqlQuery("SELECT " + fields.join(", "));
-        if (query.exec())
-        {
-            while (query.next())
-            {
-                T *entry = new T;
-                for (int i = 0; i < fields.size(); ++i)
-                    entry->setProperty(fields[i].toLatin1(), query.value(i));
-                m_results.append(entry);
-            }
-        }
-        m_haveResults = true;
-    }
-
+    sqlFetch();
     return m_results.at(index);
 }
 
@@ -87,23 +71,46 @@ T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value)
 }
 
 template <class T>
-int QDjangoQuerySet<T>::size() const
+int QDjangoQuerySet<T>::size()
 {
-    if (m_haveResults)
-        return m_results.size();
+    sqlFetch();
+    return m_results.size();
 
     QSqlQuery query = sqlQuery("SELECT COUNT(*)");
     if (!query.exec())
         return 0;
     query.next();
+    qDebug() << "size" << query.value(0).toInt();
     return query.value(0).toInt();
+}
+
+template <class T>
+void QDjangoQuerySet<T>::sqlFetch()
+{
+    if (m_haveResults)
+        return;
+
+    T model;
+    QStringList fields = model.databaseFields();
+    QSqlQuery query = sqlQuery("SELECT " + fields.join(", "));
+    if (query.exec())
+    {
+        while (query.next())
+        {
+            T *entry = new T;
+            for (int i = 0; i < fields.size(); ++i)
+                entry->setProperty(fields[i].toLatin1(), query.value(i));
+            m_results.append(entry);
+        }
+    }
+    m_haveResults = true;
 }
 
 template <class T>
 QSqlQuery QDjangoQuerySet<T>::sqlQuery(const QString &baseSql) const
 {
-    T *model = new T;
-    QString sql = baseSql + " FROM " + model->databaseTable();
+    T model;
+    QString sql = baseSql + " FROM " + model.databaseTable();
     if (!m_filters.isEmpty())
     QString sql = baseSql;
     if (!m_filters.isEmpty())
@@ -115,10 +122,9 @@ QSqlQuery QDjangoQuerySet<T>::sqlQuery(const QString &baseSql) const
         sql += bits.join(" AND ");
     }
     qDebug() << sql;
-    QSqlQuery query(sql, model->database());
+    QSqlQuery query(sql, model.database());
     foreach (const QString &key, m_filters.keys())
         query.bindValue(":" + key, m_filters[key]);
-    delete model;
     return query;
 }
 
