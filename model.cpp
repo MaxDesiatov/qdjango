@@ -31,6 +31,12 @@ static QSqlDatabase *db = 0;
 void sqlDebug(const QSqlQuery &query)
 {
     qDebug() << "SQL" << query.lastQuery();
+    QMapIterator<QString, QVariant> i(query.boundValues());
+    while (i.hasNext()) {
+        i.next();
+        qDebug() << "   " << i.key().toAscii().data() << "="
+                 << i.value().toString().toAscii().data();
+    }
 }
 
 QDjangoModel::QDjangoModel(QObject *parent)
