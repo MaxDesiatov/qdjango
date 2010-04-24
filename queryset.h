@@ -2,6 +2,8 @@
 #define QDJANGO_QUERYSET_H
 
 #include <QList>
+#include <QStringList>
+#include <QSqlQuery>
 
 #include "query.h"
 
