@@ -29,8 +29,6 @@ public:
     {
         None,
         Equals,
-        NotEquals,
-        // Contains,
     };
 
     QDjangoQuery();
@@ -38,6 +36,8 @@ public:
 
     QDjangoQuery operator&&(const QDjangoQuery &other) const;
     QDjangoQuery operator||(const QDjangoQuery &other) const;
+
+    QString sql() const;
 
 private:
     enum Combine

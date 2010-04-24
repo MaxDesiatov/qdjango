@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QStringList>
+
 #include "query.h"
 
 QDjangoQuery::QDjangoQuery()
@@ -43,5 +45,18 @@ QDjangoQuery QDjangoQuery::operator||(const QDjangoQuery &other) const
     result.m_combine = OrCombine;
     result.m_children << *this << other;
     return result;
+}
+
+QString QDjangoQuery::sql() const
+{
+    QStringList bits;
+    foreach (const QDjangoQuery &child, m_children)
+        bits << child.sql();
+    if (m_combine == AndCombine)
+        return bits.join(" AND ");
+    else if (m_combine == OrCombine)
+        return bits.join(" OR ");
+    else
+        return m_key + " = :" + m_key;
 }
 
