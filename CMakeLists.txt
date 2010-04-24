@@ -10,8 +10,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(qdjango_SOURCES
     model.cpp
-    query.cpp
-    shell.cpp)
+    query.cpp)
 set(qdjango_MOC_HEADERS
     model.h)
 
