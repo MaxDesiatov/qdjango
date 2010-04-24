@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QSqlQuery>
 #include <QStringList>
 
 #include "where.h"
@@ -47,16 +48,34 @@ QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
     return result;
 }
 
+void QDjangoWhere::bindValues(QSqlQuery &query) const
+{
+    if (m_operation != QDjangoWhere::None)
+        query.bindValue(":" + m_key, m_data);
+    else
+        foreach (const QDjangoWhere &child, m_children)
+            child.bindValues(query);
+}
+
+bool QDjangoWhere::isEmpty() const
+{
+    return m_combine == NoCombine && m_operation == None;
+}
+
 QString QDjangoWhere::sql() const
 {
-    QStringList bits;
-    foreach (const QDjangoWhere &child, m_children)
-        bits << child.sql();
-    if (m_combine == AndCombine)
-        return bits.join(" AND ");
-    else if (m_combine == OrCombine)
-        return bits.join(" OR ");
-    else
+    if (m_operation == Equals)
         return m_key + " = :" + m_key;
+    else if (m_combine != NoCombine)
+    {
+        QStringList bits;
+        foreach (const QDjangoWhere &child, m_children)
+            bits << child.sql();
+        if (m_combine == AndCombine)
+            return bits.join(" AND ");
+        else if (m_combine == OrCombine)
+            return bits.join(" OR ");
+    }
+    return "";
 }
 
