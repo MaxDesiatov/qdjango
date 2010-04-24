@@ -44,7 +44,7 @@ private:
     void sqlFetch(); 
     QSqlQuery sqlQuery(const QString &baseSql) const;
 
-    QHash<QString, QVariant> m_filters;
+    QDjangoWhere m_where;
     bool m_haveResults;
     QList<T*> m_results;
 };
@@ -71,16 +71,19 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
     QDjangoQuerySet<T> other;
-    other.m_filters = m_filters;
+    other.m_where = m_where;
     return other;
 }
 
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant &value) const
 {
+    QDjangoWhere q(key, QDjangoWhere::Equals, value);
     QDjangoQuerySet<T> other;
-    other.m_filters = m_filters;
-    other.m_filters[key] = value;
+    if (m_where.isEmpty())
+        other.m_where = q;
+    else
+        other.m_where = m_where && q;
     return other;
 }
 
@@ -137,19 +140,11 @@ QSqlQuery QDjangoQuerySet<T>::sqlQuery(const QString &baseSql) const
 {
     T model;
     QString sql = baseSql + " FROM " + model.databaseTable();
-    if (!m_filters.isEmpty())
-    QString sql = baseSql;
-    if (!m_filters.isEmpty())
-    {
-        sql += " WHERE ";
-        QStringList bits;
-        foreach (const QString &key, m_filters.keys())
-            bits << key + " = :" + key;
-        sql += bits.join(" AND ");
-    }
+    if (!m_where.isEmpty())
+        sql += " WHERE " + m_where.sql();
     QSqlQuery query(sql, model.database());
-    foreach (const QString &key, m_filters.keys())
-        query.bindValue(":" + key, m_filters[key]);
+    if (!m_where.isEmpty())
+        m_where.bindValues(query);
     sqlDebug(query);
     return query;
 }

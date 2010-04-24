@@ -22,6 +22,8 @@
 
 #include <QVariant>
 
+class QSqlQuery;
+
 class QDjangoWhere
 {
 public:
@@ -37,6 +39,8 @@ public:
     QDjangoWhere operator&&(const QDjangoWhere &other) const;
     QDjangoWhere operator||(const QDjangoWhere &other) const;
 
+    void bindValues(QSqlQuery &query) const;
+    bool isEmpty() const;
     QString sql() const;
 
 private:
