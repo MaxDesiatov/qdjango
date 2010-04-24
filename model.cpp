@@ -34,6 +34,9 @@ bool QDjangoModel::createTable() const
     const QMetaObject* meta = metaObject();
 
     QStringList propSql;
+    QString pkName = databasePkName();
+    if (pkName == "id")
+        propSql << pkName + " INTEGER";
     for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
     {
         const QString field = QString::fromLatin1(meta->property(i).name());
@@ -57,7 +60,9 @@ bool QDjangoModel::createTable() const
     }
 
     // FIXME: make generic
-    sql = QString("CREATE UNIQUE INDEX username ON %1 (username)").arg(databaseTable());
+    QString indexName = pkName;
+    sql = QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, databaseTable(), pkName);
+    qDebug() << "SQL" << sql;
     QSqlQuery indexQuery(sql, *db);
     if (false && !indexQuery.exec())
     {
@@ -91,10 +96,7 @@ QStringList QDjangoModel::databaseFields() const
 
 QString QDjangoModel::databasePkName() const
 {
-    QStringList properties = databaseFields();
-    if (properties.isEmpty())
-        return "id";
-    return properties.first();
+    return m_pkName.isEmpty() ? "id" : m_pkName;
 }
 
 QString QDjangoModel::databaseTable() const
