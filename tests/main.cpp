@@ -85,7 +85,7 @@ void TestModel::filterUsers()
     bar.setPassword("barpass");
     bar.save();
 
-    const QDjangoQuerySet<User> UserQuery;
+    QDjangoQuerySet<User> UserQuery;
     QCOMPARE(UserQuery.size(), 2);
 
     QDjangoQuerySet<User> qs;
