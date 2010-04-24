@@ -81,21 +81,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant
 template <class T>
 T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value)
 {
-    T *model = new T;
-    QStringList fields = model->databaseFields();
-    QString sql = QString("SELECT %1 FROM %2 WHERE %3 = :pk")
-                 .arg(fields.join(", "), model->databaseTable(), key);
-    QSqlQuery query(sql, model->database());
-    query.bindValue(":pk", value);
-    if (!query.exec())
-    {
-        delete model;
-        return 0;
-    }
-    query.next();
-    for (int i = 0; i < fields.size(); ++i)
-        model->setProperty(fields[i].toLatin1(), query.value(i));
-    return model;
+    return filter(key, value).at(0);
 }
 
 template <class T>
