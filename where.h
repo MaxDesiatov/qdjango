@@ -31,6 +31,7 @@ public:
     {
         None,
         Equals,
+        NotEquals,
     };
 
     QDjangoWhere();

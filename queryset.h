@@ -35,6 +35,7 @@ public:
     ~QDjangoQuerySet();
 
     QDjangoQuerySet all() const;
+    QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
     QDjangoQuerySet filter(const QString &key, const QVariant &value) const;
     T *at(int index);
     T *get(const QString &key, const QVariant &value);
@@ -72,6 +73,18 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
     QDjangoQuerySet<T> other;
     other.m_where = m_where;
+    return other;
+}
+
+template <class T>
+QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVariant &value) const
+{
+    QDjangoWhere q(key, QDjangoWhere::NotEquals, value);
+    QDjangoQuerySet<T> other;
+    if (m_where.isEmpty())
+        other.m_where = q;
+    else
+        other.m_where = m_where && q;
     return other;
 }
 
