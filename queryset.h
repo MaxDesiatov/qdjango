@@ -25,7 +25,7 @@
 #include <QSqlQuery>
 
 #include "model.h"
-#include "query.h"
+#include "where.h"
 
 template <class T>
     class QDjangoQuerySet

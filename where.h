@@ -22,7 +22,7 @@
 
 #include <QVariant>
 
-class QDjangoQuery
+class QDjangoWhere
 {
 public:
     enum Operation
@@ -31,11 +31,11 @@ public:
         Equals,
     };
 
-    QDjangoQuery();
-    QDjangoQuery(const QString &key, QDjangoQuery::Operation operation, QVariant data);
+    QDjangoWhere();
+    QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant data);
 
-    QDjangoQuery operator&&(const QDjangoQuery &other) const;
-    QDjangoQuery operator||(const QDjangoQuery &other) const;
+    QDjangoWhere operator&&(const QDjangoWhere &other) const;
+    QDjangoWhere operator||(const QDjangoWhere &other) const;
 
     QString sql() const;
 
@@ -48,11 +48,11 @@ private:
     };
 
     QString m_key;
-    QDjangoQuery::Operation m_operation;
+    QDjangoWhere::Operation m_operation;
     QVariant m_data;
 
-    QList<QDjangoQuery> m_children;
-    QDjangoQuery::Combine m_combine;
+    QList<QDjangoWhere> m_children;
+    QDjangoWhere::Combine m_combine;
 };
 
 #endif
