@@ -28,6 +28,11 @@
 
 static QSqlDatabase *db = 0;
 
+QDebug sqlDebug()
+{
+    return qDebug() << "SQL";
+}
+
 QDjangoModel::QDjangoModel(QObject *parent)
     : QObject(parent), m_pkName("id")
 {
@@ -80,7 +85,7 @@ bool QDjangoModel::createTable() const
     }
 
     QString sql = QString("CREATE TABLE %1 (%2)").arg(databaseTable(), propSql.join(", "));
-    qDebug() << "SQL" << sql;
+    sqlDebug() << sql;
     QSqlQuery createQuery(sql, *db);
     if (false && !createQuery.exec())
     {
@@ -93,7 +98,7 @@ bool QDjangoModel::createTable() const
     {
         QString indexName = m_pkName;
         sql = QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, databaseTable(), m_pkName);
-        qDebug() << "SQL" << sql;
+        sqlDebug() << sql;
         QSqlQuery indexQuery(sql, *db);
         if (false && !indexQuery.exec())
         {
@@ -142,7 +147,7 @@ bool QDjangoModel::remove()
 {
     QString sql = QString("DELETE FROM %1 WHERE %2 = :pk")
                   .arg(databaseTable(), m_pkName);
-    qDebug() << "SQL" << sql;
+    sqlDebug() << sql;
     QSqlQuery query(sql, *db);
     query.bindValue(":pk", pk());
     return query.exec();
@@ -171,7 +176,7 @@ bool QDjangoModel::save()
 
             QString sql = QString("UPDATE %1 SET %2 WHERE %3 = :pk")
                   .arg(databaseTable(), fieldAssign.join(", "), m_pkName);
-            qDebug() << "SQL" << sql;
+            sqlDebug() << sql;
             QSqlQuery query(sql, *db);
             foreach (const QString &name, fieldNames)
                 query.bindValue(":" + name, property(name.toLatin1()));
@@ -188,7 +193,7 @@ bool QDjangoModel::save()
 
     QString sql = QString("INSERT INTO %1 (%2) VALUES(%3)")
                   .arg(databaseTable(), fieldNames.join(", "), fieldHolders.join(", "));
-    qDebug() << "SQL" << sql;
+    sqlDebug() << sql;
     QSqlQuery query(sql, *db);
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
