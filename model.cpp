@@ -123,12 +123,11 @@ QString QDjangoModel::databaseTable() const
 
 bool QDjangoModel::remove()
 {
-    const QString pkName = databasePkName();
     QString sql = QString("DELETE FROM %1 WHERE %2 = :pk")
-                  .arg(databaseTable(), pkName);
-    //qDebug() << "SQL" << sql;
+                  .arg(databaseTable(), m_pkName);
+    qDebug() << "SQL" << sql;
     QSqlQuery query(sql, *db);
-    query.bindValue(":pk", property(pkName.toLatin1()));
+    query.bindValue(":pk", pk());
     return query.exec();
 }
 
@@ -137,7 +136,8 @@ bool QDjangoModel::save()
     const QMetaObject* meta = metaObject();
 
     QStringList fieldNames = databaseFields();
-    fieldNames.removeAll(m_pkName);
+    if (m_pkName == "id")
+        fieldNames.removeAll(m_pkName);
 
     QStringList fieldHolders;
     foreach (const QString &name, fieldNames)
@@ -149,5 +149,9 @@ bool QDjangoModel::save()
     QSqlQuery query(sql, *db);
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
-    return query.exec();
+
+    bool ret = query.exec();
+    if (m_pkName == "id")
+        setPk(query.lastInsertId());
+    return ret;
 }
