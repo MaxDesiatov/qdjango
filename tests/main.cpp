@@ -91,6 +91,7 @@ void TestModel::getUser()
     bar.save();
 
     QCOMPARE(QDjangoQuerySet<User>().size(), 2);
+    QCOMPARE(QDjangoQuerySet<User>().all().size(), 2);
 
     User *other = QDjangoQuerySet<User>().get("username", "foouser");
     QCOMPARE(other->username(), QString::fromLatin1("foouser"));
