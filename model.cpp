@@ -16,20 +16,18 @@ QDjangoModel::QDjangoModel(QObject *parent)
 
 QVariant QDjangoModel::pk() const
 {
-    QString pkName = databasePkName();
-    if (pkName == "id")
+    if (m_pkName == "id")
         return m_id;
     else
-        return property(pkName.toLatin1());
+        return property(m_pkName.toLatin1());
 }
 
 void QDjangoModel::setPk(const QVariant &pk)
 {
-    QString pkName = databasePkName();
-    if (pkName == "id")
+    if (m_pkName == "id")
         m_id = pk.toInt();
     else
-        setProperty(pkName.toLatin1(), pk);
+        setProperty(m_pkName.toLatin1(), pk);
 }
 
 QSqlDatabase &QDjangoModel::database()
