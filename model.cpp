@@ -37,15 +37,18 @@ bool QDjangoModel::createTable() const
     for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
     {
         const QString field = QString::fromLatin1(meta->property(i).name());
-        if (meta->property(i).type() == QVariant::String)
-        {
+        if (meta->property(i).type() == QVariant::Double)
+            propSql << field + " REAL";
+        else if (meta->property(i).type() == QVariant::Int)
+            propSql << field + " INTEGER";
+        else if (meta->property(i).type() == QVariant::String)
             propSql << field + " TEXT";
-        } else {
+        else
             qWarning() << "Unhandled property type" << meta->property(i).typeName();
-        }
     }
 
     QString sql = QString("CREATE TABLE %1 (%2)").arg(databaseTable(), propSql.join(", "));
+    qDebug() << "SQL" << sql;
     QSqlQuery createQuery(sql, *db);
     if (false && !createQuery.exec())
     {
@@ -122,7 +125,7 @@ bool QDjangoModel::save()
 
     QString sql = QString("INSERT INTO %1 (%2) VALUES(%3)")
                   .arg(databaseTable(), fieldNames.join(", "), fieldHolders.join(", "));
-    //qDebug() << "SQL" << sql;
+    qDebug() << "SQL" << sql;
     QSqlQuery query(sql, *db);
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
