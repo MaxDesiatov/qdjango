@@ -67,7 +67,8 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant
 template <class T>
 T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value)
 {
-    return filter(key, value).at(0);
+    QDjangoQuerySet<T> qs = filter(key, value);
+    return qs.size() == 1 ? qs.at(0) : 0;
 }
 
 template <class T>
