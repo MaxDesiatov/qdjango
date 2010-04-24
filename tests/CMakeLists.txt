@@ -17,5 +17,3 @@ set(tester_MOC_HEADERS
 qt4_wrap_cpp(tester_MOC_SOURCES ${tester_MOC_HEADERS})
 add_executable(tester ${tester_SOURCES} ${tester_MOC_SOURCES})
 target_link_libraries(tester qdjango models ${QT_LIBRARIES})
-
-add_subdirectory(script)
