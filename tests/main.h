@@ -1,5 +1,15 @@
 #include <QObject>
 
+class TestQuery : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void simpleWhere();
+    void andWhere();
+    void orWhere();
+};
+
 class TestModel: public QObject
 {
     Q_OBJECT

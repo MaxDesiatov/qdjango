@@ -6,6 +6,7 @@
 #include <QVariant>
 #include <QtTest/QtTest>
 
+#include "query.h"
 #include "queryset.h"
 
 #include "main.h"
@@ -138,6 +139,30 @@ void TestModel::cleanupTestCase()
     user.database().exec("DROP TABLE user");
 }
 
+void TestQuery::simpleWhere()
+{
+    QDjangoQuery queryId("id", QDjangoQuery::Equals, 1);
+    QCOMPARE(queryId.sql(), QString::fromLatin1("id = :id"));
+}
+
+void TestQuery::andWhere()
+{
+    QDjangoQuery queryId("id", QDjangoQuery::Equals, 1);
+    QDjangoQuery queryUsername("username", QDjangoQuery::Equals, "foo");
+
+    QDjangoQuery queryAnd = queryId && queryUsername;
+    QCOMPARE(queryAnd.sql(), QString::fromLatin1("id = :id AND username = :username"));
+}
+
+void TestQuery::orWhere()
+{
+    QDjangoQuery queryId("id", QDjangoQuery::Equals, 1);
+    QDjangoQuery queryUsername("username", QDjangoQuery::Equals, "foo");
+
+    QDjangoQuery queryAnd = queryId || queryUsername;
+    QCOMPARE(queryAnd.sql(), QString::fromLatin1("id = :id OR username = :username"));
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -151,6 +176,9 @@ int main(int argc, char *argv[])
 
     TestModel test;
     QTest::qExec(&test);
+
+    TestQuery testQuery;
+    QTest::qExec(&testQuery);
 
     db.close();
     return 0;
