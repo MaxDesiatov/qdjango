@@ -9,39 +9,6 @@
 
 static QSqlDatabase *db = 0;
 
-#if 0
-QDjangoManager::QDjangoManager(QDjangoModel *model)
-    : m_model(model)
-{
-}
-
-QDjangoQuerySet QDjangoManager::all()
-{
-    return QDjangoQuerySet(m_model);
-}
-
-QDjangoQuerySet QDjangoManager::exclude()
-{
-    return QDjangoQuerySet(m_model).exclude();
-}
-
-QDjangoQuerySet QDjangoManager::filter()
-{
-    return QDjangoQuerySet(m_model).filter();
-}
-
-QDjangoModel *QDjangoManager::get(const QVariant &pk)
-{
-    return QDjangoQuerySet(m_model).get(pk);
-}
-
-int QDjangoManager::size()
-{
-    return QDjangoQuerySet(m_model).size();
-}
-
-#endif
-
 QDjangoModel::QDjangoModel(QObject *parent)
     : QObject(parent)
 {
@@ -51,13 +18,6 @@ QVariant QDjangoModel::pk() const
 {
     return property(databasePkName().toLatin1());
 }
-
-#if 0
-QDjangoManager *QDjangoModel::objects()
-{
-    return new QDjangoManager(this);
-}
-#endif
 
 QSqlDatabase &QDjangoModel::database()
 {
