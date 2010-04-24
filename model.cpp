@@ -134,9 +134,35 @@ bool QDjangoModel::save()
     const QMetaObject* meta = metaObject();
 
     QStringList fieldNames = databaseFields();
-    if (m_pkName == "id")
-        fieldNames.removeAll(m_pkName);
+    fieldNames.removeAll(m_pkName);
 
+    if (!pk().isNull())
+    {
+        QString sql = QString("SELECT 1 AS a FROM %1 WHERE %2 = :pk")
+                      .arg(databaseTable(), m_pkName);
+        QSqlQuery query(sql, *db);
+        query.bindValue(":pk", pk());
+        if (!query.exec())
+            qWarning() << "Query failed" << sql << query.lastError();
+        if (query.next())
+        {
+            QStringList fieldAssign;
+            foreach (const QString &name, fieldNames)
+                fieldAssign << name + " = :" + name;
+
+            QString sql = QString("UPDATE %1 SET %2 WHERE %3 = :pk")
+                  .arg(databaseTable(), fieldAssign.join(", "), m_pkName);
+            qDebug() << "SQL" << sql;
+            QSqlQuery query(sql, *db);
+            foreach (const QString &name, fieldNames)
+                query.bindValue(":" + name, property(name.toLatin1()));
+            query.bindValue(":pk", pk());
+
+            return query.exec();
+        }
+    }
+
+    // perform insert
     QStringList fieldHolders;
     foreach (const QString &name, fieldNames)
         fieldHolders << ":" + name;

@@ -28,6 +28,7 @@ void TestModel::createUser()
 {
     User *other;
 
+    // create
     User user;
     user.setUsername("foouser");
     user.setPassword("foopass");
@@ -38,6 +39,16 @@ void TestModel::createUser()
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QString::fromLatin1("foouser"));
     QCOMPARE(other->password(), QString::fromLatin1("foopass"));
+
+    // update
+    user.setPassword("foopass2");
+    QCOMPARE(user.save(), true);
+    QCOMPARE(QDjangoQuerySet<User>().size(), 1);
+
+    other = QDjangoQuerySet<User>().get("username", "foouser");
+    QCOMPARE(other->pk(), QVariant(1));
+    QCOMPARE(other->username(), QString::fromLatin1("foouser"));
+    QCOMPARE(other->password(), QString::fromLatin1("foopass2"));
 
     User user2;
     user2.setUsername("baruser");
