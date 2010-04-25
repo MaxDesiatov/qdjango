@@ -27,6 +27,7 @@ class QSqlDatabase;
 class QSqlQuery;
 
 void sqlDebug(const QSqlQuery &query);
+bool sqlExec(QSqlQuery &query);
 
 class QDjangoModel : public QObject
 {
@@ -50,6 +51,7 @@ public:
 
     QStringList databaseFields() const;
 
+public slots:
     bool remove();
     bool save();
 
