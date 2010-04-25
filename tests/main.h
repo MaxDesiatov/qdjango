@@ -1,6 +1,6 @@
 #include <QObject>
 
-class TestQuery : public QObject
+class TestWhere : public QObject
 {
     Q_OBJECT
 
@@ -16,7 +16,6 @@ class TestModel: public QObject
 
 private slots:
     void initTestCase();
-    void createTable();
     void createUser();
     void removeUser();
     void getUser();
