@@ -30,13 +30,24 @@ static QSqlDatabase *db = 0;
 
 void sqlDebug(const QSqlQuery &query)
 {
-    qDebug() << "SQL" << query.lastQuery();
+    qDebug() << "SQL query" << query.lastQuery();
     QMapIterator<QString, QVariant> i(query.boundValues());
     while (i.hasNext()) {
         i.next();
         qDebug() << "   " << i.key().toAscii().data() << "="
                  << i.value().toString().toAscii().data();
     }
+}
+
+bool sqlExec(QSqlQuery &query)
+{
+    sqlDebug(query);
+    if (!query.exec())
+    {
+        qWarning() << "SQL error" << query.lastError();
+        return false;
+    }
+    return true;
 }
 
 QDjangoModel::QDjangoModel(QObject *parent)
@@ -90,27 +101,20 @@ bool QDjangoModel::createTable() const
             qWarning() << "Unhandled property type" << meta->property(i).typeName();
     }
 
+    // create table
     QString sql = QString("CREATE TABLE %1 (%2)").arg(databaseTable(), propSql.join(", "));
     QSqlQuery createQuery(sql, *db);
-    sqlDebug(createQuery);
-    if (false && !createQuery.exec())
-    {
-        qWarning() << "Query failed" << sql << createQuery.lastError();
+    if (!sqlExec(createQuery))
         return false;
-    }
 
-    // FIXME: make generic
+    // create index
     if (m_pkName != "id")
     {
         QString indexName = m_pkName;
         sql = QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, databaseTable(), m_pkName);
         QSqlQuery indexQuery(sql, *db);
-        sqlDebug(indexQuery);
-        if (false && !indexQuery.exec())
-        {
-            qWarning() << "Query failed" << sql << indexQuery.lastError();
+        if (!sqlExec(indexQuery))
             return false;
-        }
     }
     return true;
 }
@@ -119,12 +123,7 @@ bool QDjangoModel::dropTable() const
 {
     QString sql = QString("DROP TABLE %1").arg(databaseTable());
     QSqlQuery query(sql, *db);
-    if (!query.exec())
-    {
-        qWarning() << "Query failed" << query.lastQuery() << query.lastError();
-        return false;
-    }
-    return true;
+    return sqlExec(query);
 }
 
 QStringList QDjangoModel::databaseFields() const
@@ -155,8 +154,7 @@ bool QDjangoModel::remove()
                   .arg(databaseTable(), m_pkName);
     QSqlQuery query(sql, *db);
     query.bindValue(":pk", pk());
-    sqlDebug(query);
-    return query.exec();
+    return sqlExec(query);
 }
 
 bool QDjangoModel::save()
@@ -184,8 +182,7 @@ bool QDjangoModel::save()
             foreach (const QString &name, fieldNames)
                 query.bindValue(":" + name, property(name.toLatin1()));
             query.bindValue(":pk", pk());
-            sqlDebug(query);
-            return query.exec();
+            return sqlExec(query);
         }
     }
 
@@ -199,9 +196,8 @@ bool QDjangoModel::save()
     QSqlQuery query(sql, *db);
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
-    sqlDebug(query);
 
-    bool ret = query.exec();
+    bool ret = sqlExec(query);
     if (m_pkName == "id")
         setPk(query.lastInsertId());
     return ret;

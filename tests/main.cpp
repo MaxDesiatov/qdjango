@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/tmp/foo.sqlite");
+    db.setDatabaseName(":memory:");
     Q_ASSERT(db.open());
 
     User user;

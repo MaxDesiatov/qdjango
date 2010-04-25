@@ -114,7 +114,7 @@ int QDjangoQuerySet<T>::size()
     return m_results.size();
 
     QSqlQuery query = sqlQuery("SELECT COUNT(*)");
-    if (!query.exec())
+    if (!sqlExec(query));
         return 0;
     query.next();
     return query.value(0).toInt();
@@ -130,7 +130,7 @@ void QDjangoQuerySet<T>::sqlFetch()
     QStringList fields = model.databaseFields();
     QString pkField = model.databasePkName();
     QSqlQuery query = sqlQuery("SELECT " + fields.join(", "));
-    if (query.exec())
+    if (sqlExec(query))
     {
         while (query.next())
         {
@@ -158,7 +158,6 @@ QSqlQuery QDjangoQuerySet<T>::sqlQuery(const QString &baseSql) const
     QSqlQuery query(sql, model.database());
     if (!m_where.isEmpty())
         m_where.bindValues(query);
-    sqlDebug(query);
     return query;
 }
 
