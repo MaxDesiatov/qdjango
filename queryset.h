@@ -46,7 +46,7 @@ private:
 
     QDjangoWhere m_where;
     bool m_haveResults;
-    QList<T*> m_results;
+    QList< QMap<QString, QVariant> > m_properties;
 };
 
 template <class T>
@@ -64,7 +64,18 @@ template <class T>
 T *QDjangoQuerySet<T>::at(int index)
 {
     sqlFetch();
-    return m_results.at(index);
+
+    QMap<QString, QVariant> props = m_properties.at(index);
+    T *entry = new T;
+    QString pkField = entry->databasePkName();
+    foreach (const QString &key, props.keys())
+    {
+        if (key == pkField)
+            entry->setPk(props[key]);
+        else
+            entry->setProperty(key.toLatin1(), props[key]);
+    }
+    return entry;
 }
 
 template <class T>
@@ -110,7 +121,7 @@ template <class T>
 int QDjangoQuerySet<T>::size()
 {
     sqlFetch();
-    return m_results.size();
+    return m_properties.size();
 }
 
 template <class T>
@@ -136,15 +147,10 @@ void QDjangoQuerySet<T>::sqlFetch()
     {
         while (query.next())
         {
-            T *entry = new T;
+            QMap<QString, QVariant> props;
             for (int i = 0; i < fields.size(); ++i)
-            {
-                if (fields[i] == pkField)
-                    entry->setPk(query.value(i));
-                else
-                    entry->setProperty(fields[i].toLatin1(), query.value(i));
-            }
-            m_results.append(entry);
+                props.insert(fields[i], query.value(i));
+            m_properties.append(props);
         }
     }
     m_haveResults = true;
