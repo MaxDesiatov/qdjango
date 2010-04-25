@@ -26,6 +26,12 @@
 #include "queryset.h"
 
 template <class T>
+static QScriptValue querySetToString(QScriptContext *context, QScriptEngine *engine)
+{
+    return QString("QuerySet<%1>()").arg(T::staticMetaObject.className());
+}
+
+template <class T>
 static QScriptValue querySetAll(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
@@ -81,12 +87,12 @@ void qScriptRegisterModel(QScriptEngine *engine)
     querysetProto.setProperty("filter", engine->newFunction(querySetFilter<T>));
     querysetProto.setProperty("get", engine->newFunction(querySetGet<T>));
     querysetProto.setProperty("size", engine->newFunction(querySetSize<T>));
+    querysetProto.setProperty("toString", engine->newFunction(querySetToString<T>));
     engine->setDefaultPrototype(qMetaTypeId< QDjangoQuerySet<T> >(), querysetProto);
 
     QDjangoQuerySet<T> qs;
     QScriptValue value = engine->newQMetaObject(&T::staticMetaObject, engine->newFunction(newModel<T>));
     value.setProperty("objects", engine->toScriptValue(qs));
-    qDebug() << "name" << T::staticMetaObject.className();
     engine->globalObject().setProperty(T::staticMetaObject.className(), value);
 }
 
