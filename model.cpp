@@ -161,8 +161,6 @@ bool QDjangoModel::remove()
 
 bool QDjangoModel::save()
 {
-    const QMetaObject* meta = metaObject();
-
     QStringList fieldNames = databaseFields();
     fieldNames.removeAll(m_pkName);
 
