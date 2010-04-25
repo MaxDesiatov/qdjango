@@ -43,7 +43,6 @@ public:
 
 private:
     void sqlFetch(); 
-    QSqlQuery sqlQuery(const QString &baseSql) const;
 
     QDjangoWhere m_where;
     bool m_haveResults;
@@ -112,12 +111,6 @@ int QDjangoQuerySet<T>::size()
 {
     sqlFetch();
     return m_results.size();
-
-    QSqlQuery query = sqlQuery("SELECT COUNT(*)");
-    if (!sqlExec(query));
-        return 0;
-    query.next();
-    return query.value(0).toInt();
 }
 
 template <class T>
@@ -129,7 +122,16 @@ void QDjangoQuerySet<T>::sqlFetch()
     T model;
     QStringList fields = model.databaseFields();
     QString pkField = model.databasePkName();
-    QSqlQuery query = sqlQuery("SELECT " + fields.join(", "));
+
+    // build query
+    QString sql = "SELECT " + fields.join(", ") + " FROM " + model.databaseTable();
+    if (!m_where.isEmpty())
+        sql += " WHERE " + m_where.sql();
+    QSqlQuery query(sql, model.database());
+    if (!m_where.isEmpty())
+        m_where.bindValues(query);
+
+    // store results
     if (sqlExec(query))
     {
         while (query.next())
@@ -146,19 +148,6 @@ void QDjangoQuerySet<T>::sqlFetch()
         }
     }
     m_haveResults = true;
-}
-
-template <class T>
-QSqlQuery QDjangoQuerySet<T>::sqlQuery(const QString &baseSql) const
-{
-    T model;
-    QString sql = baseSql + " FROM " + model.databaseTable();
-    if (!m_where.isEmpty())
-        sql += " WHERE " + m_where.sql();
-    QSqlQuery query(sql, model.database());
-    if (!m_where.isEmpty())
-        m_where.bindValues(query);
-    return query;
 }
 
 #endif
