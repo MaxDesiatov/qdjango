@@ -51,7 +51,7 @@ bool sqlExec(QSqlQuery &query)
 }
 
 QDjangoModel::QDjangoModel(QObject *parent)
-    : QObject(parent), m_pkName("id")
+    : QObject(parent), m_pkName("id"), m_id(0)
 {
 }
 
@@ -168,9 +168,7 @@ bool QDjangoModel::save()
                       .arg(databaseTable(), m_pkName);
         QSqlQuery query(sql, *db);
         query.bindValue(":pk", pk());
-        if (!query.exec())
-            qWarning() << "Query failed" << sql << query.lastError();
-        if (query.next())
+        if (sqlExec(query) && query.next())
         {
             QStringList fieldAssign;
             foreach (const QString &name, fieldNames)
