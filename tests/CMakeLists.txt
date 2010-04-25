@@ -3,8 +3,8 @@ set(QT_USE_QTSQL 1)
 set(QT_USE_QTTEST 1)
 include(${QT_USE_FILE})
 
-set(models_SOURCES user.cpp)
-set(models_MOC_HEADERS user.h)
+set(models_SOURCES models.cpp)
+set(models_MOC_HEADERS models.h)
 
 qt4_wrap_cpp(models_MOC_SOURCES ${models_MOC_HEADERS})
 add_library(models STATIC ${models_SOURCES} ${models_MOC_SOURCES})

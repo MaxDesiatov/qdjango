@@ -10,7 +10,7 @@
 #include "where.h"
 
 #include "main.h"
-#include "user.h"
+#include "models.h"
 
 void TestModel::initTestCase()
 {

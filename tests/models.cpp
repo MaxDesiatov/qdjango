@@ -1,4 +1,4 @@
-#include "user.h"
+#include "models.h"
 
 QString User::username() const
 {
