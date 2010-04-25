@@ -130,11 +130,9 @@ void QDjangoQuerySet<T>::sqlFetch()
     if (m_haveResults)
         return;
 
+    // build query
     T model;
     QStringList fields = model.databaseFields();
-    QString pkField = model.databasePkName();
-
-    // build query
     QString sql = "SELECT " + fields.join(", ") + " FROM " + model.databaseTable();
     if (!m_where.isEmpty())
         sql += " WHERE " + m_where.sql();
