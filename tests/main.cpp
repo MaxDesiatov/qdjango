@@ -109,7 +109,7 @@ void TestModel::filterUsers()
 
     QDjangoQuerySet<User> qs;
 
-    qs = UserQuery.filter("foo", "bar");
+    qs = UserQuery.filter("username", "bar");
     QCOMPARE(qs.size(), 0);
 
     qs = UserQuery.filter("username", "foouser");
