@@ -11,10 +11,8 @@ qt4_wrap_cpp(models_MOC_SOURCES ${models_MOC_HEADERS})
 add_library(models STATIC ${models_SOURCES} ${models_MOC_SOURCES})
 
 set(qdjango-console_SOURCES
-    console.cpp
-    script.cpp)
+    console.cpp)
 
-add_definitions(-DQT_STATICPLUGIN)
 add_executable(qdjango-console ${qdjango-console_SOURCES})
 target_link_libraries(qdjango-console qdjango models ${QT_QTSQL_LIBRARY} ${QT_QTSCRIPT_LIBRARY})
 
@@ -26,3 +24,4 @@ set(qdjango-tests_MOC_HEADERS
 qt4_wrap_cpp(qdjango-tests_MOC_SOURCES ${qdjango-tests_MOC_HEADERS})
 add_executable(qdjango-tests ${qdjango-tests_SOURCES} ${qdjango-tests_MOC_SOURCES})
 target_link_libraries(qdjango-tests qdjango models ${QT_QTSQL_LIBRARY} ${QT_QTTEST_LIBRARY})
+
