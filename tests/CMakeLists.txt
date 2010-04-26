@@ -10,19 +10,19 @@ set(models_MOC_HEADERS models.h)
 qt4_wrap_cpp(models_MOC_SOURCES ${models_MOC_HEADERS})
 add_library(models STATIC ${models_SOURCES} ${models_MOC_SOURCES})
 
-set(console_SOURCES
+set(qdjango-console_SOURCES
     console.cpp
     script.cpp)
 
 add_definitions(-DQT_STATICPLUGIN)
-add_executable(console ${console_SOURCES} ${console_MOC_SOURCES})
-target_link_libraries(console qdjango models ${QT_QTSQL_LIBRARY} ${QT_QTSCRIPT_LIBRARY})
+add_executable(qdjango-console ${qdjango-console_SOURCES})
+target_link_libraries(qdjango-console qdjango models ${QT_QTSQL_LIBRARY} ${QT_QTSCRIPT_LIBRARY})
 
-set(tester_SOURCES
+set(qdjango-tests_SOURCES
     main.cpp)
-set(tester_MOC_HEADERS
+set(qdjango-tests_MOC_HEADERS
     main.h)
 
-qt4_wrap_cpp(tester_MOC_SOURCES ${tester_MOC_HEADERS})
-add_executable(tester ${tester_SOURCES} ${tester_MOC_SOURCES})
-target_link_libraries(tester qdjango models ${QT_QTSQL_LIBRARY} ${QT_QTTEST_LIBRARY})
+qt4_wrap_cpp(qdjango-tests_MOC_SOURCES ${qdjango-tests_MOC_HEADERS})
+add_executable(qdjango-tests ${qdjango-tests_SOURCES} ${qdjango-tests_MOC_SOURCES})
+target_link_libraries(qdjango-tests qdjango models ${QT_QTSQL_LIBRARY} ${QT_QTTEST_LIBRARY})
