@@ -26,17 +26,19 @@
 #include "queryset.h"
 
 template <class T>
-static QScriptValue querySetToString(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    return QString("QuerySet<%1>(%2)").arg(T::staticMetaObject.className(), qs.where().sql());
-}
-
-template <class T>
 static QScriptValue querySetAll(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
     return engine->toScriptValue(qs.all());
+}
+
+template <class T>
+static QScriptValue querySetAt(QScriptContext *context, QScriptEngine *engine)
+{
+    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
+    //QDjangoQuerySet<T> qs = context->thisObject().toVariant().value< QDjangoQuerySet<T> >();
+    int index = context->argument(0).toInteger();
+    return engine->newQObject(qs.at(index), QScriptEngine::ScriptOwnership);
 }
 
 template <class T>
@@ -74,6 +76,13 @@ static QScriptValue querySetSize(QScriptContext *context, QScriptEngine *engine)
 }
 
 template <class T>
+static QScriptValue querySetToString(QScriptContext *context, QScriptEngine *engine)
+{
+    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
+    return QString("QuerySet<%1>(%2)").arg(T::staticMetaObject.className(), qs.where().sql());
+}
+
+template <class T>
 static QScriptValue newModel(QScriptContext *context, QScriptEngine *engine)
 {
     return engine->newQObject(new T, QScriptEngine::ScriptOwnership);
@@ -86,6 +95,7 @@ void qScriptRegisterModel(QScriptEngine *engine)
 
     QScriptValue querysetProto = engine->newObject();
     querysetProto.setProperty("all", engine->newFunction(querySetAll<T>));
+    querysetProto.setProperty("at", engine->newFunction(querySetAt<T>));
     querysetProto.setProperty("exclude", engine->newFunction(querySetExclude<T>));
     querysetProto.setProperty("filter", engine->newFunction(querySetFilter<T>));
     querysetProto.setProperty("get", engine->newFunction(querySetGet<T>));
