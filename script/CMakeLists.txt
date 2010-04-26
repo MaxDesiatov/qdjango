@@ -9,7 +9,7 @@ add_definitions(-DQT_SHARED)
 add_definitions(-DQT_NO_DEBUG)
 
 add_library(qtscript_qdjango SHARED qdjango.cpp)
-target_link_libraries(qtscript_qdjango qdjango models ${QT_QTSCRIPT_LIBRARY})
+target_link_libraries(qtscript_qdjango qdjango qdjango-models ${QT_QTSCRIPT_LIBRARY})
 
 install(TARGETS
     qtscript_qdjango
