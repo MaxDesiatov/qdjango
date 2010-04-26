@@ -1,5 +1,5 @@
 /*
- * xmpp-share-server
+ * QDjango
  * Copyright (C) 2010 Bolloré telecom
  * See AUTHORS file for a full list of contributors.
  * 

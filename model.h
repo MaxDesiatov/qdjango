@@ -29,6 +29,12 @@ class QSqlQuery;
 void sqlDebug(const QSqlQuery &query);
 bool sqlExec(QSqlQuery &query);
 
+template <class T>
+void qDjangoRegisterModel()
+{
+
+}
+
 class QDjangoModel : public QObject
 {
     Q_OBJECT
