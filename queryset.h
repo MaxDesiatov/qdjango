@@ -40,6 +40,7 @@ public:
     T *get(const QString &key, const QVariant &value) const;
     T *at(int index);
     int size();
+    QDjangoWhere where() const { return m_where; };
 
 private:
     void sqlFetch(); 
