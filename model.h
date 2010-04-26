@@ -69,8 +69,6 @@ public:
 
     QString databaseTable() const;
     QString databasePkName() const;
-    void setPrimaryKey(const QString &key);
-
     QStringList databaseFields() const;
 
 public slots:
