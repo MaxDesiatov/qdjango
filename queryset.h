@@ -37,8 +37,8 @@ public:
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
     QDjangoQuerySet filter(const QString &key, const QVariant &value) const;
+    T *get(const QString &key, const QVariant &value) const;
     T *at(int index);
-    T *get(const QString &key, const QVariant &value);
     int size();
 
 private:
@@ -112,7 +112,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant
 }
 
 template <class T>
-T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value)
+T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value) const
 {
     QDjangoQuerySet<T> qs = filter(key, value);
     return qs.size() == 1 ? qs.at(0) : 0;
@@ -137,7 +137,7 @@ void QDjangoQuerySet<T>::sqlFetch()
     QString sql = "SELECT " + fields.join(", ") + " FROM " + model.databaseTable();
     if (!m_where.isEmpty())
         sql += " WHERE " + m_where.sql();
-    QSqlQuery query(sql, model.database());
+    QSqlQuery query(sql, QDjangoModel::database());
     if (!m_where.isEmpty())
         m_where.bindValues(query);
 
