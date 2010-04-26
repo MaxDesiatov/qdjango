@@ -54,6 +54,8 @@ template <class T>
 QDjangoQuerySet<T>::QDjangoQuerySet(const QDjangoModel *model)
     : m_model(model), m_haveResults(false)
 {
+    if (!model)
+        m_model = QDjango::model(T::staticMetaObject.className());
 }
 
 template <class T>
@@ -132,9 +134,8 @@ void QDjangoQuerySet<T>::sqlFetch()
         return;
 
     // build query
-    T model;
-    QStringList fields = model.databaseFields();
-    QString sql = "SELECT " + fields.join(", ") + " FROM " + model.databaseTable();
+    QStringList fields = m_model->databaseFields();
+    QString sql = "SELECT " + fields.join(", ") + " FROM " + m_model->databaseTable();
     if (!m_where.isEmpty())
         sql += " WHERE " + m_where.sql();
     QSqlQuery query(sql, QDjangoModel::database());

@@ -90,7 +90,7 @@ void qScriptRegisterModel(QScriptEngine *engine)
     querysetProto.setProperty("toString", engine->newFunction(querySetToString<T>));
     engine->setDefaultPrototype(qMetaTypeId< QDjangoQuerySet<T> >(), querysetProto);
 
-    QDjangoQuerySet<T> qs(Q_MODEL(T));
+    QDjangoQuerySet<T> qs;
     QScriptValue value = engine->newQMetaObject(&T::staticMetaObject, engine->newFunction(newModel<T>));
     value.setProperty("objects", engine->toScriptValue(qs));
     engine->globalObject().setProperty(T::staticMetaObject.className(), value);
