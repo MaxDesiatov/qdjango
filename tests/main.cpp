@@ -42,6 +42,7 @@ void TestModel::initTestCase()
 
 void TestModel::createUser()
 {
+    const QDjangoQuerySet<User> users(Q_MODEL(User));
     User *other;
 
     // create
@@ -49,9 +50,9 @@ void TestModel::createUser()
     user.setUsername("foouser");
     user.setPassword("foopass");
     QCOMPARE(user.save(), true);
-    QCOMPARE(QDjangoQuerySet<User>().size(), 1);
+    QCOMPARE(users.all().size(), 1);
 
-    other = QDjangoQuerySet<User>().get("username", "foouser");
+    other = users.get("username", "foouser");
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QString::fromLatin1("foouser"));
     QCOMPARE(other->password(), QString::fromLatin1("foopass"));
@@ -59,9 +60,9 @@ void TestModel::createUser()
     // update
     user.setPassword("foopass2");
     QCOMPARE(user.save(), true);
-    QCOMPARE(QDjangoQuerySet<User>().size(), 1);
+    QCOMPARE(users.all().size(), 1);
 
-    other = QDjangoQuerySet<User>().get("username", "foouser");
+    other = users.get("username", "foouser");
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QString::fromLatin1("foouser"));
     QCOMPARE(other->password(), QString::fromLatin1("foopass2"));
@@ -70,9 +71,9 @@ void TestModel::createUser()
     user2.setUsername("baruser");
     user2.setPassword("barpass");
     QCOMPARE(user2.save(), true);
-    QCOMPARE(QDjangoQuerySet<User>().size(), 2);
+    QCOMPARE(users.all().size(), 2);
 
-    other = QDjangoQuerySet<User>().get("username", "baruser");
+    other = users.get("username", "baruser");
     QCOMPARE(other->pk(), QVariant(2));
     QCOMPARE(other->username(), QString::fromLatin1("baruser"));
     QCOMPARE(other->password(), QString::fromLatin1("barpass"));
@@ -80,21 +81,25 @@ void TestModel::createUser()
 
 void TestModel::removeUser()
 {
+    const QDjangoQuerySet<User> users(Q_MODEL(User));
+
     User user;
     user.setUsername("foouser");
     user.setPassword("foopass");
 
     bool result = user.save();
     QCOMPARE(result, true);
-    QCOMPARE(QDjangoQuerySet<User>().size(), 1);
+    QCOMPARE(users.all().size(), 1);
 
     result = user.remove();
     QCOMPARE(result, true);
-    QCOMPARE(QDjangoQuerySet<User>().size(), 0);
+    QCOMPARE(users.all().size(), 0);
 }
 
 void TestModel::getUser()
 {
+    const QDjangoQuerySet<User> users(Q_MODEL(User));
+
     User foo;
     foo.setUsername("foouser");
     foo.setPassword("foopass");
@@ -105,16 +110,17 @@ void TestModel::getUser()
     bar.setPassword("barpass");
     bar.save();
 
-    QCOMPARE(QDjangoQuerySet<User>().size(), 2);
-    QCOMPARE(QDjangoQuerySet<User>().all().size(), 2);
+    QCOMPARE(users.all().size(), 2);
 
-    User *other = QDjangoQuerySet<User>().get("username", "foouser");
+    User *other = users.get("username", "foouser");
     QCOMPARE(other->username(), QString::fromLatin1("foouser"));
     QCOMPARE(other->password(), QString::fromLatin1("foopass"));
 }
 
 void TestModel::filterUsers()
 {
+    const QDjangoQuerySet<User> users(Q_MODEL(User));
+
     User foo;
     foo.setUsername("foouser");
     foo.setPassword("foopass");
@@ -125,15 +131,12 @@ void TestModel::filterUsers()
     bar.setPassword("barpass");
     bar.save();
 
-    QDjangoQuerySet<User> UserQuery;
-    QCOMPARE(UserQuery.size(), 2);
+    QCOMPARE(users.all().size(), 2);
 
-    QDjangoQuerySet<User> qs;
-
-    qs = UserQuery.filter("username", "bar");
+    QDjangoQuerySet<User> qs = users.filter("username", "bar");
     QCOMPARE(qs.size(), 0);
 
-    qs = UserQuery.filter("username", "foouser");
+    qs = users.filter("username", "foouser");
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QCOMPARE(other->username(), QString::fromLatin1("foouser"));
