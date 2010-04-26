@@ -26,6 +26,7 @@
 #include "model.h"
 #include "queryset.h"
 
+static QMap<QString, QDjangoModel*> registry;
 static QSqlDatabase *db = 0;
 
 void sqlDebug(const QSqlQuery &query)
@@ -48,6 +49,21 @@ bool sqlExec(QSqlQuery &query)
         return false;
     }
     return true;
+}
+
+bool QDjango::registerModel(QDjangoModel *model)
+{
+    const QString name = model->metaObject()->className();
+    if (registry.contains(name))
+        return false;
+    qDebug() << "Registering model" << name;
+    registry.insert(name, model);
+    return true;
+}
+
+bool QDjango::isRegistered(const QString &modelName)
+{
+    return registry.contains(modelName);
 }
 
 QDjangoModel::QDjangoModel(QObject *parent)

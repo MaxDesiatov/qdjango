@@ -29,10 +29,22 @@ class QSqlQuery;
 void sqlDebug(const QSqlQuery &query);
 bool sqlExec(QSqlQuery &query);
 
+class QDjango
+{
+public:
+    static bool registerModel(QDjangoModel *model);
+    static bool isRegistered(const QString &modelName);
+};
+
 template <class T>
 void qDjangoRegisterModel()
 {
-
+    if (!QDjango::isRegistered(T::staticMetaObject.className()))
+    {
+        T *model = new T;
+        if (!QDjango::registerModel(model))
+            delete model;
+    }
 }
 
 class QDjangoModel : public QObject
