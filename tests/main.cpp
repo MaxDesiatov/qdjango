@@ -42,7 +42,7 @@ void TestModel::initTestCase()
 
 void TestModel::createUser()
 {
-    const QDjangoQuerySet<User> users(Q_MODEL(User));
+    const QDjangoQuerySet<User> users;
     User *other;
 
     // create
@@ -81,7 +81,7 @@ void TestModel::createUser()
 
 void TestModel::removeUser()
 {
-    const QDjangoQuerySet<User> users(Q_MODEL(User));
+    const QDjangoQuerySet<User> users;
 
     User user;
     user.setUsername("foouser");
@@ -98,7 +98,7 @@ void TestModel::removeUser()
 
 void TestModel::getUser()
 {
-    const QDjangoQuerySet<User> users(Q_MODEL(User));
+    const QDjangoQuerySet<User> users;
 
     User foo;
     foo.setUsername("foouser");
@@ -119,7 +119,7 @@ void TestModel::getUser()
 
 void TestModel::filterUsers()
 {
-    const QDjangoQuerySet<User> users(Q_MODEL(User));
+    const QDjangoQuerySet<User> users;
 
     User foo;
     foo.setUsername("foouser");
