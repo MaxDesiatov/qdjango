@@ -17,12 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QtScript/QScriptExtensionPlugin>
-#include <QtScript/QScriptValue>
-#include <QtScript/QScriptEngine>
+#include <QDebug>
+#include <QScriptExtensionPlugin>
+#include <QScriptValue>
+#include <QScriptEngine>
 
 #include "script.h"
-#include "models.h"
+#include "tests/models.h"
 
 Q_DECLARE_METATYPE(QDjangoQuerySet<User>)
 
@@ -49,4 +50,5 @@ void QDjangoScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
     }
 }
 
+Q_EXPORT_PLUGIN2(qtscript_qdjango, QDjangoScriptPlugin)
 Q_EXPORT_STATIC_PLUGIN2(qtscript_qdjango, QDjangoScriptPlugin)

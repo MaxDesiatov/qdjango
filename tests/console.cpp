@@ -19,6 +19,8 @@
 
 #include <cstdlib>
 
+#include <QDebug>
+#include <QStringList>
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QScriptEngine>
@@ -28,8 +30,6 @@
 #include <QtPlugin>
 
 #include "model.h"
-
-Q_IMPORT_PLUGIN(qtscript_qdjango)
 
 static bool wantsToQuit;
 
@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
 
     /* Run interactive shell */ 
     QScriptEngine *eng = new QScriptEngine();
+    qDebug() << "Available extensions: " << eng->availableExtensions();
     eng->importExtension("qdjango");
     interactive(eng);
 
