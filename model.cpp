@@ -67,9 +67,9 @@ bool QDjango::registerModel(QDjangoModel *model)
     return true;
 }
 
-bool QDjango::isRegistered(const QString &modelName)
+const QDjangoModel *QDjango::model(const QString &name)
 {
-    return registry.contains(modelName);
+    return registry.value(name);
 }
 
 QDjangoModel::QDjangoModel(QObject *parent)

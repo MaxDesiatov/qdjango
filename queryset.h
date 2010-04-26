@@ -31,7 +31,7 @@ template <class T>
     class QDjangoQuerySet
 {
 public:
-    QDjangoQuerySet();
+    QDjangoQuerySet(const QDjangoModel *model = 0);
     ~QDjangoQuerySet();
 
     QDjangoQuerySet all() const;
@@ -44,14 +44,15 @@ public:
 private:
     void sqlFetch(); 
 
+    const QDjangoModel *m_model;
     QDjangoWhere m_where;
     bool m_haveResults;
     QList< QMap<QString, QVariant> > m_properties;
 };
 
 template <class T>
-QDjangoQuerySet<T>::QDjangoQuerySet()
-    : m_haveResults(false)
+QDjangoQuerySet<T>::QDjangoQuerySet(const QDjangoModel *model)
+    : m_model(model), m_haveResults(false)
 {
 }
 
@@ -81,7 +82,7 @@ T *QDjangoQuerySet<T>::at(int index)
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
-    QDjangoQuerySet<T> other;
+    QDjangoQuerySet<T> other(m_model);
     other.m_where = m_where;
     return other;
 }
@@ -90,7 +91,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVariant &value) const
 {
     QDjangoWhere q(key, QDjangoWhere::NotEquals, value);
-    QDjangoQuerySet<T> other;
+    QDjangoQuerySet<T> other(m_model);
     if (m_where.isEmpty())
         other.m_where = q;
     else
@@ -102,7 +103,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant &value) const
 {
     QDjangoWhere q(key, QDjangoWhere::Equals, value);
-    QDjangoQuerySet<T> other;
+    QDjangoQuerySet<T> other(m_model);
     if (m_where.isEmpty())
         other.m_where = q;
     else

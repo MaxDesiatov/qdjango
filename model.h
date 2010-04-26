@@ -34,14 +34,14 @@ class QDjango
 public:
     static void createTables();
 
+    static const QDjangoModel *model(const QString &name);
     static bool registerModel(QDjangoModel *model);
-    static bool isRegistered(const QString &modelName);
 };
 
 template <class T>
 void qDjangoRegisterModel()
 {
-    if (!QDjango::isRegistered(T::staticMetaObject.className()))
+    if (!QDjango::model(T::staticMetaObject.className()))
     {
         T *model = new T;
         if (!QDjango::registerModel(model))
