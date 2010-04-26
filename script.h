@@ -28,7 +28,8 @@
 template <class T>
 static QScriptValue querySetToString(QScriptContext *context, QScriptEngine *engine)
 {
-    return QString("QuerySet<%1>()").arg(T::staticMetaObject.className());
+    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
+    return QString("QuerySet<%1>(%2)").arg(T::staticMetaObject.className(), qs.where().sql());
 }
 
 template <class T>
@@ -81,6 +82,8 @@ static QScriptValue newModel(QScriptContext *context, QScriptEngine *engine)
 template <class T>
 void qScriptRegisterModel(QScriptEngine *engine)
 {
+    qDjangoRegisterModel<T>();
+
     QScriptValue querysetProto = engine->newObject();
     querysetProto.setProperty("all", engine->newFunction(querySetAll<T>));
     querysetProto.setProperty("exclude", engine->newFunction(querySetExclude<T>));
