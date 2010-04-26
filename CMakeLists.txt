@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 find_package(Qt4 REQUIRED)
 
 set(QT_DONT_USE_QTGUI 1)
+set(QT_USE_QTSCRIPT 1)
 set(QT_USE_QTSQL 1)
 include(${QT_USE_FILE})
 
@@ -24,7 +25,10 @@ set(qdjango_MOC_HEADERS
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
 add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
 set_target_properties(qdjango PROPERTIES SOVERSION 0)
-target_link_libraries(qdjango ${QT_LIBRARIES})
+target_link_libraries(qdjango ${QT_QTSQL_LIBRARY})
+
+add_executable(qdjango-console console.cpp)
+target_link_libraries(qdjango-console qdjango ${QT_QTSQL_LIBRARY} ${QT_QTSCRIPT_LIBRARY})
 
 add_subdirectory(script)
 add_subdirectory(tests)
