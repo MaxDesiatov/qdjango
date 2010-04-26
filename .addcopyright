@@ -1,6 +1,7 @@
 {
 'directories': [
     '.',
+    'tests',
 ],
 
 'license': """QDjango
