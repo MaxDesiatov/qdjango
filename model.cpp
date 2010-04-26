@@ -51,6 +51,12 @@ bool sqlExec(QSqlQuery &query)
     return true;
 }
 
+void QDjango::createTables()
+{
+    foreach (const QString &key, registry.keys())
+        registry[key]->createTable();
+}
+
 bool QDjango::registerModel(QDjangoModel *model)
 {
     const QString name = model->metaObject()->className();

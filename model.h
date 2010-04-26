@@ -32,6 +32,8 @@ bool sqlExec(QSqlQuery &query);
 class QDjango
 {
 public:
+    static void createTables();
+
     static bool registerModel(QDjangoModel *model);
     static bool isRegistered(const QString &modelName);
 };
