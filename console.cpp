@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <getopt.h>
 #include <cstdlib>
 
 #include <QDebug>
@@ -33,6 +34,13 @@
 
 static bool wantsToQuit;
 
+static QScriptValue qtscript_load(QScriptContext *ctx, QScriptEngine *eng)
+{
+    QString name = ctx->argument(0).toString();
+    eng->importExtension(name);
+    return eng->undefinedValue();
+}
+
 static QScriptValue qtscript_quit(QScriptContext *ctx, QScriptEngine *eng)
 {
     Q_UNUSED(ctx);
@@ -43,9 +51,10 @@ static QScriptValue qtscript_quit(QScriptContext *ctx, QScriptEngine *eng)
 static void interactive(QScriptEngine *eng)
 {
     QScriptValue global = eng->globalObject();
+    QScriptValue loadFunction = eng->newFunction(qtscript_load);
     QScriptValue quitFunction = eng->newFunction(qtscript_quit);
-    if (!global.property(QLatin1String("exit")).isValid())
-        global.setProperty(QLatin1String("exit"), quitFunction);
+    if (!global.property(QLatin1String("load")).isValid())
+        global.setProperty(QLatin1String("load"), loadFunction);
     if (!global.property(QLatin1String("quit")).isValid())
         global.setProperty(QLatin1String("quit"), quitFunction);
     wantsToQuit = false;
@@ -57,6 +66,10 @@ static void interactive(QScriptEngine *eng)
     const char *prompt = qscript_prompt;
 
     QString code;
+
+    printf("Commands:\n"
+           "\tquit() : exits console \n"
+           "\tload() : loads a QtScript extension\n");
 
     forever {
         QString line;
@@ -95,15 +108,25 @@ static void interactive(QScriptEngine *eng)
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
-    {
-        fprintf(stderr, "No database specified\n");
-        return EXIT_FAILURE;
-    }
-    const QString databaseName(argv[1]);
+    int c;
+    QString databaseName(":memory:");
 
     /* Create application */
     QCoreApplication app(argc, argv);
+
+    /* Parse command line arguments */
+    while ((c = getopt(argc, argv, "d:hp:")) != -1)
+    {
+        if (c == 'h')
+        {
+            fprintf(stderr, "Usage: qdjango-console -p <plugins_path> -d <database_name>\n");
+            return EXIT_SUCCESS;
+        } else if (c == 'd') {
+            databaseName = QString::fromLocal8Bit(optarg);
+        } else if (c == 'p') {
+            app.setLibraryPaths(app.libraryPaths() << QString::fromLocal8Bit(optarg)); 
+        }
+    }
 
     /* Open database */
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -118,7 +141,6 @@ int main(int argc, char *argv[])
     /* Run interactive shell */ 
     QScriptEngine *eng = new QScriptEngine();
     qDebug() << "Available extensions: " << eng->availableExtensions();
-    eng->importExtension("qdjango");
     interactive(eng);
 
     return EXIT_SUCCESS;
