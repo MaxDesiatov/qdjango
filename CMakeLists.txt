@@ -25,7 +25,7 @@ set(qdjango_MOC_HEADERS
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
 add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
 set_target_properties(qdjango PROPERTIES SOVERSION 0)
-target_link_libraries(qdjango ${QT_QTSQL_LIBRARY})
+target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_executable(qdjango-console console.cpp)
 target_link_libraries(qdjango-console qdjango ${QT_QTSQL_LIBRARY} ${QT_QTSCRIPT_LIBRARY})
