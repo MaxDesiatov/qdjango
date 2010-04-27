@@ -61,9 +61,6 @@ public:
     QVariant pk() const;
     void setPk(const QVariant &pk);
 
-    bool createTable() const;
-    bool dropTable() const;
-
     static QSqlDatabase &database();
     static void setDatabase(QSqlDatabase *database);
 
@@ -72,6 +69,9 @@ public:
     QStringList databaseFields() const;
 
 public slots:
+    bool createTable() const;
+    bool dropTable() const;
+
     bool remove();
     bool save();
 
