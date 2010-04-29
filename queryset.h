@@ -31,7 +31,7 @@ template <class T>
     class QDjangoQuerySet
 {
 public:
-    QDjangoQuerySet(const QDjangoModel *model = 0);
+    QDjangoQuerySet();
     ~QDjangoQuerySet();
 
     QDjangoQuerySet all() const;
@@ -45,18 +45,15 @@ public:
 private:
     void sqlFetch(); 
 
-    const QDjangoModel *m_model;
     QDjangoWhere m_where;
     bool m_haveResults;
     QList< QMap<QString, QVariant> > m_properties;
 };
 
 template <class T>
-QDjangoQuerySet<T>::QDjangoQuerySet(const QDjangoModel *model)
-    : m_model(model), m_haveResults(false)
+QDjangoQuerySet<T>::QDjangoQuerySet()
+    : m_haveResults(false)
 {
-    if (!model)
-        m_model = QDjango::model(T::staticMetaObject.className());
 }
 
 template <class T>
@@ -85,7 +82,7 @@ T *QDjangoQuerySet<T>::at(int index)
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
-    QDjangoQuerySet<T> other(m_model);
+    QDjangoQuerySet<T> other;
     other.m_where = m_where;
     return other;
 }
@@ -94,7 +91,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVariant &value) const
 {
     QDjangoWhere q(key, QDjangoWhere::NotEquals, value);
-    QDjangoQuerySet<T> other(m_model);
+    QDjangoQuerySet<T> other;
     if (m_where.isEmpty())
         other.m_where = q;
     else
@@ -106,7 +103,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant &value) const
 {
     QDjangoWhere q(key, QDjangoWhere::Equals, value);
-    QDjangoQuerySet<T> other(m_model);
+    QDjangoQuerySet<T> other;
     if (m_where.isEmpty())
         other.m_where = q;
     else
@@ -135,8 +132,9 @@ void QDjangoQuerySet<T>::sqlFetch()
         return;
 
     // build query
-    QStringList fields = m_model->databaseFields();
-    QString sql = "SELECT " + fields.join(", ") + " FROM " + m_model->databaseTable();
+    T model;
+    QStringList fields = model.databaseFields();
+    QString sql = "SELECT " + fields.join(", ") + " FROM " + model.databaseTable();
     if (!m_where.isEmpty())
         sql += " WHERE " + m_where.sql();
     QSqlQuery query(sql, QDjangoModel::database());
