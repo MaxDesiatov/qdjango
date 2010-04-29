@@ -73,7 +73,7 @@ const QDjangoModel *QDjango::model(const QString &name)
 }
 
 QDjangoModel::QDjangoModel(QObject *parent)
-    : QObject(parent), m_pkName("id"), m_id(0)
+    : QObject(parent), m_id(0), m_pkName("id")
 {
 }
 
