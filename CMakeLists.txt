@@ -28,7 +28,7 @@ set_target_properties(qdjango PROPERTIES SOVERSION 0)
 target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_executable(qdjango-console console.cpp)
-target_link_libraries(qdjango-console qdjango ${QT_QTSQL_LIBRARY} ${QT_QTSCRIPT_LIBRARY})
+target_link_libraries(qdjango-console qdjango ${QT_LIBRARIES})
 
 add_subdirectory(script)
 add_subdirectory(tests)
