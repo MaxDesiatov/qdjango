@@ -42,6 +42,7 @@ void sqlDebug(const QSqlQuery &query)
 
 bool sqlExec(QSqlQuery &query)
 {
+#ifdef QDJANGO_DEBUG_SQL
     sqlDebug(query);
     if (!query.exec())
     {
@@ -49,6 +50,9 @@ bool sqlExec(QSqlQuery &query)
         return false;
     }
     return true;
+#else
+    return query.exec();
+#endif
 }
 
 void QDjango::createTables()
