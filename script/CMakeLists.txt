@@ -11,7 +11,7 @@ add_definitions(-DQT_NO_DEBUG)
 add_library(qtscript_qdjango SHARED qdjango.cpp)
 target_link_libraries(qtscript_qdjango qdjango qdjango-models ${QT_QTSCRIPT_LIBRARY})
 
-install(TARGETS
-    qtscript_qdjango
-	LIBRARY DESTINATION ${PLUGIN_INSTALL_DIR}/script
-	RUNTIME DESTINATION ${PLUGIN_INSTALL_DIR}/script)
+#install(TARGETS
+#    qtscript_qdjango
+#	LIBRARY DESTINATION ${PLUGIN_INSTALL_DIR}/script
+#	RUNTIME DESTINATION ${PLUGIN_INSTALL_DIR}/script)
