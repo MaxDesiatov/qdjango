@@ -27,7 +27,7 @@
 #include "queryset.h"
 
 static QMap<QString, QDjangoModel*> registry;
-static QSqlDatabase *db = 0;
+static QSqlDatabase globalDb;
 
 void sqlDebug(const QSqlQuery &query)
 {
@@ -97,18 +97,19 @@ void QDjangoModel::setPk(const QVariant &pk)
         setProperty(m_pkName.toLatin1(), pk);
 }
 
-QSqlDatabase &QDjangoModel::database()
+QSqlDatabase QDjangoModel::database()
 {
-    return *db;
+    return globalDb;
 }
 
-void QDjangoModel::setDatabase(QSqlDatabase *database)
+void QDjangoModel::setDatabase(QSqlDatabase database)
 {
-    db = database;
+    globalDb = database;
 }
 
 bool QDjangoModel::createTable() const
 {
+    QSqlDatabase db = database();
     const QMetaObject* meta = metaObject();
 
     QStringList propSql;
@@ -129,7 +130,7 @@ bool QDjangoModel::createTable() const
 
     // create table
     QString sql = QString("CREATE TABLE %1 (%2)").arg(databaseTable(), propSql.join(", "));
-    QSqlQuery createQuery(sql, *db);
+    QSqlQuery createQuery(sql, db);
     if (!sqlExec(createQuery))
         return false;
 
@@ -138,7 +139,7 @@ bool QDjangoModel::createTable() const
     {
         QString indexName = m_pkName;
         sql = QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, databaseTable(), m_pkName);
-        QSqlQuery indexQuery(sql, *db);
+        QSqlQuery indexQuery(sql, db);
         if (!sqlExec(indexQuery))
             return false;
     }
@@ -148,7 +149,7 @@ bool QDjangoModel::createTable() const
 bool QDjangoModel::dropTable() const
 {
     QString sql = QString("DROP TABLE %1").arg(databaseTable());
-    QSqlQuery query(sql, *db);
+    QSqlQuery query(sql, database());
     return sqlExec(query);
 }
 
@@ -178,13 +179,14 @@ bool QDjangoModel::remove()
 {
     QString sql = QString("DELETE FROM %1 WHERE %2 = :pk")
                   .arg(databaseTable(), m_pkName);
-    QSqlQuery query(sql, *db);
+    QSqlQuery query(sql, database());
     query.bindValue(":pk", pk());
     return sqlExec(query);
 }
 
 bool QDjangoModel::save()
 {
+    QSqlDatabase db = database();
     QStringList fieldNames = databaseFields();
     fieldNames.removeAll(m_pkName);
 
@@ -192,7 +194,7 @@ bool QDjangoModel::save()
     {
         QString sql = QString("SELECT 1 AS a FROM %1 WHERE %2 = :pk")
                       .arg(databaseTable(), m_pkName);
-        QSqlQuery query(sql, *db);
+        QSqlQuery query(sql, db);
         query.bindValue(":pk", pk());
         if (sqlExec(query) && query.next())
         {
@@ -202,7 +204,7 @@ bool QDjangoModel::save()
 
             QString sql = QString("UPDATE %1 SET %2 WHERE %3 = :pk")
                   .arg(databaseTable(), fieldAssign.join(", "), m_pkName);
-            QSqlQuery query(sql, *db);
+            QSqlQuery query(sql, db);
             foreach (const QString &name, fieldNames)
                 query.bindValue(":" + name, property(name.toLatin1()));
             query.bindValue(":pk", pk());
@@ -217,7 +219,7 @@ bool QDjangoModel::save()
 
     QString sql = QString("INSERT INTO %1 (%2) VALUES(%3)")
                   .arg(databaseTable(), fieldNames.join(", "), fieldHolders.join(", "));
-    QSqlQuery query(sql, *db);
+    QSqlQuery query(sql, db);
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
 
