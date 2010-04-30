@@ -39,3 +39,33 @@ void User::setPassword(const QString &password)
     m_password = password;
 }
 
+QString Group::name() const
+{
+    return m_name;
+}
+
+void Group::setName(const QString &name)
+{
+    m_name = name;
+}
+
+int UserGroups::userId() const
+{
+    return m_userId;
+}
+
+void UserGroups::setUserId(int userId)
+{
+    m_userId = userId;
+}
+
+int UserGroups::groupId() const
+{
+    return m_groupId;
+}
+
+void UserGroups::setGroupId(int groupId)
+{
+    m_groupId = groupId;
+}
+

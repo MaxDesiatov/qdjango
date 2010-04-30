@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
 
     // declare models
     qDjangoRegisterModel<User>();
+    qDjangoRegisterModel<Group>();
 
     TestWhere testQuery;
     QTest::qExec(&testQuery);

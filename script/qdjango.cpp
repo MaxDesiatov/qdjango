@@ -26,6 +26,7 @@
 #include "tests/models.h"
 
 Q_DECLARE_METATYPE(QDjangoQuerySet<User>)
+Q_DECLARE_METATYPE(QDjangoQuerySet<Group>)
 
 class QDjangoScriptPlugin : public QScriptExtensionPlugin
 {
@@ -47,6 +48,7 @@ void QDjangoScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
     {
         QScriptValue extensionObject = engine->globalObject();
         qScriptRegisterModel<User>(engine);
+        qScriptRegisterModel<Group>(engine);
     }
 }
 
