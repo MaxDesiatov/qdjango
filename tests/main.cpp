@@ -36,8 +36,7 @@
 void TestModel::initTestCase()
 {
     User user;
-    bool result = user.createTable();
-//    QCOMPARE(result, true);
+    user.createTable();
 }
 
 void TestModel::createUser()
@@ -54,8 +53,8 @@ void TestModel::createUser()
 
     other = users.get("username", "foouser");
     QCOMPARE(other->pk(), QVariant(1));
-    QCOMPARE(other->username(), QString::fromLatin1("foouser"));
-    QCOMPARE(other->password(), QString::fromLatin1("foopass"));
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
 
     // update
     user.setPassword("foopass2");
@@ -64,8 +63,8 @@ void TestModel::createUser()
 
     other = users.get("username", "foouser");
     QCOMPARE(other->pk(), QVariant(1));
-    QCOMPARE(other->username(), QString::fromLatin1("foouser"));
-    QCOMPARE(other->password(), QString::fromLatin1("foopass2"));
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass2"));
 
     User user2;
     user2.setUsername("baruser");
@@ -75,8 +74,8 @@ void TestModel::createUser()
 
     other = users.get("username", "baruser");
     QCOMPARE(other->pk(), QVariant(2));
-    QCOMPARE(other->username(), QString::fromLatin1("baruser"));
-    QCOMPARE(other->password(), QString::fromLatin1("barpass"));
+    QCOMPARE(other->username(), QLatin1String("baruser"));
+    QCOMPARE(other->password(), QLatin1String("barpass"));
 }
 
 void TestModel::removeUser()
@@ -113,8 +112,8 @@ void TestModel::getUser()
     QCOMPARE(users.all().size(), 2);
 
     User *other = users.get("username", "foouser");
-    QCOMPARE(other->username(), QString::fromLatin1("foouser"));
-    QCOMPARE(other->password(), QString::fromLatin1("foopass"));
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
 }
 
 void TestModel::filterUsers()
@@ -139,8 +138,8 @@ void TestModel::filterUsers()
     qs = users.filter("username", "foouser");
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
-    QCOMPARE(other->username(), QString::fromLatin1("foouser"));
-    QCOMPARE(other->password(), QString::fromLatin1("foopass"));
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
 
     qs = qs.filter("password", "foopass");
     QCOMPARE(qs.size(), 1);
@@ -148,23 +147,21 @@ void TestModel::filterUsers()
 
 void TestModel::cleanup()
 {
-    User user;
-    user.database().exec("DELETE FROM user");
+    QDjangoModel::database().exec("DELETE FROM user");
 }
 
 void TestModel::cleanupTestCase()
 {
-    User user;
-    user.database().exec("DROP TABLE user");
+    QDjangoModel::database().exec("DROP TABLE user");
 }
 
 void TestWhere::simpleWhere()
 {
     QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
-    QCOMPARE(queryId.sql(), QString::fromLatin1("id = :id"));
+    QCOMPARE(queryId.sql(), QLatin1String("id = :id"));
 
     QDjangoWhere queryNotId("id", QDjangoWhere::NotEquals, 1);
-    QCOMPARE(queryNotId.sql(), QString::fromLatin1("id != :id"));
+    QCOMPARE(queryNotId.sql(), QLatin1String("id != :id"));
 }
 
 void TestWhere::andWhere()
@@ -173,7 +170,7 @@ void TestWhere::andWhere()
     QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
     QDjangoWhere queryAnd = queryId && queryUsername;
-    QCOMPARE(queryAnd.sql(), QString::fromLatin1("id = :id AND username = :username"));
+    QCOMPARE(queryAnd.sql(), QLatin1String("id = :id AND username = :username"));
 }
 
 void TestWhere::orWhere()
@@ -182,7 +179,38 @@ void TestWhere::orWhere()
     QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
     QDjangoWhere queryAnd = queryId || queryUsername;
-    QCOMPARE(queryAnd.sql(), QString::fromLatin1("id = :id OR username = :username"));
+    QCOMPARE(queryAnd.sql(), QLatin1String("id = :id OR username = :username"));
+}
+
+void TestRelated::initTestCase()
+{
+    User user;
+    user.createTable();
+    Message message;
+    message.createTable();
+}
+
+void TestRelated::testRelated()
+{
+    User user;
+    user.setUsername("foouser");
+    user.setPassword("foopass");
+    QCOMPARE(user.save(), true);
+
+    Message message;
+    message.setUserId(user.pk().toInt());
+    message.setText("test message");
+    QCOMPARE(message.save(), true);
+
+    User *msgUser = message.user();
+    QCOMPARE(msgUser->username(), QLatin1String("foouser"));
+    QCOMPARE(msgUser->password(), QLatin1String("foopass"));
+}
+
+void TestRelated::cleanupTestCase()
+{
+    QDjangoModel::database().exec("DROP TABLE user");
+    QDjangoModel::database().exec("DROP TABLE message");
 }
 
 int main(int argc, char *argv[])
@@ -201,12 +229,16 @@ int main(int argc, char *argv[])
     // declare models
     qDjangoRegisterModel<User>();
     qDjangoRegisterModel<Group>();
+    qDjangoRegisterModel<Message>();
 
-    TestWhere testQuery;
-    QTest::qExec(&testQuery);
+    TestWhere testWhere;
+    QTest::qExec(&testWhere);
 
-    TestModel test;
-    QTest::qExec(&test);
+    TestModel testModel;
+    QTest::qExec(&testModel);
+
+    TestRelated testRelated;
+    QTest::qExec(&testRelated);
 
     db.close();
     return EXIT_SUCCESS;
