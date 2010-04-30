@@ -18,6 +18,7 @@
  */
 
 #include "models.h"
+#include "queryset.h"
 
 QString User::username() const
 {
@@ -37,5 +38,60 @@ QString User::password() const
 void User::setPassword(const QString &password)
 {
     m_password = password;
+}
+
+QString Group::name() const
+{
+    return m_name;
+}
+
+void Group::setName(const QString &name)
+{
+    m_name = name;
+}
+
+int UserGroups::userId() const
+{
+    return m_userId;
+}
+
+void UserGroups::setUserId(int userId)
+{
+    m_userId = userId;
+}
+
+int UserGroups::groupId() const
+{
+    return m_groupId;
+}
+
+void UserGroups::setGroupId(int groupId)
+{
+    m_groupId = groupId;
+}
+
+int Message::userId() const
+{
+    return m_userId;
+}
+
+void Message::setUserId(int userId)
+{
+    m_userId = userId;
+}
+
+User *Message::user() const
+{
+    return QDjangoQuerySet<User>().get("id", m_userId);
+}
+
+QString Message::text() const
+{
+    return m_text;
+}
+
+void Message::setText(const QString &text)
+{
+    m_text = text;
 }
 

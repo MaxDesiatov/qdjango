@@ -37,3 +37,53 @@ private:
     QString m_password;
 };
 
+class Group : public QDjangoModel
+{
+    Q_OBJECT
+    Q_PROPERTY(QString name READ name WRITE setName)
+
+public:
+    QString name() const;
+    void setName(const QString &name);
+
+private:
+    QString m_name;
+};
+
+class UserGroups : public QDjangoModel
+{
+    Q_OBJECT
+    Q_PROPERTY(int user_id READ userId WRITE setUserId)
+    Q_PROPERTY(int group_id READ groupId WRITE setGroupId)
+
+public:
+    int userId() const;
+    void setUserId(int userId);
+
+    int groupId() const;
+    void setGroupId(int groupId);
+
+private:
+    int m_userId;
+    int m_groupId;
+};
+
+class Message : public QDjangoModel
+{
+    Q_OBJECT
+    Q_PROPERTY(int user_id READ userId WRITE setUserId)
+
+public:
+    int userId() const;
+    void setUserId(int userId);
+
+    User *user() const;
+
+    QString text() const;
+    void setText(const QString &text);
+
+private:
+    int m_userId;
+    QString m_text;
+};
+
