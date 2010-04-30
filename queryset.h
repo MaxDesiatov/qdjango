@@ -72,7 +72,7 @@ T *QDjangoQuerySet<T>::at(int index)
     foreach (const QString &key, props.keys())
     {
         QStringList bits = key.split(".");
-        const QString field = bits[1];
+        const QString field = QDjango::unquote(bits[1]);
         if (field == pkField)
             entry->setPk(props[key]);
         else
@@ -137,8 +137,8 @@ void QDjangoQuerySet<T>::sqlFetch()
     T model;
     QStringList fields;
     foreach (const QString &field, model.databaseFields())
-        fields.append(model.databaseTable() + "." + field);
-    QString sql = "SELECT " + fields.join(", ") + " FROM " + model.databaseTable();
+        fields.append(QDjango::quote(model.databaseTable()) + "." + QDjango::quote(field));
+    QString sql = "SELECT " + fields.join(", ") + " FROM " + QDjango::quote(model.databaseTable());
     if (!m_where.isEmpty())
         sql += " WHERE " + m_where.sql();
     QSqlQuery query(sql, QDjangoModel::database());

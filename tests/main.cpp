@@ -155,6 +155,12 @@ void TestModel::cleanupTestCase()
     QDjangoModel::database().exec("DROP TABLE user");
 }
 
+void TestWhere::quoting()
+{
+    QCOMPARE(QDjango::quote("foo"), QLatin1String("`foo`"));
+    QCOMPARE(QDjango::unquote("`foo`"), QLatin1String("foo"));
+}
+
 void TestWhere::simpleWhere()
 {
     QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
