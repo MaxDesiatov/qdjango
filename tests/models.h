@@ -68,3 +68,22 @@ private:
     int m_groupId;
 };
 
+class Message : public QDjangoModel
+{
+    Q_OBJECT
+    Q_PROPERTY(int user_id READ userId WRITE setUserId)
+
+public:
+    int userId() const;
+    void setUserId(int userId);
+
+    User *user() const;
+
+    QString text() const;
+    void setText(const QString &text);
+
+private:
+    int m_userId;
+    QString m_text;
+};
+

@@ -43,3 +43,13 @@ private slots:
     void cleanupTestCase();
 };
 
+class TestRelated : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void testRelated();
+    void cleanupTestCase();
+};
+
