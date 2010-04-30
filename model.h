@@ -38,6 +38,9 @@ public:
 
     static const QDjangoModel *model(const QString &name);
     static bool registerModel(QDjangoModel *model);
+
+    static QString quote(const QString &name);
+    static QString unquote(const QString &quoted);
 };
 
 template <class T>
