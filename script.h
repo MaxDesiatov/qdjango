@@ -79,7 +79,7 @@ template <class T>
 static QScriptValue querySetToString(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    return QString("QuerySet<%1>(%2)").arg(T::staticMetaObject.className(), qs.where().sql());
+    return QScriptValue(engine, QString("QuerySet<%1>(%2)").arg(T::staticMetaObject.className(), qs.where().sql()));
 }
 
 template <class T>
