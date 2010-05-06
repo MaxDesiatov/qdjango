@@ -40,7 +40,6 @@ void sqlDebug(const QSqlQuery &query)
     }
 }
 
-#define QDJANGO_DEBUG_SQL
 bool sqlExec(QSqlQuery &query)
 {
 #ifdef QDJANGO_DEBUG_SQL
