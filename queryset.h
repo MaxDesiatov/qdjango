@@ -43,7 +43,7 @@ protected:
     bool m_selectRelated;
 
 private:
-    QStringList fieldNames(const QDjangoModel *model, QString &from, int depth);
+    QStringList fieldNames(const QDjangoModel *model, QString &from);
 
     bool m_haveResults;
     QString m_modelName;
