@@ -198,6 +198,8 @@ void TestRelated::initTestCase()
 
 void TestRelated::testRelated()
 {
+    const QDjangoQuerySet<Message> messages;
+
     User user;
     user.setUsername("foouser");
     user.setPassword("foopass");
@@ -211,6 +213,8 @@ void TestRelated::testRelated()
     User *msgUser = message.user();
     QCOMPARE(msgUser->username(), QLatin1String("foouser"));
     QCOMPARE(msgUser->password(), QLatin1String("foopass"));
+
+    Message *message2 = messages.get("id", 1);
 }
 
 void TestRelated::cleanupTestCase()
