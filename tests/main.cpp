@@ -215,6 +215,7 @@ void TestRelated::testRelated()
     QCOMPARE(msgUser->password(), QLatin1String("foopass"));
 
     Message *message2 = messages.get("id", 1);
+    Message *message3 = messages.selectRelated().get("id", 1);
 }
 
 void TestRelated::cleanupTestCase()

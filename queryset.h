@@ -20,7 +20,6 @@
 #ifndef QDJANGO_QUERYSET_H
 #define QDJANGO_QUERYSET_H
 
-#include <QDebug>
 #include <QList>
 #include <QStringList>
 #include <QSqlQuery>
@@ -38,6 +37,7 @@ public:
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
     QDjangoQuerySet filter(const QString &key, const QVariant &value) const;
+    QDjangoQuerySet selectRelated() const;
     T *get(const QString &key, const QVariant &value) const;
     T *at(int index);
     int size();
@@ -50,11 +50,12 @@ private:
     QDjangoWhere m_where;
     bool m_haveResults;
     QList< QMap<QString, QVariant> > m_properties;
+    bool m_selectRelated;
 };
 
 template <class T>
 QDjangoQuerySet<T>::QDjangoQuerySet()
-    : m_haveResults(false)
+    : m_haveResults(false), m_selectRelated(false)
 {
 }
 
@@ -97,6 +98,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVarian
     T model;
     QDjangoWhere q(model.databaseColumn(key), QDjangoWhere::NotEquals, value);
     QDjangoQuerySet<T> other;
+    other.m_selectRelated = m_selectRelated;
     if (m_where.isEmpty())
         other.m_where = q;
     else
@@ -110,6 +112,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant
     T model;
     QDjangoWhere q(model.databaseColumn(key), QDjangoWhere::Equals, value);
     QDjangoQuerySet<T> other;
+    other.m_selectRelated = m_selectRelated;
     if (m_where.isEmpty())
         other.m_where = q;
     else
@@ -132,11 +135,22 @@ int QDjangoQuerySet<T>::size()
 }
 
 template <class T>
+QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
+{
+    QDjangoQuerySet<T> other;
+    other.m_where = m_where;
+    other.m_selectRelated = true;
+    return other;
+}
+
+template <class T>
 QStringList QDjangoQuerySet<T>::fieldNames(const QDjangoModel *model, QString &from, int depth)
 {
     QStringList fields;
     foreach (const QString &field, model->databaseFields())
         fields.append(model->databaseColumn(field));
+    if (!m_selectRelated)
+        return fields;
 
     // recurse for foreign keys
     QMap<QString,QString> foreignKeys = model->foreignKeys();
