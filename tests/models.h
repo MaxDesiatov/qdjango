@@ -76,6 +76,7 @@ class Message : public QDjangoModel
 {
     Q_OBJECT
     Q_PROPERTY(int user_id READ userId WRITE setUserId)
+    Q_PROPERTY(QString text READ text WRITE setText)
 
 public:
     Message(QObject *parent = 0);

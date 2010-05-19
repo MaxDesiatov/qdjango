@@ -51,6 +51,19 @@ void TestModel::createUser()
     QCOMPARE(user.save(), true);
     QCOMPARE(users.all().size(), 1);
 
+    // get by id
+    other = users.get("id", 1);
+    QCOMPARE(other->pk(), QVariant(1));
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
+
+    // get by pk
+    other = users.get("pk", 1);
+    QCOMPARE(other->pk(), QVariant(1));
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
+
+    // get by username
     other = users.get("username", "foouser");
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
