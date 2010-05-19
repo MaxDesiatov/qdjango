@@ -181,7 +181,7 @@ QStringList QDjangoModel::databaseFields() const
     return properties;
 }
 
-QStringList QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
+void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
 {
     foreach (const QString &key, props.keys())
     {
