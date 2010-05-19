@@ -181,6 +181,19 @@ QStringList QDjangoModel::databaseFields() const
     return properties;
 }
 
+QStringList QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
+{
+    foreach (const QString &key, props.keys())
+    {
+        QStringList bits = key.split(".");
+        const QString field = QDjango::unquote(bits[1]);
+        if (field == m_pkName)
+            setPk(props[key]);
+        else
+            setProperty(field.toLatin1(), props[key]);
+    }
+}
+
 QString QDjangoModel::databasePkName() const
 {
     return m_pkName;
