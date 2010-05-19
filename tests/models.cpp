@@ -57,6 +57,11 @@ UserGroups::UserGroups(QObject *parent)
     addForeignKey("group_id", new Group);
 }
 
+User *UserGroups::user() const
+{
+    return qobject_cast<User*>(foreignKey("user_id"));
+}
+
 int UserGroups::userId() const
 {
     return m_userId;
@@ -65,6 +70,11 @@ int UserGroups::userId() const
 void UserGroups::setUserId(int userId)
 {
     m_userId = userId;
+}
+
+Group *UserGroups::group() const
+{
+    return qobject_cast<Group*>(foreignKey("group_id"));
 }
 
 int UserGroups::groupId() const
@@ -83,6 +93,11 @@ Message::Message(QObject *parent)
     addForeignKey("user_id", new User);
 }
 
+User *Message::user() const
+{
+    return qobject_cast<User*>(foreignKey("user_id"));
+}
+
 int Message::userId() const
 {
     return m_userId;
@@ -91,11 +106,6 @@ int Message::userId() const
 void Message::setUserId(int userId)
 {
     m_userId = userId;
-}
-
-User *Message::user() const
-{
-    return QDjangoQuerySet<User>().get("id", m_userId);
 }
 
 QString Message::text() const

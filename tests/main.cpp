@@ -204,22 +204,27 @@ void TestRelated::testRelated()
 {
     const QDjangoQuerySet<Message> messages;
 
-    User user;
-    user.setUsername("foouser");
-    user.setPassword("foopass");
-    QCOMPARE(user.save(), true);
+    {
+        User user;
+        user.setUsername("foouser");
+        user.setPassword("foopass");
+        QCOMPARE(user.save(), true);
 
-    Message message;
-    message.setUserId(user.pk().toInt());
-    message.setText("test message");
-    QCOMPARE(message.save(), true);
+        Message message;
+        message.setUserId(user.pk().toInt());
+        message.setText("test message");
+        QCOMPARE(message.save(), true);
+    }
 
-    User *msgUser = message.user();
-    QCOMPARE(msgUser->username(), QLatin1String("foouser"));
-    QCOMPARE(msgUser->password(), QLatin1String("foopass"));
+    Message *uncached = messages.get("id", "1");
+    User *uncachedUser = uncached->user();
+    QCOMPARE(uncachedUser->username(), QLatin1String("foouser"));
+    QCOMPARE(uncachedUser->password(), QLatin1String("foopass"));
 
-    Message *message2 = messages.get("id", 1);
-    Message *message3 = messages.selectRelated().get("id", 1);
+    Message *cached = messages.selectRelated().get("id", 1);
+    User *cachedUser = cached->user();
+    QCOMPARE(cachedUser->username(), QLatin1String("foouser"));
+    QCOMPARE(cachedUser->password(), QLatin1String("foopass"));
 }
 
 void TestRelated::testGroups()

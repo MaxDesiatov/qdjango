@@ -68,14 +68,8 @@ public:
     static QSqlDatabase database();
     static void setDatabase(QSqlDatabase database);
 
-    QString databaseColumn(const QString &name) const;
+    // FIXME : make this private
     void databaseLoad(const QMap<QString, QVariant> &props);
-    QString databaseTable() const;
-    QString databasePkName() const;
-    QStringList databaseFields() const;
-
-    QStringList foreignKeys() const;
-    const QDjangoModel *foreignModel(const QString &field) const;
 
 public slots:
     bool createTable() const;
@@ -86,12 +80,20 @@ public slots:
 
 protected:
     void addForeignKey(const QString &field, QDjangoModel *model);
+    QDjangoModel *foreignKey(const QString &field) const;
 
 private:
+    QString databaseColumn(const QString &name) const;
+    QString databaseTable() const;
+    QStringList databaseFields() const;
+    QStringList foreignKeys() const;
+    const QDjangoModel *foreignModel(const QString &field) const;
+
     int m_id;
     QString m_pkName;
-    QMap<QString,QString> m_foreignKeys;
     QMap<QString,QDjangoModel*> m_foreignModels;
+
+friend class QDjangoQueryBase;
 };
 
 #endif

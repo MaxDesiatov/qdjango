@@ -209,11 +209,6 @@ void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
         m_foreignModels[key]->databaseLoad(props);
 }
 
-QString QDjangoModel::databasePkName() const
-{
-    return m_pkName;
-}
-
 QString QDjangoModel::databaseTable() const
 {
     QString className(metaObject()->className());
@@ -228,6 +223,24 @@ void QDjangoModel::addForeignKey(const QString &field, QDjangoModel *model)
 QStringList QDjangoModel::foreignKeys() const
 {
     return m_foreignModels.keys();
+}
+
+QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
+{
+    QDjangoModel *foreign = m_foreignModels[field];
+    QVariant foreignPk = property(field.toLatin1());
+
+    // if the foreign object was not loaded yet, do it now
+    if (foreign->pk() != foreignPk)
+    {
+        QDjangoQueryBase qs(foreign->metaObject()->className());
+        qs.addFilter(foreign->m_pkName, QDjangoWhere::Equals, foreignPk);
+        qs.sqlFetch();
+        if (qs.m_properties.size() != 1)
+            return 0;
+        foreign->databaseLoad(qs.m_properties.at(0));
+    }
+    return foreign;
 }
 
 const QDjangoModel *QDjangoModel::foreignModel(const QString &field) const

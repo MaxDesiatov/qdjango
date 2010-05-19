@@ -47,6 +47,8 @@ private:
 
     bool m_haveResults;
     QString m_modelName;
+
+friend class QDjangoModel;
 };
 
 template <class T>
