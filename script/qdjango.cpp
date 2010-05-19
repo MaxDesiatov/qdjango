@@ -50,6 +50,7 @@ void QDjangoScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
         QScriptValue extensionObject = engine->globalObject();
         qScriptRegisterModel<User>(engine);
         qScriptRegisterModel<Group>(engine);
+        qScriptRegisterModel<Message>(engine);
     }
 }
 
