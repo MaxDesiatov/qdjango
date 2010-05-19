@@ -126,10 +126,10 @@ bool QDjangoModel::createTable() const
 
     QStringList propSql;
     if (m_pkName == "id")
-        propSql << m_pkName + " INTEGER PRIMARY KEY AUTOINCREMENT";
+        propSql << QDjango::quote(m_pkName) + " INTEGER PRIMARY KEY AUTOINCREMENT";
     for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
     {
-        const QString field = QString::fromLatin1(meta->property(i).name());
+        const QString field = QDjango::quote(QString::fromLatin1(meta->property(i).name()));
         if (meta->property(i).type() == QVariant::Double)
             propSql << field + " REAL";
         else if (meta->property(i).type() == QVariant::Int)
@@ -241,7 +241,7 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
 bool QDjangoModel::remove()
 {
     QString sql = QString("DELETE FROM %1 WHERE %2 = :pk")
-                  .arg(QDjango::quote(databaseTable()), m_pkName);
+                  .arg(QDjango::quote(databaseTable()), QDjango::quote(m_pkName));
     QSqlQuery query(sql, database());
     query.bindValue(":pk", pk());
     return sqlExec(query);
@@ -256,14 +256,14 @@ bool QDjangoModel::save()
     if (!pk().isNull() && !(m_pkName == "id" && !pk().toInt()))
     {
         QString sql = QString("SELECT 1 AS a FROM %1 WHERE %2 = :pk")
-                      .arg(QDjango::quote(databaseTable()), m_pkName);
+                      .arg(QDjango::quote(databaseTable()), QDjango::quote(m_pkName));
         QSqlQuery query(sql, db);
         query.bindValue(":pk", pk());
         if (sqlExec(query) && query.next())
         {
             QStringList fieldAssign;
             foreach (const QString &name, fieldNames)
-                fieldAssign << name + " = :" + name;
+                fieldAssign << QDjango::quote(name) + " = :" + name;
 
             QString sql = QString("UPDATE %1 SET %2 WHERE %3 = :pk")
                   .arg(QDjango::quote(databaseTable()), fieldAssign.join(", "), m_pkName);
@@ -276,12 +276,16 @@ bool QDjangoModel::save()
     }
 
     // perform insert
+    QStringList fieldColumns;
     QStringList fieldHolders;
     foreach (const QString &name, fieldNames)
+    {
+        fieldColumns << QDjango::quote(name);
         fieldHolders << ":" + name;
+    }
 
     QString sql = QString("INSERT INTO %1 (%2) VALUES(%3)")
-                  .arg(QDjango::quote(databaseTable()), fieldNames.join(", "), fieldHolders.join(", "));
+                  .arg(QDjango::quote(databaseTable()), fieldColumns.join(", "), fieldHolders.join(", "));
     QSqlQuery query(sql, db);
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
