@@ -31,8 +31,6 @@ class QDjangoQueryBase
 {
 public:
     QDjangoQueryBase(const QString &modelName);
-    int size();
-    QDjangoWhere where() const { return m_where; };
 
 protected:
     void addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value);
@@ -52,7 +50,7 @@ friend class QDjangoModel;
 };
 
 template <class T>
-    class QDjangoQuerySet : public QDjangoQueryBase
+    class QDjangoQuerySet : private QDjangoQueryBase
 {
 public:
     QDjangoQuerySet();
@@ -61,6 +59,9 @@ public:
     QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
     QDjangoQuerySet filter(const QString &key, const QVariant &value) const;
     QDjangoQuerySet selectRelated() const;
+    int size();
+    QDjangoWhere where() const { return m_where; };
+
     T *get(const QString &key, const QVariant &value) const;
     T *at(int index);
 };
@@ -124,6 +125,13 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
     other.m_where = m_where;
     other.m_selectRelated = true;
     return other;
+}
+
+template <class T>
+int QDjangoQuerySet<T>::size()
+{
+    sqlFetch();
+    return m_properties.size();
 }
 
 #endif

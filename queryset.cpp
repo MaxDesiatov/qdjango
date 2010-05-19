@@ -55,12 +55,6 @@ void QDjangoQueryBase::addFilter(const QString &key, QDjangoWhere::Operation op,
         m_where = m_where && q;
 }
 
-int QDjangoQueryBase::size()
-{
-    sqlFetch();
-    return m_properties.size();
-}
-
 void QDjangoQueryBase::sqlFetch()
 {
     if (m_haveResults)

@@ -38,13 +38,13 @@ public:
 QStringList QDjangoScriptPlugin::keys() const
 {
     QStringList list;
-    list << QLatin1String("qdjango");
+    list << QLatin1String("qdjango") << QLatin1String("qdjango.test");
     return list;
 }
 
 void QDjangoScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
 {
-    if (key == QLatin1String("qdjango"))
+    if (key == QLatin1String("qdjango.test"))
     {
         QScriptValue extensionObject = engine->globalObject();
         qScriptRegisterModel<User>(engine);
