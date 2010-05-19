@@ -51,7 +51,7 @@ void Group::setName(const QString &name)
 }
 
 UserGroups::UserGroups(QObject *parent)
-    : QDjangoModel(parent)
+    : QDjangoModel(parent), m_userId(0), m_groupId(0)
 {
     addForeignKey("user_id", new User);
     addForeignKey("group_id", new Group);
@@ -88,7 +88,7 @@ void UserGroups::setGroupId(int groupId)
 }
 
 Message::Message(QObject *parent)
-    : QDjangoModel(parent)
+    : QDjangoModel(parent), m_userId(0)
 {
     addForeignKey("user_id", new User);
 }
