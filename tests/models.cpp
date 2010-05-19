@@ -50,6 +50,13 @@ void Group::setName(const QString &name)
     m_name = name;
 }
 
+UserGroups::UserGroups(QObject *parent)
+    : QDjangoModel(parent)
+{
+    addForeignKey("user_id", "User");
+    addForeignKey("group_id", "Group");
+}
+
 int UserGroups::userId() const
 {
     return m_userId;

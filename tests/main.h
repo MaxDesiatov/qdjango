@@ -50,6 +50,7 @@ class TestRelated : public QObject
 
 private slots:
     void initTestCase();
+    void testGroups();
     void testRelated();
     void cleanupTestCase();
 };

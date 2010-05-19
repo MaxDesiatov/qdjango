@@ -57,6 +57,8 @@ class UserGroups : public QDjangoModel
     Q_PROPERTY(int group_id READ groupId WRITE setGroupId)
 
 public:
+    UserGroups(QObject *parent = 0);
+
     int userId() const;
     void setUserId(int userId);
 
