@@ -20,6 +20,7 @@
 #ifndef QDJANGO_QUERYSET_H
 #define QDJANGO_QUERYSET_H
 
+#include <QDebug>
 #include <QList>
 #include <QStringList>
 #include <QSqlQuery>
@@ -43,6 +44,7 @@ public:
     QDjangoWhere where() const { return m_where; };
 
 private:
+    QStringList fieldNames(const QDjangoModel *model, QString &from, int depth);
     void sqlFetch(); 
 
     QDjangoWhere m_where;
@@ -128,6 +130,27 @@ int QDjangoQuerySet<T>::size()
 }
 
 template <class T>
+QStringList QDjangoQuerySet<T>::fieldNames(const QDjangoModel *model, QString &from, int depth)
+{
+    QStringList fields;
+    foreach (const QString &field, model->databaseFields())
+        fields.append(QDjango::quote(model->databaseTable()) + "." + QDjango::quote(field));
+
+    // recurse for foreign keys
+    QMap<QString,QString> foreignKeys = model->foreignKeys();
+    foreach (const QString &fk, foreignKeys.keys())
+    {
+        const QDjangoModel *foreign = QDjango::model(foreignKeys[fk]);
+        fields += fieldNames(foreign, from, depth - 1);
+        from += QString(" INNER JOIN %1 ON %2 = %3")
+            .arg(QDjango::quote(foreign->databaseTable()))
+            .arg(QDjango::quote(foreign->databaseTable()) + "." + QDjango::quote(foreign->databasePkName()))
+            .arg(QDjango::quote(model->databaseTable()) + "." + QDjango::quote(fk));
+    }
+    return fields;
+}
+
+template <class T>
 void QDjangoQuerySet<T>::sqlFetch()
 {
     if (m_haveResults)
@@ -135,10 +158,9 @@ void QDjangoQuerySet<T>::sqlFetch()
 
     // build query
     T model;
-    QStringList fields;
-    foreach (const QString &field, model.databaseFields())
-        fields.append(QDjango::quote(model.databaseTable()) + "." + QDjango::quote(field));
-    QString sql = "SELECT " + fields.join(", ") + " FROM " + QDjango::quote(model.databaseTable());
+    QString from = QDjango::quote(model.databaseTable());
+    QStringList fields = fieldNames(&model, from, 1);
+    QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
     if (!m_where.isEmpty())
         sql += " WHERE " + m_where.sql();
     QSqlQuery query(sql, QDjangoModel::database());
