@@ -27,6 +27,7 @@
 
 Q_DECLARE_METATYPE(QDjangoQuerySet<User>)
 Q_DECLARE_METATYPE(QDjangoQuerySet<Group>)
+Q_DECLARE_METATYPE(QDjangoQuerySet<Message>)
 
 class QDjangoScriptPlugin : public QScriptExtensionPlugin
 {
