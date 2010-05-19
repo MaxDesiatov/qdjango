@@ -69,6 +69,7 @@ public:
     static void setDatabase(QSqlDatabase database);
 
     QString databaseColumn(const QString &name) const;
+    QStringList databaseLoad(const QMap<QString, QVariant> &props);
     QString databaseTable() const;
     QString databasePkName() const;
     QStringList databaseFields() const;
