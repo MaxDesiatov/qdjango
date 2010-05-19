@@ -27,12 +27,32 @@
 #include "model.h"
 #include "where.h"
 
+class QDjangoQueryBase
+{
+public:
+    QDjangoQueryBase(const QString &modelName);
+    int size();
+    QDjangoWhere where() const { return m_where; };
+
+protected:
+    void sqlFetch();
+
+    QDjangoWhere m_where;
+    QList< QMap<QString, QVariant> > m_properties;
+    bool m_selectRelated;
+
+private:
+    QStringList fieldNames(const QDjangoModel *model, QString &from, int depth);
+
+    bool m_haveResults;
+    QString m_modelName;
+};
+
 template <class T>
-    class QDjangoQuerySet
+    class QDjangoQuerySet : public QDjangoQueryBase
 {
 public:
     QDjangoQuerySet();
-    ~QDjangoQuerySet();
 
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
@@ -40,27 +60,11 @@ public:
     QDjangoQuerySet selectRelated() const;
     T *get(const QString &key, const QVariant &value) const;
     T *at(int index);
-    int size();
-    QDjangoWhere where() const { return m_where; };
-
-private:
-    QStringList fieldNames(const QDjangoModel *model, QString &from, int depth);
-    void sqlFetch(); 
-
-    QDjangoWhere m_where;
-    bool m_haveResults;
-    QList< QMap<QString, QVariant> > m_properties;
-    bool m_selectRelated;
 };
 
 template <class T>
 QDjangoQuerySet<T>::QDjangoQuerySet()
-    : m_haveResults(false), m_selectRelated(false)
-{
-}
-
-template <class T>
-QDjangoQuerySet<T>::~QDjangoQuerySet()
+    : QDjangoQueryBase(T::staticMetaObject.className())
 {
 }
 
@@ -128,73 +132,12 @@ T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value) const
 }
 
 template <class T>
-int QDjangoQuerySet<T>::size()
-{
-    sqlFetch();
-    return m_properties.size();
-}
-
-template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
 {
     QDjangoQuerySet<T> other;
     other.m_where = m_where;
     other.m_selectRelated = true;
     return other;
-}
-
-template <class T>
-QStringList QDjangoQuerySet<T>::fieldNames(const QDjangoModel *model, QString &from, int depth)
-{
-    QStringList fields;
-    foreach (const QString &field, model->databaseFields())
-        fields.append(model->databaseColumn(field));
-    if (!m_selectRelated)
-        return fields;
-
-    // recurse for foreign keys
-    QMap<QString,QString> foreignKeys = model->foreignKeys();
-    foreach (const QString &fk, foreignKeys.keys())
-    {
-        const QDjangoModel *foreign = QDjango::model(foreignKeys[fk]);
-        fields += fieldNames(foreign, from, depth - 1);
-        from += QString(" INNER JOIN %1 ON %2 = %3")
-            .arg(QDjango::quote(foreign->databaseTable()))
-            .arg(foreign->databaseColumn(foreign->databasePkName()))
-            .arg(model->databaseColumn(fk));
-    }
-    return fields;
-}
-
-template <class T>
-void QDjangoQuerySet<T>::sqlFetch()
-{
-    if (m_haveResults)
-        return;
-
-    // build query
-    T model;
-    QString from = QDjango::quote(model.databaseTable());
-    QStringList fields = fieldNames(&model, from, 1);
-    QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
-    if (!m_where.isEmpty())
-        sql += " WHERE " + m_where.sql();
-    QSqlQuery query(sql, QDjangoModel::database());
-    if (!m_where.isEmpty())
-        m_where.bindValues(query);
-
-    // store results
-    if (sqlExec(query))
-    {
-        while (query.next())
-        {
-            QMap<QString, QVariant> props;
-            for (int i = 0; i < fields.size(); ++i)
-                props.insert(fields[i], query.value(i));
-            m_properties.append(props);
-        }
-    }
-    m_haveResults = true;
 }
 
 #endif
