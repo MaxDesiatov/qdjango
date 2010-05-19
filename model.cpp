@@ -187,6 +187,16 @@ QString QDjangoModel::databaseTable() const
     return className.toLower();
 }
 
+void QDjangoModel::addForeignKey(const QString &field, const QString &modelName)
+{
+    m_foreignKeys[field] = modelName;
+}
+
+QMap<QString,QString> QDjangoModel::foreignKeys() const
+{
+    return m_foreignKeys;
+}
+
 bool QDjangoModel::remove()
 {
     QString sql = QString("DELETE FROM %1 WHERE %2 = :pk")

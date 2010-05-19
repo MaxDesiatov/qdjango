@@ -20,6 +20,7 @@
 #ifndef QDJANGO_MODEL_H
 #define QDJANGO_MODEL_H
 
+#include <QMap>
 #include <QObject>
 
 class QDjangoModel;
@@ -70,6 +71,7 @@ public:
     QString databaseTable() const;
     QString databasePkName() const;
     QStringList databaseFields() const;
+    QMap<QString,QString> foreignKeys() const;
 
 public slots:
     bool createTable() const;
@@ -78,9 +80,13 @@ public slots:
     bool remove();
     bool save();
 
+protected:
+    void addForeignKey(const QString &field, const QString &modelName);
+
 private:
     int m_id;
     QString m_pkName;
+    QMap<QString,QString> m_foreignKeys;
 };
 
 #endif
