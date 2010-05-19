@@ -59,9 +59,11 @@ class UserGroups : public QDjangoModel
 public:
     UserGroups(QObject *parent = 0);
 
+    User *user() const;
     int userId() const;
     void setUserId(int userId);
 
+    Group *group() const;
     int groupId() const;
     void setGroupId(int groupId);
 
@@ -78,10 +80,9 @@ class Message : public QDjangoModel
 public:
     Message(QObject *parent = 0);
 
+    User *user() const;
     int userId() const;
     void setUserId(int userId);
-
-    User *user() const;
 
     QString text() const;
     void setText(const QString &text);
