@@ -74,18 +74,8 @@ T *QDjangoQuerySet<T>::at(int index)
 {
     sqlFetch();
 
-    QMap<QString, QVariant> props = m_properties.at(index);
     T *entry = new T;
-    QString pkField = entry->databasePkName();
-    foreach (const QString &key, props.keys())
-    {
-        QStringList bits = key.split(".");
-        const QString field = QDjango::unquote(bits[1]);
-        if (field == pkField)
-            entry->setPk(props[key]);
-        else
-            entry->setProperty(field.toLatin1(), props[key]);
-    }
+    entry->databaseLoad(m_properties.at(index));
     return entry;
 }
 
