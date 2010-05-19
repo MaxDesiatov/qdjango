@@ -24,7 +24,7 @@ QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
 {
 }
 
-QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &from, int depth)
+QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &from)
 {
     QStringList fields;
     foreach (const QString &field, model->databaseFields())
@@ -33,10 +33,10 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &fro
         return fields;
 
     // recurse for foreign keys
-    foreach (const QString &fk, model->foreignKeys())
+    foreach (const QString &fk, model->m_foreignModels.keys())
     {
-        const QDjangoModel *foreign = model->foreignModel(fk);
-        fields += fieldNames(foreign, from, depth - 1);
+        const QDjangoModel *foreign = model->m_foreignModels[fk];
+        fields += fieldNames(foreign, from);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(QDjango::quote(foreign->databaseTable()))
             .arg(foreign->databaseColumn(foreign->m_pkName))
@@ -69,7 +69,7 @@ void QDjangoQueryBase::sqlFetch()
     // build query
     const QDjangoModel *model = QDjango::model(m_modelName);
     QString from = QDjango::quote(model->databaseTable());
-    QStringList fields = fieldNames(model, from, 1);
+    QStringList fields = fieldNames(model, from);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
     if (!m_where.isEmpty())
         sql += " WHERE " + m_where.sql();

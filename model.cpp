@@ -220,11 +220,6 @@ void QDjangoModel::addForeignKey(const QString &field, QDjangoModel *model)
     m_foreignModels[field] = model;
 }
 
-QStringList QDjangoModel::foreignKeys() const
-{
-    return m_foreignModels.keys();
-}
-
 QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
 {
     QDjangoModel *foreign = m_foreignModels[field];
@@ -241,11 +236,6 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
         foreign->databaseLoad(qs.m_properties.at(0));
     }
     return foreign;
-}
-
-const QDjangoModel *QDjangoModel::foreignModel(const QString &field) const
-{
-    return m_foreignModels[field];
 }
 
 bool QDjangoModel::remove()

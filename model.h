@@ -86,8 +86,6 @@ private:
     QString databaseColumn(const QString &name) const;
     QString databaseTable() const;
     QStringList databaseFields() const;
-    QStringList foreignKeys() const;
-    const QDjangoModel *foreignModel(const QString &field) const;
 
     int m_id;
     QString m_pkName;
