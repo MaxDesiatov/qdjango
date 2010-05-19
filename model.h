@@ -22,6 +22,7 @@
 
 #include <QMap>
 #include <QObject>
+#include <QVariant>
 
 class QDjangoModel;
 class QSqlDatabase;
@@ -58,6 +59,7 @@ void qDjangoRegisterModel()
 class QDjangoModel : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariant pk READ pk WRITE setPk)
 
 public:
     QDjangoModel(QObject *parent = 0);

@@ -21,6 +21,7 @@
 #include <cstdlib>
 
 #include <QDebug>
+#include <QMetaProperty>
 #include <QStringList>
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -33,6 +34,15 @@
 #include "model.h"
 
 static bool wantsToQuit;
+
+static QScriptValue qtscript_dir(QScriptContext *ctx, QScriptEngine *eng)
+{
+    QObject *obj = ctx->argument(0).toQObject();
+    const QMetaObject* meta = obj->metaObject();
+    for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
+        qDebug() << meta->property(i).name();
+    return eng->undefinedValue();
+}
 
 static QScriptValue qtscript_load(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -48,15 +58,23 @@ static QScriptValue qtscript_quit(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
+static QScriptValue qtscript_syncdb(QScriptContext *ctx, QScriptEngine *eng)
+{
+    QDjango::createTables();
+    return eng->undefinedValue();
+}
+
 static void interactive(QScriptEngine *eng)
 {
     QScriptValue global = eng->globalObject();
-    QScriptValue loadFunction = eng->newFunction(qtscript_load);
-    QScriptValue quitFunction = eng->newFunction(qtscript_quit);
+    if (!global.property(QLatin1String("dir")).isValid())
+        global.setProperty(QLatin1String("dir"), eng->newFunction(qtscript_dir));
     if (!global.property(QLatin1String("load")).isValid())
-        global.setProperty(QLatin1String("load"), loadFunction);
+        global.setProperty(QLatin1String("load"), eng->newFunction(qtscript_load));
     if (!global.property(QLatin1String("quit")).isValid())
-        global.setProperty(QLatin1String("quit"), quitFunction);
+        global.setProperty(QLatin1String("quit"), eng->newFunction(qtscript_quit));
+    if (!global.property(QLatin1String("syncdb")).isValid())
+        global.setProperty(QLatin1String("syncdb"), eng->newFunction(qtscript_syncdb));
     wantsToQuit = false;
 
     QTextStream qin(stdin, QIODevice::ReadOnly);
@@ -68,8 +86,10 @@ static void interactive(QScriptEngine *eng)
     QString code;
 
     printf("Commands:\n"
-           "\tquit() : exits console \n"
-           "\tload() : loads a QtScript extension\n");
+           "\tdir(obj) : print the object's properties\n"
+           "\tload()   : loads a QtScript extension\n"
+           "\tquit()   : exits console\n"
+           "\tsyncdb() : creates database tables\n");
 
     forever {
         QString line;
@@ -115,11 +135,14 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     /* Parse command line arguments */
-    while ((c = getopt(argc, argv, "d:hp:")) != -1)
+    while ((c = getopt(argc, argv, "cd:hp:")) != -1)
     {
         if (c == 'h')
         {
-            fprintf(stderr, "Usage: qdjango-console -p <plugins_path> -d <database_name>\n");
+            fprintf(stderr, "Usage: qdjango-console [options]\n\n");
+            fprintf(stderr, "Options:\n");
+            fprintf(stderr, "-d <database>  use <database>\n");
+            fprintf(stderr, "-p <plugins>   add <plugins> to plugins search path\n");
             return EXIT_SUCCESS;
         } else if (c == 'd') {
             databaseName = QString::fromLocal8Bit(optarg);

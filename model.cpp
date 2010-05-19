@@ -167,7 +167,8 @@ bool QDjangoModel::dropTable() const
 
 QString QDjangoModel::databaseColumn(const QString &name) const
 {
-    return QDjango::quote(databaseTable()) + "." + QDjango::quote(name);
+    QString realName = (name == "pk") ? m_pkName : name;
+    return QDjango::quote(databaseTable()) + "." + QDjango::quote(realName);
 }
 
 QStringList QDjangoModel::databaseFields() const
