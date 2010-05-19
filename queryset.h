@@ -35,6 +35,7 @@ public:
     QDjangoWhere where() const { return m_where; };
 
 protected:
+    void addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value);
     void sqlFetch();
 
     QDjangoWhere m_where;
@@ -92,6 +93,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
     QDjangoQuerySet<T> other;
+    other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
     return other;
 }
@@ -99,28 +101,20 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVariant &value) const
 {
-    T model;
-    QDjangoWhere q(model.databaseColumn(key), QDjangoWhere::NotEquals, value);
     QDjangoQuerySet<T> other;
     other.m_selectRelated = m_selectRelated;
-    if (m_where.isEmpty())
-        other.m_where = q;
-    else
-        other.m_where = m_where && q;
+    other.m_where = m_where;
+    other.addFilter(key, QDjangoWhere::NotEquals, value);
     return other;
 }
 
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant &value) const
 {
-    T model;
-    QDjangoWhere q(model.databaseColumn(key), QDjangoWhere::Equals, value);
     QDjangoQuerySet<T> other;
     other.m_selectRelated = m_selectRelated;
-    if (m_where.isEmpty())
-        other.m_where = q;
-    else
-        other.m_where = m_where && q;
+    other.m_where = m_where;
+    other.addFilter(key, QDjangoWhere::Equals, value);
     return other;
 }
 

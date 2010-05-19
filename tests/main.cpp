@@ -268,6 +268,7 @@ int main(int argc, char *argv[])
     qDjangoRegisterModel<User>();
     qDjangoRegisterModel<Group>();
     qDjangoRegisterModel<Message>();
+    qDjangoRegisterModel<UserGroups>();
 
     TestWhere testWhere;
     QTest::qExec(&testWhere);

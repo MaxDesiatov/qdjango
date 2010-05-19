@@ -46,6 +46,16 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &fro
     return fields;
 }
 
+void QDjangoQueryBase::addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value)
+{
+    const QDjangoModel *model = QDjango::model(m_modelName);
+    QDjangoWhere q(model->databaseColumn(key), op, value);
+    if (m_where.isEmpty())
+        m_where = q;
+    else
+        m_where = m_where && q;
+}
+
 int QDjangoQueryBase::size()
 {
     sqlFetch();
