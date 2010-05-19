@@ -217,7 +217,7 @@ bool QDjangoModel::save()
     QStringList fieldNames = databaseFields();
     fieldNames.removeAll(m_pkName);
 
-    if (!pk().isNull())
+    if (!pk().isNull() && !(m_pkName == "id" && !pk().toInt()))
     {
         QString sql = QString("SELECT 1 AS a FROM %1 WHERE %2 = :pk")
                       .arg(QDjango::quote(databaseTable()), m_pkName);

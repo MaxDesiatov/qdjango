@@ -192,8 +192,12 @@ void TestRelated::initTestCase()
 {
     User user;
     user.createTable();
+    Group group;
+    group.createTable();
     Message message;
     message.createTable();
+    UserGroups userGroups;
+    userGroups.createTable();
 }
 
 void TestRelated::testRelated()
@@ -218,9 +222,32 @@ void TestRelated::testRelated()
     Message *message3 = messages.selectRelated().get("id", 1);
 }
 
+void TestRelated::testGroups()
+{
+    const QDjangoQuerySet<UserGroups> userGroups;
+
+    User user;
+    user.setUsername("foouser");
+    user.setPassword("foopass");
+    QCOMPARE(user.save(), true);
+
+    Group group;
+    group.setName("foogroup");
+    QCOMPARE(group.save(), true);
+
+    UserGroups userGroup;
+    userGroup.setUserId(user.pk().toInt());
+    userGroup.setGroupId(group.pk().toInt());
+    QCOMPARE(userGroup.save(), true);
+    
+    UserGroups *ug = userGroups.selectRelated().get("id", 1);
+}
+
 void TestRelated::cleanupTestCase()
 {
     QDjangoModel::database().exec("DROP TABLE user");
+    QDjangoModel::database().exec("DROP TABLE group");
+    QDjangoModel::database().exec("DROP TABLE usergroups");
     QDjangoModel::database().exec("DROP TABLE message");
 }
 
