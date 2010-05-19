@@ -33,10 +33,9 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &fro
         return fields;
 
     // recurse for foreign keys
-    QMap<QString,QString> foreignKeys = model->foreignKeys();
-    foreach (const QString &fk, foreignKeys.keys())
+    foreach (const QString &fk, model->foreignKeys())
     {
-        const QDjangoModel *foreign = QDjango::model(foreignKeys[fk]);
+        const QDjangoModel *foreign = model->foreignModel(fk);
         fields += fieldNames(foreign, from, depth - 1);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(QDjango::quote(foreign->databaseTable()))

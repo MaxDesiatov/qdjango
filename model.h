@@ -73,7 +73,9 @@ public:
     QString databaseTable() const;
     QString databasePkName() const;
     QStringList databaseFields() const;
-    QMap<QString,QString> foreignKeys() const;
+
+    QStringList foreignKeys() const;
+    const QDjangoModel *foreignModel(const QString &field) const;
 
 public slots:
     bool createTable() const;
@@ -83,14 +85,13 @@ public slots:
     bool save();
 
 protected:
-    void addForeignKey(const QString &field, const QString &modelName);
-    QDjangoModel *foreignModel(const QString &field);
+    void addForeignKey(const QString &field, QDjangoModel *model);
 
 private:
     int m_id;
     QString m_pkName;
     QMap<QString,QString> m_foreignKeys;
-    QMap<QString,QDjangoModel*> m_foreignCache;
+    QMap<QString,QDjangoModel*> m_foreignModels;
 };
 
 #endif
