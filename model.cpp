@@ -183,15 +183,30 @@ QStringList QDjangoModel::databaseFields() const
 
 void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
 {
+    // process local fields
     foreach (const QString &key, props.keys())
     {
         QStringList bits = key.split(".");
-        const QString field = QDjango::unquote(bits[1]);
-        if (field == m_pkName)
-            setPk(props[key]);
-        else
-            setProperty(field.toLatin1(), props[key]);
+        if (bits.size() != 2)
+        {
+            qWarning() << "Invalid column name" << key;
+            continue;
+        }
+
+        const QString table = QDjango::unquote(bits[0]);
+        if (table == databaseTable())
+        {
+            const QString field = QDjango::unquote(bits[1]);
+            if (field == m_pkName)
+                setPk(props[key]);
+            else
+                setProperty(field.toLatin1(), props[key]);
+        }
     }
+
+    // process foreign fields
+    foreach (const QString &key, m_foreignModels.keys())
+        m_foreignModels[key]->databaseLoad(props);
 }
 
 QString QDjangoModel::databasePkName() const
@@ -205,14 +220,19 @@ QString QDjangoModel::databaseTable() const
     return className.toLower();
 }
 
-void QDjangoModel::addForeignKey(const QString &field, const QString &modelName)
+void QDjangoModel::addForeignKey(const QString &field, QDjangoModel *model)
 {
-    m_foreignKeys[field] = modelName;
+    m_foreignModels[field] = model;
 }
 
-QMap<QString,QString> QDjangoModel::foreignKeys() const
+QStringList QDjangoModel::foreignKeys() const
 {
-    return m_foreignKeys;
+    return m_foreignModels.keys();
+}
+
+const QDjangoModel *QDjangoModel::foreignModel(const QString &field) const
+{
+    return m_foreignModels[field];
 }
 
 bool QDjangoModel::remove()
