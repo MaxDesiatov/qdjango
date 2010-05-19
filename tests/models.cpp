@@ -70,6 +70,12 @@ void UserGroups::setGroupId(int groupId)
     m_groupId = groupId;
 }
 
+Message::Message(QObject *parent)
+    : QDjangoModel(parent)
+{
+    addForeignKey("user_id", "User");
+}
+
 int Message::userId() const
 {
     return m_userId;

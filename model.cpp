@@ -165,6 +165,11 @@ bool QDjangoModel::dropTable() const
     return sqlExec(query);
 }
 
+QString QDjangoModel::databaseColumn(const QString &name) const
+{
+    return QDjango::quote(databaseTable()) + "." + QDjango::quote(name);
+}
+
 QStringList QDjangoModel::databaseFields() const
 {
     const QMetaObject* meta = metaObject();

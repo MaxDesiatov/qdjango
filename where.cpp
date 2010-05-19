@@ -20,6 +20,7 @@
 #include <QSqlQuery>
 #include <QStringList>
 
+#include "model.h"
 #include "where.h"
 
 QDjangoWhere::QDjangoWhere()
@@ -30,6 +31,10 @@ QDjangoWhere::QDjangoWhere()
 QDjangoWhere::QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant data)
     :  m_key(key), m_operation(operation), m_data(data), m_combine(NoCombine)
 {
+    QStringList bits;
+    foreach (const QString &bit, m_key.split('.'))
+        bits << QDjango::unquote(bit);
+    m_placeholder = ":" + bits.join("_");
 }
 
 QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
@@ -51,7 +56,7 @@ QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
 void QDjangoWhere::bindValues(QSqlQuery &query) const
 {
     if (m_operation != QDjangoWhere::None)
-        query.bindValue(":" + m_key, m_data);
+        query.bindValue(m_placeholder, m_data);
     else
         foreach (const QDjangoWhere &child, m_children)
             child.bindValues(query);
@@ -65,9 +70,9 @@ bool QDjangoWhere::isEmpty() const
 QString QDjangoWhere::sql() const
 {
     if (m_operation == Equals)
-        return m_key + " = :" + m_key;
+        return m_key + " = " + m_placeholder;
     else if (m_operation == NotEquals)
-        return m_key + " != :" + m_key;
+        return m_key + " != " + m_placeholder;
     else if (m_combine != NoCombine)
     {
         QStringList bits;

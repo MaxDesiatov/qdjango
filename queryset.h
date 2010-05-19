@@ -94,7 +94,8 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVariant &value) const
 {
-    QDjangoWhere q(key, QDjangoWhere::NotEquals, value);
+    T model;
+    QDjangoWhere q(model.databaseColumn(key), QDjangoWhere::NotEquals, value);
     QDjangoQuerySet<T> other;
     if (m_where.isEmpty())
         other.m_where = q;
@@ -106,7 +107,8 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVarian
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant &value) const
 {
-    QDjangoWhere q(key, QDjangoWhere::Equals, value);
+    T model;
+    QDjangoWhere q(model.databaseColumn(key), QDjangoWhere::Equals, value);
     QDjangoQuerySet<T> other;
     if (m_where.isEmpty())
         other.m_where = q;
@@ -134,7 +136,7 @@ QStringList QDjangoQuerySet<T>::fieldNames(const QDjangoModel *model, QString &f
 {
     QStringList fields;
     foreach (const QString &field, model->databaseFields())
-        fields.append(QDjango::quote(model->databaseTable()) + "." + QDjango::quote(field));
+        fields.append(model->databaseColumn(field));
 
     // recurse for foreign keys
     QMap<QString,QString> foreignKeys = model->foreignKeys();
@@ -144,8 +146,8 @@ QStringList QDjangoQuerySet<T>::fieldNames(const QDjangoModel *model, QString &f
         fields += fieldNames(foreign, from, depth - 1);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(QDjango::quote(foreign->databaseTable()))
-            .arg(QDjango::quote(foreign->databaseTable()) + "." + QDjango::quote(foreign->databasePkName()))
-            .arg(QDjango::quote(model->databaseTable()) + "." + QDjango::quote(fk));
+            .arg(foreign->databaseColumn(foreign->databasePkName()))
+            .arg(model->databaseColumn(fk));
     }
     return fields;
 }

@@ -74,6 +74,8 @@ class Message : public QDjangoModel
     Q_PROPERTY(int user_id READ userId WRITE setUserId)
 
 public:
+    Message(QObject *parent = 0);
+
     int userId() const;
     void setUserId(int userId);
 
