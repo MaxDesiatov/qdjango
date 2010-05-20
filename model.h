@@ -33,6 +33,8 @@ bool sqlExec(QSqlQuery &query);
 
 #define Q_MODEL(x) QDjango::model(x::staticMetaObject.className())
 
+/** QDjango provides access to registered QDjangoModel.
+ */
 class QDjango
 {
 public:
@@ -56,6 +58,8 @@ void qDjangoRegisterModel()
     }
 }
 
+/** Base class for all models.
+ */
 class QDjangoModel : public QObject
 {
     Q_OBJECT
