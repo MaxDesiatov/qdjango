@@ -34,6 +34,7 @@ public:
 
 protected:
     void addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value);
+    void sqlDelete();
     void sqlFetch();
 
     QDjangoWhere m_where;
@@ -58,6 +59,7 @@ public:
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
     QDjangoQuerySet filter(const QString &key, const QVariant &value) const;
+    void remove();
     QDjangoQuerySet selectRelated() const;
     int size();
     QDjangoWhere where() const { return m_where; };
@@ -82,6 +84,8 @@ T *QDjangoQuerySet<T>::at(int index)
     return entry;
 }
 
+/** Returns a copy of the current QDjangoQuerySet.
+ */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
@@ -118,6 +122,18 @@ T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value) const
     return qs.size() == 1 ? qs.at(0) : 0;
 }
 
+/** Deletes all members of the QDjangoQuerySet.
+ */
+template <class T>
+void QDjangoQuerySet<T>::remove()
+{
+    sqlDelete();
+}
+
+/** Returns a QDjangoQuerySet that will automatically "follow" foreign-key
+ *  relationships, selecting that additional related-object data when it
+ *  executes its query.
+ */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
 {

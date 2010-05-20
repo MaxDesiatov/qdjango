@@ -55,6 +55,27 @@ void QDjangoQueryBase::addFilter(const QString &key, QDjangoWhere::Operation op,
         m_where = m_where && q;
 }
 
+void QDjangoQueryBase::sqlDelete()
+{
+    // delete entries
+    const QDjangoModel *model = QDjango::model(m_modelName);
+    QString from = QDjango::quote(model->databaseTable());
+    QString sql = "DELETE FROM " + from;
+    if (!m_where.isEmpty())
+        sql += " WHERE " + m_where.sql();
+    QSqlQuery query(sql, QDjangoModel::database());
+    if (!m_where.isEmpty())
+        m_where.bindValues(query);
+    sqlExec(query);
+
+    // invalidate cache
+    if (m_haveResults)
+    {
+        m_properties.clear();
+        m_haveResults = false;
+    }
+}
+
 void QDjangoQueryBase::sqlFetch()
 {
     if (m_haveResults)
