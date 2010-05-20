@@ -31,9 +31,7 @@ class QSqlQuery;
 void sqlDebug(const QSqlQuery &query);
 bool sqlExec(QSqlQuery &query);
 
-#define Q_MODEL(x) QDjango::model(x::staticMetaObject.className())
-
-/** QDjango provides access to registered QDjangoModel.
+/** QDjango provides access to registered QDjangoModel classes.
  */
 class QDjango
 {
@@ -47,6 +45,8 @@ public:
     static QString unquote(const QString &quoted);
 };
 
+/** Register a QDjangoModel with QDjango.
+ */
 template <class T>
 void qDjangoRegisterModel()
 {
@@ -63,6 +63,8 @@ void qDjangoRegisterModel()
  *  To declare your own model, create a class which inherits QDjangoModel
  *  and declare the database fields as properties using the Q_PROPERTY
  *  macro.
+ *
+ *  You must then register the class with QDjango using qDjangoRegisterModel.
  */
 class QDjangoModel : public QObject
 {
