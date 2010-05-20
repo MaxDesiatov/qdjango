@@ -24,18 +24,26 @@
 
 class QSqlQuery;
 
+/** QDjangoWhere expresses a constraint for a database operation.
+ *
+ * It is used to construct SQL WHERE statements.
+ */
 class QDjangoWhere
 {
 public:
+    /** A comparison operation. */
     enum Operation
     {
+        /** No comparison, always returns true. */
         None,
+        /** Returns true if the two values are equal. */
         Equals,
+        /** Returns true if the two values are not equal */
         NotEquals,
     };
 
     QDjangoWhere();
-    QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant data);
+    QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant value);
 
     QDjangoWhere operator&&(const QDjangoWhere &other) const;
     QDjangoWhere operator||(const QDjangoWhere &other) const;

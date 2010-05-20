@@ -27,6 +27,8 @@
 #include "model.h"
 #include "where.h"
 
+/** \internal
+ */
 class QDjangoQueryBase
 {
 public:
@@ -62,7 +64,7 @@ public:
     void remove();
     QDjangoQuerySet selectRelated() const;
     int size();
-    QDjangoWhere where() const { return m_where; };
+    QDjangoWhere where() const;
 
     T *get(const QString &key, const QVariant &value) const;
     T *at(int index);
@@ -184,6 +186,15 @@ int QDjangoQuerySet<T>::size()
 {
     sqlFetch();
     return m_properties.size();
+}
+
+/** Return the QDjangoWhere expressing the WHERE clause of the
+ * QDjangoQuerySet.
+ */
+template <class T>
+QDjangoWhere QDjangoQuerySet<T>::where() const
+{
+    return m_where;
 }
 
 #endif

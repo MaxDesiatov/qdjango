@@ -55,12 +55,16 @@ bool sqlExec(QSqlQuery &query)
 #endif
 }
 
+/** Creates the database tables for all registered models.
+ */
 void QDjango::createTables()
 {
     foreach (const QString &key, registry.keys())
         registry[key]->createTable();
 }
 
+/** Registers a QDjangoModel.
+ */
 bool QDjango::registerModel(QDjangoModel *model)
 {
     const QString name = model->metaObject()->className();
@@ -71,16 +75,22 @@ bool QDjango::registerModel(QDjangoModel *model)
     return true;
 }
 
+/** Returns the QDjangoModel with the given name.
+ */
 const QDjangoModel *QDjango::model(const QString &name)
 {
     return registry.value(name);
 }
 
+/** Quotes a database table or column name.
+ */
 QString QDjango::quote(const QString &name)
 {
     return "`" + name + "`";
 }
 
+/** Unquotes a database table or column name.
+ */
 QString QDjango::unquote(const QString &quoted)
 {
     if (quoted.startsWith("`") && quoted.endsWith("`"))
@@ -93,6 +103,10 @@ QDjangoModel::QDjangoModel(QObject *parent)
 {
 }
 
+/** \property QDjangoModel::pk
+ *
+ * The primary key for this QDjangoModel.
+ */
 QVariant QDjangoModel::pk() const
 {
     if (m_pkName == "id")
@@ -119,6 +133,8 @@ void QDjangoModel::setDatabase(QSqlDatabase database)
     globalDb = database;
 }
 
+/** Creates the database table for this QDjangoModel.
+ */
 bool QDjangoModel::createTable() const
 {
     QSqlDatabase db = database();
@@ -158,6 +174,8 @@ bool QDjangoModel::createTable() const
     return true;
 }
 
+/** Drops the database table for this QDjangoModel.
+ */
 bool QDjangoModel::dropTable() const
 {
     QString sql = QString("DROP TABLE %1").arg(QDjango::quote(databaseTable()));
@@ -239,6 +257,8 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
     return foreign;
 }
 
+/** Deletes the QDjangoModel from the database.
+ */
 bool QDjangoModel::remove()
 {
     QString sql = QString("DELETE FROM %1 WHERE %2 = :pk")
@@ -248,6 +268,8 @@ bool QDjangoModel::remove()
     return sqlExec(query);
 }
 
+/** Saves the QDjangoModel to the database.
+ */
 bool QDjangoModel::save()
 {
     QSqlDatabase db = database();
