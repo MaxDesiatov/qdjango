@@ -108,6 +108,32 @@ void TestModel::removeUser()
     QCOMPARE(users.all().size(), 0);
 }
 
+void TestModel::removeUsers()
+{
+    const QDjangoQuerySet<User> users;
+
+    User user;
+    user.setUsername("foouser");
+    user.setPassword("foopass");
+    QCOMPARE(user.save(), true);
+
+    User user2;
+    user2.setUsername("baruser");
+    user2.setPassword("nopass");
+    QCOMPARE(user2.save(), true);
+
+    User user3;
+    user3.setUsername("wizuser");
+    user3.setPassword("nopass");
+    QCOMPARE(user3.save(), true);
+
+    QCOMPARE(users.all().size(), 3);
+
+    users.filter("password", "nopass").remove();
+
+    QCOMPARE(users.all().size(), 1);
+}
+
 void TestModel::getUser()
 {
     const QDjangoQuerySet<User> users;

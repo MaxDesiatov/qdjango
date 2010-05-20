@@ -38,6 +38,7 @@ private slots:
     void initTestCase();
     void createUser();
     void removeUser();
+    void removeUsers();
     void getUser();
     void filterUsers();
     void cleanup();
