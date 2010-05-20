@@ -74,10 +74,23 @@ QDjangoQuerySet<T>::QDjangoQuerySet()
 {
 }
 
+/** Returns the object in the QDjangoQuerySet at the given index.
+ *  Returns 0 if the index is out of bounds.
+ *
+ *  You must free the newly allocated object yourself.
+ *
+ * @param index
+ */
 template <class T>
 T *QDjangoQuerySet<T>::at(int index)
 {
     sqlFetch();
+
+    if (index < 0 | index >= m_properties.size())
+    {
+        qWarning("QDjangoQuerySet out of bounds");
+        return 0;
+    }
 
     T *entry = new T;
     entry->databaseLoad(m_properties.at(index));
@@ -95,6 +108,12 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
     return other;
 }
 
+/** Returns a new QDjangoQuerySet containing objects for which the given key
+ *  does not match the given value.
+ *
+ * @param key
+ * @param value
+ */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVariant &value) const
 {
@@ -105,6 +124,12 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVarian
     return other;
 }
 
+/** Returns a new QDjangoQuerySet containing objects for which the given key
+ *  matches the given value.
+ *
+ * @param key
+ * @param value
+ */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant &value) const
 {
@@ -115,6 +140,15 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant
     return other;
 }
 
+/** Returns the object in the QDjangoQuerySet for which the given key matches
+ *  the given value.
+ *  Returns 0 if the number of matching object is not exactly one.
+ *
+ *  You must free the newly allocated object yourself.
+ *
+ * @param key
+ * @param value
+ */
 template <class T>
 T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value) const
 {
@@ -122,7 +156,7 @@ T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value) const
     return qs.size() == 1 ? qs.at(0) : 0;
 }
 
-/** Deletes all members of the QDjangoQuerySet.
+/** Deletes all objects in the QDjangoQuerySet.
  */
 template <class T>
 void QDjangoQuerySet<T>::remove()
@@ -143,6 +177,8 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
     return other;
 }
 
+/** Returns the number or objects in the QDjangoQuerySet.
+ */
 template <class T>
 int QDjangoQuerySet<T>::size()
 {
