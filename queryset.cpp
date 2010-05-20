@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QSqlQuery>
+
+#include "model.h"
 #include "queryset.h"
 
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)

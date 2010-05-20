@@ -23,6 +23,7 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptEngine>
 
+#include "model.h"
 #include "queryset.h"
 
 template <class T>
