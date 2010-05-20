@@ -20,37 +20,7 @@
 #ifndef QDJANGO_QUERYSET_H
 #define QDJANGO_QUERYSET_H
 
-#include <QList>
-#include <QStringList>
-#include <QSqlQuery>
-
-#include "model.h"
-#include "where.h"
-
-/** \internal
- */
-class QDjangoQueryBase
-{
-public:
-    QDjangoQueryBase(const QString &modelName);
-
-protected:
-    void addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value);
-    void sqlDelete();
-    void sqlFetch();
-
-    QDjangoWhere m_where;
-    QList< QMap<QString, QVariant> > m_properties;
-    bool m_selectRelated;
-
-private:
-    QStringList fieldNames(const QDjangoModel *model, QString &from);
-
-    bool m_haveResults;
-    QString m_modelName;
-
-friend class QDjangoModel;
-};
+#include "queryset_p.h"
 
 template <class T>
     class QDjangoQuerySet : private QDjangoQueryBase
