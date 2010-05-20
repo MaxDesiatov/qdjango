@@ -8,10 +8,10 @@ add_definitions(-DQT_PLUGIN)
 add_definitions(-DQT_SHARED)
 add_definitions(-DQT_NO_DEBUG)
 
-add_library(qtscript_qdjango SHARED qdjango.cpp)
-target_link_libraries(qtscript_qdjango qdjango qdjango-models ${QT_QTSCRIPT_LIBRARY})
+add_library(qtscript_qdjango_test SHARED qdjango_test.cpp)
+target_link_libraries(qtscript_qdjango_test qdjango qdjango-models ${QT_QTSCRIPT_LIBRARY})
 
 #install(TARGETS
-#    qtscript_qdjango
+#    qtscript_qdjango_test
 #	LIBRARY DESTINATION ${PLUGIN_INSTALL_DIR}/script
 #	RUNTIME DESTINATION ${PLUGIN_INSTALL_DIR}/script)
