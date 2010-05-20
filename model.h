@@ -93,7 +93,7 @@ private:
     QString m_pkName;
     QMap<QString,QDjangoModel*> m_foreignModels;
 
-friend class QDjangoQueryBase;
+    friend class QDjangoQueryBase;
 };
 
 #endif
