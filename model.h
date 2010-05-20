@@ -59,6 +59,10 @@ void qDjangoRegisterModel()
 }
 
 /** Base class for all models.
+ *
+ *  To declare your own model, create a class which inherits QDjangoModel
+ *  and declare the database fields as properties using the Q_PROPERTY
+ *  macro.
  */
 class QDjangoModel : public QObject
 {

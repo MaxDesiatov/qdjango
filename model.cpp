@@ -98,14 +98,16 @@ QString QDjango::unquote(const QString &quoted)
     return quoted;
 }
 
+/** Construct a new QDjangoModel.
+ *
+ * @param parent
+ */
 QDjangoModel::QDjangoModel(QObject *parent)
     : QObject(parent), m_id(0), m_pkName("id")
 {
 }
 
-/** \property QDjangoModel::pk
- *
- * The primary key for this QDjangoModel.
+/** Returns primary key for this QDjangoModel.
  */
 QVariant QDjangoModel::pk() const
 {
@@ -115,6 +117,10 @@ QVariant QDjangoModel::pk() const
         return property(m_pkName.toLatin1());
 }
 
+/** Sets the primary key for this QDjangoModel.
+ *
+ * @param pk
+ */
 void QDjangoModel::setPk(const QVariant &pk)
 {
     if (m_pkName == "id")
@@ -123,11 +129,15 @@ void QDjangoModel::setPk(const QVariant &pk)
         setProperty(m_pkName.toLatin1(), pk);
 }
 
+/** Returns the database used by QDjango.
+ */
 QSqlDatabase QDjangoModel::database()
 {
     return globalDb;
 }
 
+/** Sets the database used by QDjango.
+ */
 void QDjangoModel::setDatabase(QSqlDatabase database)
 {
     globalDb = database;
@@ -234,11 +244,20 @@ QString QDjangoModel::databaseTable() const
     return className.toLower();
 }
 
+/** Declares a foreign-key pointing to a QDjangoModel.
+ *
+ * @param field
+ * @param model
+ */
 void QDjangoModel::addForeignKey(const QString &field, QDjangoModel *model)
 {
     m_foreignModels[field] = model;
 }
 
+/** Retrieves the QDjangoModel pointed to by the given foreign-key.
+ *
+ * @param field
+ */
 QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
 {
     QDjangoModel *foreign = m_foreignModels[field];
