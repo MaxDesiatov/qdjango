@@ -22,7 +22,7 @@
 #include <QScriptValue>
 #include <QScriptEngine>
 
-#include "script.h"
+#include "QDjangoScript.h"
 #include "tests/models.h"
 
 Q_DECLARE_METATYPE(QDjangoQuerySet<User>)
