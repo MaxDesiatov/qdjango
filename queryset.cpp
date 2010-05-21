@@ -109,3 +109,17 @@ void QDjangoQueryBase::sqlFetch()
     m_haveResults = true;
 }
 
+bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)
+{
+    sqlFetch();
+
+    if (index < 0 | index >= m_properties.size())
+    {
+        qWarning("QDjangoQuerySet out of bounds");
+        return false;
+    }
+
+    model->databaseLoad(m_properties.at(index));
+    return true;
+}
+

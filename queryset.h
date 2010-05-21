@@ -56,16 +56,12 @@ QDjangoQuerySet<T>::QDjangoQuerySet()
 template <class T>
 T *QDjangoQuerySet<T>::at(int index)
 {
-    sqlFetch();
-
-    if (index < 0 | index >= m_properties.size())
+    T *entry = new T;
+    if (!sqlLoad(entry, index))
     {
-        qWarning("QDjangoQuerySet out of bounds");
+        delete entry;
         return 0;
     }
-
-    T *entry = new T;
-    entry->databaseLoad(m_properties.at(index));
     return entry;
 }
 

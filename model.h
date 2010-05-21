@@ -80,9 +80,6 @@ public:
     static QSqlDatabase database();
     static void setDatabase(QSqlDatabase database);
 
-    // FIXME : make this private
-    void databaseLoad(const QMap<QString, QVariant> &props);
-
 public slots:
     bool createTable() const;
     bool dropTable() const;
@@ -96,6 +93,7 @@ protected:
 
 private:
     QString databaseColumn(const QString &name) const;
+    void databaseLoad(const QMap<QString, QVariant> &props);
     QString databaseTable() const;
     QStringList databaseFields() const;
 
