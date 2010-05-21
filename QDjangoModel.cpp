@@ -25,7 +25,7 @@
 
 #include "QDjango.h"
 #include "QDjangoModel.h"
-#include "queryset.h"
+#include "QDjangoQuerySet.h"
 
 static QSqlDatabase globalDb;
 

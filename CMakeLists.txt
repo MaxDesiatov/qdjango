@@ -24,7 +24,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(qdjango_SOURCES
     QDjango.cpp
     QDjangoModel.cpp
-    queryset.cpp
+    QDjangoQuerySet.cpp
     QDjangoWhere.cpp)
 set(qdjango_MOC_HEADERS
     QDjangoModel.h)

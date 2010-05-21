@@ -17,8 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "QDjangoQueryset.h"
+
 #include "models.h"
-#include "queryset.h"
 
 QString User::username() const
 {

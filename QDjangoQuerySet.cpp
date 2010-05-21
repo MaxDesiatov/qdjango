@@ -21,7 +21,7 @@
 
 #include "QDjango.h"
 #include "QDjangoModel.h"
-#include "queryset.h"
+#include "QDjangoQuerySet.h"
 
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
     : m_haveResults(false), m_modelName(modelName)
