@@ -31,6 +31,7 @@
 #include <QTextStream>
 #include <QtPlugin>
 
+#include "QDjango.h"
 #include "model.h"
 
 static bool wantsToQuit;

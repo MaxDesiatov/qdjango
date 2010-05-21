@@ -27,6 +27,7 @@
 #include <QVariant>
 #include <QtTest/QtTest>
 
+#include "QDjango.h"
 #include "queryset.h"
 #include "where.h"
 
