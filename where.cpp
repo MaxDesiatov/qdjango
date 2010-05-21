@@ -21,7 +21,7 @@
 #include <QStringList>
 
 #include "QDjango.h"
-#include "model.h"
+#include "QDjangoModel.h"
 #include "where.h"
 
 QDjangoWhere::QDjangoWhere()

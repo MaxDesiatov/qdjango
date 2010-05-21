@@ -23,11 +23,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(qdjango_SOURCES
     QDjango.cpp
-    model.cpp
+    QDjangoModel.cpp
     queryset.cpp
     where.cpp)
 set(qdjango_MOC_HEADERS
-    model.h)
+    QDjangoModel.h)
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
 add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
