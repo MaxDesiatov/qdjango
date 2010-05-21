@@ -20,43 +20,11 @@
 #ifndef QDJANGO_MODEL_H
 #define QDJANGO_MODEL_H
 
+class QSqlDatabase;
+
 #include <QMap>
 #include <QObject>
 #include <QVariant>
-
-class QDjangoModel;
-class QSqlDatabase;
-class QSqlQuery;
-
-void sqlDebug(const QSqlQuery &query);
-bool sqlExec(QSqlQuery &query);
-
-/** QDjango provides access to registered QDjangoModel classes.
- */
-class QDjango
-{
-public:
-    static void createTables();
-
-    static const QDjangoModel *model(const QString &name);
-    static bool registerModel(QDjangoModel *model);
-
-    static QString quote(const QString &name);
-    static QString unquote(const QString &quoted);
-};
-
-/** Register a QDjangoModel with QDjango.
- */
-template <class T>
-void qDjangoRegisterModel()
-{
-    if (!QDjango::model(T::staticMetaObject.className()))
-    {
-        T *model = new T;
-        if (!QDjango::registerModel(model))
-            delete model;
-    }
-}
 
 /** Base class for all models.
  *

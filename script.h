@@ -23,6 +23,7 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptEngine>
 
+#include "QDjango.h"
 #include "model.h"
 #include "queryset.h"
 

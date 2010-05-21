@@ -19,6 +19,7 @@
 
 #include <QSqlQuery>
 
+#include "QDjango.h"
 #include "model.h"
 #include "queryset.h"
 
