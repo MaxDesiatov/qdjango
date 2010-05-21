@@ -27,77 +27,7 @@
 #include "model.h"
 #include "queryset.h"
 
-static QMap<QString, QDjangoModel*> registry;
 static QSqlDatabase globalDb;
-
-void sqlDebug(const QSqlQuery &query)
-{
-    qDebug() << "SQL query" << query.lastQuery();
-    QMapIterator<QString, QVariant> i(query.boundValues());
-    while (i.hasNext()) {
-        i.next();
-        qDebug() << "   " << i.key().toAscii().data() << "="
-                 << i.value().toString().toAscii().data();
-    }
-}
-
-bool sqlExec(QSqlQuery &query)
-{
-#ifdef QDJANGO_DEBUG_SQL
-    sqlDebug(query);
-    if (!query.exec())
-    {
-        qWarning() << "SQL error" << query.lastError();
-        return false;
-    }
-    return true;
-#else
-    return query.exec();
-#endif
-}
-
-/** Creates the database tables for all registered models.
- */
-void QDjango::createTables()
-{
-    foreach (const QString &key, registry.keys())
-        registry[key]->createTable();
-}
-
-/** Registers a QDjangoModel.
- */
-bool QDjango::registerModel(QDjangoModel *model)
-{
-    const QString name = model->metaObject()->className();
-    if (registry.contains(name))
-        return false;
-    qDebug() << "Registering model" << name;
-    registry.insert(name, model);
-    return true;
-}
-
-/** Returns the QDjangoModel with the given name.
- */
-const QDjangoModel *QDjango::model(const QString &name)
-{
-    return registry.value(name);
-}
-
-/** Quotes a database table or column name.
- */
-QString QDjango::quote(const QString &name)
-{
-    return "`" + name + "`";
-}
-
-/** Unquotes a database table or column name.
- */
-QString QDjango::unquote(const QString &quoted)
-{
-    if (quoted.startsWith("`") && quoted.endsWith("`"))
-        return quoted.mid(1, quoted.size() - 2);
-    return quoted;
-}
 
 /** Construct a new QDjangoModel.
  *
