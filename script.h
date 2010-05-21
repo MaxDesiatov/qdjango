@@ -25,7 +25,7 @@
 
 #include "QDjango.h"
 #include "QDjangoModel.h"
-#include "queryset.h"
+#include "QDjangoQuerySet.h"
 
 template <class T>
 static QScriptValue querySetAll(QScriptContext *context, QScriptEngine *engine)

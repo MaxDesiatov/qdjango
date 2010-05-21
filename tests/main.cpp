@@ -28,7 +28,7 @@
 #include <QtTest/QtTest>
 
 #include "QDjango.h"
-#include "queryset.h"
+#include "QDjangoQuerySet.h"
 #include "QDjangoWhere.h"
 
 #include "main.h"
