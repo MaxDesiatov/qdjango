@@ -7,7 +7,9 @@ set(QT_USE_QTSQL 1)
 include(${QT_USE_FILE})
 
 # Enable debugging
-add_definitions(-DQDJANGO_DEBUG_SQL=1)
+if(QDJANGO_DEBUG_SQL)
+    add_definitions(-DQDJANGO_DEBUG_SQL=1)
+endif(QDJANGO_DEBUG_SQL)
 
 # Needed for plugin support
 if(UNIX)
