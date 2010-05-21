@@ -113,7 +113,7 @@ bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)
 {
     sqlFetch();
 
-    if (index < 0 | index >= m_properties.size())
+    if (index < 0 || index >= m_properties.size())
     {
         qWarning("QDjangoQuerySet out of bounds");
         return false;
