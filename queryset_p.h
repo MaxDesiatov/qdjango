@@ -38,6 +38,7 @@ protected:
     void addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value);
     void sqlDelete();
     void sqlFetch();
+    bool sqlLoad(QDjangoModel *model, int index);
 
     QDjangoWhere m_where;
     QList< QMap<QString, QVariant> > m_properties;
