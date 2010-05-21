@@ -58,7 +58,7 @@ T *QDjangoQuerySet<T>::at(int index)
 {
     sqlFetch();
 
-    if (index < 0 | index >= m_properties.size())
+    if (index < 0 || index >= m_properties.size())
     {
         qWarning("QDjangoQuerySet out of bounds");
         return 0;
