@@ -22,7 +22,7 @@
 
 #include "QDjango.h"
 #include "QDjangoModel.h"
-#include "where.h"
+#include "QDjangoWhere.h"
 
 QDjangoWhere::QDjangoWhere()
     :  m_operation(None), m_combine(NoCombine)

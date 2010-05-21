@@ -25,7 +25,7 @@ set(qdjango_SOURCES
     QDjango.cpp
     QDjangoModel.cpp
     queryset.cpp
-    where.cpp)
+    QDjangoWhere.cpp)
 set(qdjango_MOC_HEADERS
     QDjangoModel.h)
 

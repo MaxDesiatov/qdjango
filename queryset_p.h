@@ -23,7 +23,7 @@
 #include <QMap>
 #include <QStringList>
 
-#include "where.h"
+#include "QDjangoWhere.h"
 
 class QDjangoModel;
 
