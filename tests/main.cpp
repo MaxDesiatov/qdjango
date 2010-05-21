@@ -29,7 +29,7 @@
 
 #include "QDjango.h"
 #include "queryset.h"
-#include "where.h"
+#include "QDjangoWhere.h"
 
 #include "main.h"
 #include "models.h"
