@@ -20,7 +20,7 @@
 #ifndef QDJANGO_QUERYSET_H
 #define QDJANGO_QUERYSET_H
 
-#include "queryset_p.h"
+#include "QDjangoQuerySet_p.h"
 
 template <class T>
     class QDjangoQuerySet : private QDjangoQueryBase
