@@ -24,8 +24,7 @@
 #include <QStringList>
 
 #include "QDjango.h"
-#include "model.h"
-#include "queryset.h"
+#include "QDjangoModel.h"
 
 static QMap<QString, QDjangoModel*> registry;
 

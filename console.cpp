@@ -32,7 +32,7 @@
 #include <QtPlugin>
 
 #include "QDjango.h"
-#include "model.h"
+#include "QDjangoModel.h"
 
 static bool wantsToQuit;
 

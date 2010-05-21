@@ -20,7 +20,7 @@
 #include <QSqlQuery>
 
 #include "QDjango.h"
-#include "model.h"
+#include "QDjangoModel.h"
 #include "queryset.h"
 
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
