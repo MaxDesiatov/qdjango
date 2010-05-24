@@ -260,6 +260,50 @@ void TestWhere::notEqualsWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
 }
 
+void TestWhere::greaterThan()
+{
+    QDjangoWhere testQuery;
+
+    testQuery = QDjangoWhere("id", QDjangoWhere::GreaterThan, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id > :id"));
+
+    testQuery = !QDjangoWhere("id", QDjangoWhere::GreaterThan, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id <= :id"));
+}
+
+void TestWhere::greaterOrEquals()
+{
+    QDjangoWhere testQuery;
+
+    testQuery = QDjangoWhere("id", QDjangoWhere::GreaterOrEquals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id >= :id"));
+
+    testQuery = !QDjangoWhere("id", QDjangoWhere::GreaterOrEquals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id < :id"));
+}
+
+void TestWhere::lessThan()
+{
+    QDjangoWhere testQuery;
+
+    testQuery = QDjangoWhere("id", QDjangoWhere::LessThan, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id < :id"));
+
+    testQuery = !QDjangoWhere("id", QDjangoWhere::LessThan, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id >= :id"));
+}
+
+void TestWhere::lessOrEquals()
+{
+    QDjangoWhere testQuery;
+
+    testQuery = QDjangoWhere("id", QDjangoWhere::LessOrEquals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id <= :id"));
+
+    testQuery = !QDjangoWhere("id", QDjangoWhere::LessOrEquals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id > :id"));
+}
+
 void TestWhere::andWhere()
 {
     QDjangoWhere testQuery;

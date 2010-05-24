@@ -71,6 +71,26 @@ QDjangoWhere QDjangoWhere::operator!() const
             result.m_operation = Equals;
             result.m_negate = m_negate;
             break;
+        case GreaterThan:
+            // simplify !(a > b) to a <= b
+            result.m_operation = LessOrEquals;
+            result.m_negate = m_negate;
+            break;
+        case LessThan:
+            // simplify !(a < b) to a >= b
+            result.m_operation = GreaterOrEquals;
+            result.m_negate = m_negate;
+            break;
+        case GreaterOrEquals:
+            // simplify !(a >= b) to a < b
+            result.m_operation = LessThan;
+            result.m_negate = m_negate;
+            break;
+        case LessOrEquals:
+            // simplify !(a <= b) to a > b
+            result.m_operation = GreaterThan;
+            result.m_negate = m_negate;
+            break;
         }
     } else {
         result.m_children = m_children;
@@ -145,6 +165,14 @@ QString QDjangoWhere::sql() const
             return m_key + " = " + m_placeholder;
         case NotEquals:
             return m_key + " != " + m_placeholder;
+        case GreaterThan:
+            return m_key + " > " + m_placeholder;
+        case LessThan:
+            return m_key + " < " + m_placeholder;
+        case GreaterOrEquals:
+            return m_key + " >= " + m_placeholder;
+        case LessOrEquals:
+            return m_key + " <= " + m_placeholder;
         case None:
             if (m_combine == NoCombine)
             {
