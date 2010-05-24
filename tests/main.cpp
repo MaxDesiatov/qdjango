@@ -269,11 +269,22 @@ void TestWhere::andWhere()
 
 void TestWhere::orWhere()
 {
+    QDjangoWhere testQuery;
+
     QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
     QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
-    QDjangoWhere queryAnd = queryId || queryUsername;
-    QCOMPARE(queryAnd.sql(), QLatin1String("id = :id OR username = :username"));
+    testQuery = queryId || queryUsername;
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id OR username = :username"));
+
+    testQuery = QDjangoWhere() || queryId;
+    QCOMPARE(testQuery.sql(), QString());
+
+    testQuery = queryId || QDjangoWhere();
+    QCOMPARE(testQuery.sql(), QString());
+
+    testQuery = !(queryId || queryUsername);
+    QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = :id OR username = :username)"));
 }
 
 void TestRelated::initTestCase()
