@@ -183,6 +183,7 @@ void TestModel::filterUsers()
     User *other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
 
     qs = qs.filter(QDjangoWhere("password", QDjangoWhere::Equals, "foopass"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username AND `user`.`password` = :user_password"));
@@ -217,6 +218,7 @@ void TestModel::excludeUsers()
     User *other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
 
     qs = qs.exclude(QDjangoWhere("password", QDjangoWhere::Equals, "barpass"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username AND `user`.`password` != :user_password"));
@@ -406,6 +408,14 @@ void TestRelated::initTestCase()
     userGroups.createTable();
 }
 
+void TestRelated::init()
+{
+    QDjangoQuerySet<User>().remove();
+    QDjangoQuerySet<Group>().remove();
+    QDjangoQuerySet<Message>().remove();
+    QDjangoQuerySet<UserGroups>().remove();
+}
+
 void TestRelated::testRelated()
 {
     const QDjangoQuerySet<Message> messages;
@@ -422,17 +432,54 @@ void TestRelated::testRelated()
         QCOMPARE(message.save(), true);
     }
 
+    // uncached
     Message *uncached = messages.get(
         QDjangoWhere("id", QDjangoWhere::Equals, "1"));
+    QVERIFY(uncached != 0);
+
     User *uncachedUser = uncached->user();
+    QVERIFY(uncachedUser != 0);
     QCOMPARE(uncachedUser->username(), QLatin1String("foouser"));
     QCOMPARE(uncachedUser->password(), QLatin1String("foopass"));
 
+    // cached
     Message *cached = messages.selectRelated().get(
         QDjangoWhere("id", QDjangoWhere::Equals, 1));
+    QVERIFY(cached != 0);
+
     User *cachedUser = cached->user();
+    QVERIFY(cachedUser != 0);
     QCOMPARE(cachedUser->username(), QLatin1String("foouser"));
     QCOMPARE(cachedUser->password(), QLatin1String("foopass"));
+}
+
+void TestRelated::filterRelated()
+{
+    const QDjangoQuerySet<Message> messages;
+    int userPk;
+    {
+        User user;
+        user.setUsername("foouser");
+        user.setPassword("foopass");
+        QCOMPARE(user.save(), true);
+        userPk = user.pk().toInt();
+
+        Message message;
+        message.setUserId(userPk);
+        message.setText("test message");
+        QCOMPARE(message.save(), true);
+    }
+
+    // FIXME : does not work with selectRelated
+    QDjangoQuerySet<Message> qs = messages.selectRelated().filter(
+        QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
+    QCOMPARE(qs.size(), 1);
+
+    Message *msg = qs.at(0);
+    QCOMPARE(msg->text(), QLatin1String("test message"));
+    QCOMPARE(msg->userId(), userPk);
+    delete msg;
 }
 
 void TestRelated::testGroups()

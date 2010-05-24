@@ -126,6 +126,18 @@ bool QDjangoModel::dropTable() const
 
 QString QDjangoModel::databaseColumn(const QString &name) const
 {
+    // foreign key lookup
+    if (name.count("__"))
+    {
+        QStringList bits = name.split("__");
+        QString fk = bits.takeFirst();
+        if (m_foreignModels.contains(fk))
+        {
+            QDjangoModel *foreign = m_foreignModels[fk];
+            return foreign->databaseColumn(bits.join("__"));
+        }
+    }
+
     QString realName = (name == "pk") ? m_pkName : name;
     return QDjango::quote(databaseTable()) + "." + QDjango::quote(realName);
 }
@@ -191,10 +203,16 @@ void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDja
  *
  * @param field
  */
-QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
+QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
 {
-    QDjangoModel *foreign = m_foreignModels[field];
-    QVariant foreignPk = property(field.toLatin1());
+    if (!m_foreignKeys.contains(name) || !m_foreignModels.contains(name))
+    {
+        qWarning() << "Unknown foreign key" << name;
+        return 0;
+    }
+
+    QDjangoModel *foreign = m_foreignModels[name];
+    QVariant foreignPk = property(m_foreignKeys[name].toLatin1());
 
     // if the foreign object was not loaded yet, do it now
     if (foreign->pk() != foreignPk)
