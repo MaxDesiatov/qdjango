@@ -56,8 +56,8 @@ public slots:
     bool save();
 
 protected:
-    void addForeignKey(const QString &field, QDjangoModel *model);
-    QDjangoModel *foreignKey(const QString &field) const;
+    void addForeignKey(const QString &name, const QString &field, QDjangoModel *model);
+    QDjangoModel *foreignKey(const QString &name) const;
 
 private:
     QString databaseColumn(const QString &name) const;
@@ -67,6 +67,7 @@ private:
 
     int m_id;
     QString m_pkName;
+    QMap<QString,QString> m_foreignKeys;
     QMap<QString,QDjangoModel*> m_foreignModels;
 
     friend class QDjangoQueryBase;
