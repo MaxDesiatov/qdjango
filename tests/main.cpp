@@ -170,18 +170,22 @@ void TestModel::filterUsers()
     bar.setPassword("barpass");
     bar.save();
 
-    QCOMPARE(users.all().size(), 2);
+    QDjangoQuerySet<User> qs = users.all();
+    QCOMPARE(qs.where().sql(), QLatin1String(""));
+    QCOMPARE(qs.size(), 2);
 
-    QDjangoQuerySet<User> qs = users.filter("username", QDjangoWhere::Equals, "doesnotexist");
+    qs = users.filter("username", QDjangoWhere::Equals, "doesnotexist");
     QCOMPARE(qs.size(), 0);
 
     qs = users.filter("username", QDjangoWhere::Equals, "foouser");
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
 
     qs = qs.filter("password", QDjangoWhere::Equals, "foopass");
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username AND `user`.`password` = :user_password"));
     QCOMPARE(qs.size(), 1);
 }
 
@@ -199,18 +203,23 @@ void TestModel::excludeUsers()
     bar.setPassword("barpass");
     bar.save();
 
+    QDjangoQuerySet<User> qs = users.all();
+    QCOMPARE(qs.where().sql(), QLatin1String(""));
     QCOMPARE(users.all().size(), 2);
 
-    QDjangoQuerySet<User> qs = users.exclude("username", QDjangoWhere::Equals, "doesnotexist");
+    qs = users.exclude("username", QDjangoWhere::Equals, "doesnotexist");
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
     QCOMPARE(qs.size(), 2);
 
     qs = users.exclude("username", QDjangoWhere::Equals, "baruser");
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
 
     qs = qs.exclude("password", QDjangoWhere::Equals, "barpass");
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username AND `user`.`password` != :user_password"));
     QCOMPARE(qs.size(), 1);
 }
 void TestModel::cleanup()
