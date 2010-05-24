@@ -229,6 +229,15 @@ void TestWhere::quoting()
     QCOMPARE(QDjango::unquote("`foo`"), QLatin1String("foo"));
 }
 
+void TestWhere::emptyWhere()
+{
+    QDjangoWhere testQuery;
+    QCOMPARE(testQuery.sql(), QString());
+
+    testQuery = !QDjangoWhere();
+    QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
+}
+
 void TestWhere::simpleWhere()
 {
     QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
