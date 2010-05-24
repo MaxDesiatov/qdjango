@@ -379,6 +379,21 @@ void TestWhere::orWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = :id OR username = :username)"));
 }
 
+void TestWhere::complexWhere()
+{
+    QDjangoWhere testQuery;
+
+    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
+    QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foouser");
+    QDjangoWhere queryPassword("password", QDjangoWhere::Equals, "foopass");
+
+    testQuery = (queryId || queryUsername) && queryPassword;
+    QCOMPARE(testQuery.sql(), QLatin1String("(id = :id OR username = :username) AND password = :password"));
+
+    testQuery = queryId || (queryUsername && queryPassword);
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id OR (username = :username AND password = :password)"));
+}
+
 void TestRelated::initTestCase()
 {
     User user;
