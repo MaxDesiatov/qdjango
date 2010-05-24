@@ -25,7 +25,7 @@
 #include "QDjangoWhere.h"
 
 QDjangoWhere::QDjangoWhere()
-    :  m_operation(None), m_combine(NoCombine)
+    :  m_operation(None), m_combine(NoCombine), m_negate(false)
 {
 }
 
@@ -42,6 +42,39 @@ QDjangoWhere::QDjangoWhere(const QString &key, QDjangoWhere::Operation operation
     foreach (const QString &bit, m_key.split('.'))
         bits << QDjango::unquote(bit);
     m_placeholder = ":" + bits.join("_");
+}
+
+/** Negate the current QDjangoWhere.
+ */
+QDjangoWhere QDjangoWhere::operator!() const
+{
+    QDjangoWhere result;
+    result.m_key = m_key;
+    result.m_placeholder = m_placeholder;
+    result.m_data = m_data;
+    result.m_combine = m_combine;
+    if (m_children.isEmpty())
+    {
+        switch (m_operation)
+        {
+        case None:
+            result.m_operation = None;
+            break;
+        case Equals:
+            result.m_operation = NotEquals;
+            break;
+        case NotEquals:
+            result.m_operation = Equals;
+            break;
+        }
+        result.m_negate = m_negate;
+    } else {
+        result.m_children = m_children;
+        result.m_operation = m_operation;
+        result.m_negate = !m_negate;
+    }
+    
+    return result;
 }
 
 /** Combines the current QDjangoWhere with another QDjangoWhere using a logical AND.
@@ -95,10 +128,14 @@ QString QDjangoWhere::sql() const
         QStringList bits;
         foreach (const QDjangoWhere &child, m_children)
             bits << child.sql();
+        QString combined;
         if (m_combine == AndCombine)
-            return bits.join(" AND ");
+            combined = bits.join(" AND ");
         else if (m_combine == OrCombine)
-            return bits.join(" OR ");
+            combined = bits.join(" OR ");
+        if (m_negate)
+            combined = QString("NOT (%1)").arg(combined);
+        return combined;
     }
     return "";
 }
