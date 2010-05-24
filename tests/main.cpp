@@ -241,9 +241,13 @@ void TestWhere::quoting()
 void TestWhere::emptyWhere()
 {
     QDjangoWhere testQuery;
+    QCOMPARE(testQuery.isAll(), true);
+    QCOMPARE(testQuery.isNone(), false);
     QCOMPARE(testQuery.sql(), QString());
 
     testQuery = !QDjangoWhere();
+    QCOMPARE(testQuery.isAll(), false);
+    QCOMPARE(testQuery.isNone(), true);
     QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
 }
 
@@ -323,12 +327,23 @@ void TestWhere::andWhere()
     testQuery = queryId && queryUsername;
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id AND username = :username"));
 
+    // and with "all" queryset
     testQuery = QDjangoWhere() && queryId;
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
 
     testQuery = queryId && QDjangoWhere();
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
 
+    // and with "none" queryset
+    testQuery = !QDjangoWhere() && queryId;
+    QCOMPARE(testQuery.isNone(), true);
+    QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
+
+    testQuery = queryId && !QDjangoWhere();
+    QCOMPARE(testQuery.isNone(), true);
+    QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
+
+    // negation
     testQuery = !(queryId && queryUsername);
     QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = :id AND username = :username)"));
 }
@@ -343,12 +358,23 @@ void TestWhere::orWhere()
     testQuery = queryId || queryUsername;
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id OR username = :username"));
 
+    // or with "all" queryset
     testQuery = QDjangoWhere() || queryId;
+    QCOMPARE(testQuery.isAll(), true);
     QCOMPARE(testQuery.sql(), QString());
 
     testQuery = queryId || QDjangoWhere();
+    QCOMPARE(testQuery.isAll(), true);
     QCOMPARE(testQuery.sql(), QString());
 
+    // or with "none" queryset
+    testQuery = !QDjangoWhere() || queryId;
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
+
+    testQuery = queryId || !QDjangoWhere();
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
+
+    // negation
     testQuery = !(queryId || queryUsername);
     QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = :id OR username = :username)"));
 }

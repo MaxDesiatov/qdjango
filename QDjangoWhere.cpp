@@ -104,9 +104,9 @@ QDjangoWhere QDjangoWhere::operator!() const
  */
 QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
 {
-    if (isAll())
+    if (isAll() || other.isNone())
         return other;
-    else if (other.isAll())
+    else if (isNone() || other.isAll())
         return *this;
 
     QDjangoWhere result;
@@ -119,9 +119,9 @@ QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
  */
 QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
 {
-    if (isAll())
+    if (isAll() || other.isNone())
         return *this;
-    else if (other.isAll())
+    else if (isNone() || other.isAll())
         return other;
 
     QDjangoWhere result;
