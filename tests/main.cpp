@@ -172,7 +172,7 @@ void TestModel::filterUsers()
 
     QCOMPARE(users.all().size(), 2);
 
-    QDjangoQuerySet<User> qs = users.filter("username", QDjangoWhere::Equals, "bar");
+    QDjangoQuerySet<User> qs = users.filter("username", QDjangoWhere::Equals, "doesnotexist");
     QCOMPARE(qs.size(), 0);
 
     qs = users.filter("username", QDjangoWhere::Equals, "foouser");
@@ -185,6 +185,34 @@ void TestModel::filterUsers()
     QCOMPARE(qs.size(), 1);
 }
 
+void TestModel::excludeUsers()
+{
+    const QDjangoQuerySet<User> users;
+
+    User foo;
+    foo.setUsername("foouser");
+    foo.setPassword("foopass");
+    foo.save();
+
+    User bar;
+    bar.setUsername("baruser");
+    bar.setPassword("barpass");
+    bar.save();
+
+    QCOMPARE(users.all().size(), 2);
+
+    QDjangoQuerySet<User> qs = users.exclude("username", QDjangoWhere::Equals, "doesnotexist");
+    QCOMPARE(qs.size(), 2);
+
+    qs = users.exclude("username", QDjangoWhere::Equals, "baruser");
+    QCOMPARE(qs.size(), 1);
+    User *other = qs.at(0);
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
+
+    qs = qs.exclude("password", QDjangoWhere::Equals, "barpass");
+    QCOMPARE(qs.size(), 1);
+}
 void TestModel::cleanup()
 {
     QDjangoModel::database().exec("DELETE FROM user");
