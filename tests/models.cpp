@@ -60,7 +60,7 @@ UserGroups::UserGroups(QObject *parent)
 
 User *UserGroups::user() const
 {
-    return qobject_cast<User*>(foreignKey("user_id"));
+    return qobject_cast<User*>(foreignKey("user"));
 }
 
 int UserGroups::userId() const
@@ -75,7 +75,7 @@ void UserGroups::setUserId(int userId)
 
 Group *UserGroups::group() const
 {
-    return qobject_cast<Group*>(foreignKey("group_id"));
+    return qobject_cast<Group*>(foreignKey("group"));
 }
 
 int UserGroups::groupId() const
@@ -96,7 +96,7 @@ Message::Message(QObject *parent)
 
 User *Message::user() const
 {
-    return qobject_cast<User*>(foreignKey("user_id"));
+    return qobject_cast<User*>(foreignKey("user"));
 }
 
 int Message::userId() const
