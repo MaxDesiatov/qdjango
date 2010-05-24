@@ -70,6 +70,7 @@ private:
     QMap<QString,QDjangoModel*> m_foreignModels;
 
     friend class QDjangoQueryBase;
+    friend class QDjangoWhere;
 };
 
 #endif

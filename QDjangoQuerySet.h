@@ -90,7 +90,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, QDjangoWhere:
     QDjangoQuerySet<T> other;
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
-    other.addFilter(key, QDjangoWhere::NotEquals, value);
+    other.addFilter(!QDjangoWhere(key, op, value));
     return other;
 }
 
@@ -107,7 +107,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, QDjangoWhere::
     QDjangoQuerySet<T> other;
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
-    other.addFilter(key, op, value);
+    other.addFilter(QDjangoWhere(key, op, value));
     return other;
 }
 

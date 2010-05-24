@@ -198,7 +198,7 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &field) const
     if (foreign->pk() != foreignPk)
     {
         QDjangoQueryBase qs(foreign->metaObject()->className());
-        qs.addFilter(foreign->m_pkName, QDjangoWhere::Equals, foreignPk);
+        qs.addFilter(QDjangoWhere(foreign->m_pkName, QDjangoWhere::Equals, foreignPk));
         qs.sqlFetch();
         if (qs.m_properties.size() != 1)
             return 0;
