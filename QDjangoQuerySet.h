@@ -31,16 +31,16 @@ public:
 
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QDjangoWhere &where) const;
-    QDjangoQuerySet exclude(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
+    QDjangoQuerySet Q_DECL_DEPRECATED exclude(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     QDjangoQuerySet filter(const QDjangoWhere &where) const;
-    QDjangoQuerySet filter(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
+    QDjangoQuerySet Q_DECL_DEPRECATED filter(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     void remove();
     QDjangoQuerySet selectRelated() const;
     int size();
     QDjangoWhere where() const;
 
     T *get(const QDjangoWhere &where) const;
-    T *get(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
+    T * Q_DECL_DEPRECATED get(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     T *at(int index);
 };
 

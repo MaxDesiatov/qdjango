@@ -130,7 +130,7 @@ void TestModel::removeUsers()
 
     QCOMPARE(users.all().size(), 3);
 
-    users.filter("password", QDjangoWhere::Equals, "nopass").remove();
+    users.filter(QDjangoWhere("password", QDjangoWhere::Equals, "nopass")).remove();
 
     QCOMPARE(users.all().size(), 1);
 }
@@ -151,7 +151,7 @@ void TestModel::getUser()
 
     QCOMPARE(users.all().size(), 2);
 
-    User *other = users.get("username", QDjangoWhere::Equals, "foouser");
+    User *other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
 }
@@ -174,17 +174,17 @@ void TestModel::filterUsers()
     QCOMPARE(qs.where().sql(), QLatin1String(""));
     QCOMPARE(qs.size(), 2);
 
-    qs = users.filter("username", QDjangoWhere::Equals, "doesnotexist");
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
     QCOMPARE(qs.size(), 0);
 
-    qs = users.filter("username", QDjangoWhere::Equals, "foouser");
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
 
-    qs = qs.filter("password", QDjangoWhere::Equals, "foopass");
+    qs = qs.filter(QDjangoWhere("password", QDjangoWhere::Equals, "foopass"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username AND `user`.`password` = :user_password"));
     QCOMPARE(qs.size(), 1);
 }
@@ -207,18 +207,18 @@ void TestModel::excludeUsers()
     QCOMPARE(qs.where().sql(), QLatin1String(""));
     QCOMPARE(users.all().size(), 2);
 
-    qs = users.exclude("username", QDjangoWhere::Equals, "doesnotexist");
+    qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
     QCOMPARE(qs.size(), 2);
 
-    qs = users.exclude("username", QDjangoWhere::Equals, "baruser");
+    qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
 
-    qs = qs.exclude("password", QDjangoWhere::Equals, "barpass");
+    qs = qs.exclude(QDjangoWhere("password", QDjangoWhere::Equals, "barpass"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username AND `user`.`password` != :user_password"));
     QCOMPARE(qs.size(), 1);
 }
@@ -422,7 +422,7 @@ void TestRelated::testRelated()
         QCOMPARE(message.save(), true);
     }
 
-    Message *uncached = messages.get("id", QDjangoWhere::Equals, "1");
+    Message *uncached = messages.get(QDjangoWhere("id", QDjangoWhere::Equals, "1"));
     User *uncachedUser = uncached->user();
     QCOMPARE(uncachedUser->username(), QLatin1String("foouser"));
     QCOMPARE(uncachedUser->password(), QLatin1String("foopass"));
