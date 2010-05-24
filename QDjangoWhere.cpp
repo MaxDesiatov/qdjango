@@ -203,7 +203,13 @@ QString QDjangoWhere::sql() const
             } else {
                 QStringList bits;
                 foreach (const QDjangoWhere &child, m_children)
-                    bits << child.sql();
+                {
+                    QString atom = child.sql();
+                    if (child.m_children.isEmpty())
+                        bits << atom;
+                    else
+                        bits << QString("(%1)").arg(atom);
+                }
                 QString combined;
                 if (m_combine == AndCombine)
                     combined = bits.join(" AND ");

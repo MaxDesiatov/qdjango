@@ -34,6 +34,7 @@ private slots:
     void lessOrEquals();
     void andWhere();
     void orWhere();
+    void complexWhere();
 };
 
 class TestModel: public QObject
