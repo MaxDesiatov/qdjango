@@ -58,7 +58,9 @@ static QScriptValue querySetFilter(QScriptContext *context, QScriptEngine *engin
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
     QString key = context->argument(0).toString();
     QVariant val = context->argument(1).toVariant();
-    return engine->toScriptValue(qs.filter(key, val));
+    // FIXME : support other operations
+    QDjangoWhere::Operation op = QDjangoWhere::Equals;
+    return engine->toScriptValue(qs.filter(key, op, val));
 }
 
 template <class T>
@@ -67,7 +69,9 @@ static QScriptValue querySetGet(QScriptContext *context, QScriptEngine *engine)
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
     QString key = context->argument(0).toString();
     QVariant val = context->argument(1).toVariant();
-    return engine->newQObject(qs.get(key, val), QScriptEngine::ScriptOwnership);
+    // FIXME : support other operations
+    QDjangoWhere::Operation op = QDjangoWhere::Equals;
+    return engine->newQObject(qs.get(key, op, val), QScriptEngine::ScriptOwnership);
 }
 
 template <class T>
