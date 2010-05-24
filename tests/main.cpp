@@ -238,22 +238,26 @@ void TestWhere::emptyWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
 }
 
-void TestWhere::simpleWhere()
+void TestWhere::equalsWhere()
 {
-    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
-    QCOMPARE(queryId.sql(), QLatin1String("id = :id"));
+    QDjangoWhere testQuery;
 
-    QDjangoWhere queryNotId("id", QDjangoWhere::NotEquals, 1);
-    QCOMPARE(queryNotId.sql(), QLatin1String("id != :id"));
+    testQuery = QDjangoWhere("id", QDjangoWhere::Equals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
+
+    testQuery = !QDjangoWhere("id", QDjangoWhere::Equals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id != :id"));
 }
 
-void TestWhere::simpleNegate()
+void TestWhere::notEqualsWhere()
 {
-    QDjangoWhere queryId = !QDjangoWhere("id", QDjangoWhere::Equals, 1);
-    QCOMPARE(queryId.sql(), QLatin1String("id != :id"));
+    QDjangoWhere testQuery;
 
-    QDjangoWhere notQueryId = !QDjangoWhere("id", QDjangoWhere::NotEquals, 1);
-    QCOMPARE(notQueryId.sql(), QLatin1String("id = :id"));
+    testQuery = QDjangoWhere("id", QDjangoWhere::NotEquals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id != :id"));
+
+    testQuery = !QDjangoWhere("id", QDjangoWhere::NotEquals, 1);
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
 }
 
 void TestWhere::andWhere()
