@@ -30,13 +30,16 @@ public:
     QDjangoQuerySet();
 
     QDjangoQuerySet all() const;
+    QDjangoQuerySet exclude(const QDjangoWhere &where) const;
     QDjangoQuerySet exclude(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
+    QDjangoQuerySet filter(const QDjangoWhere &where) const;
     QDjangoQuerySet filter(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     void remove();
     QDjangoQuerySet selectRelated() const;
     int size();
     QDjangoWhere where() const;
 
+    T *get(const QDjangoWhere &where) const;
     T *get(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     T *at(int index);
 };
@@ -78,6 +81,21 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 }
 
 /** Returns a new QDjangoQuerySet containing objects for which the given key
+ *  where condition is false.
+ *
+ * @where
+ */
+template <class T>
+QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
+{
+    QDjangoQuerySet<T> other;
+    other.m_selectRelated = m_selectRelated;
+    other.m_where = m_where;
+    other.addFilter(!where);
+    return other;
+}
+
+/** Returns a new QDjangoQuerySet containing objects for which the given key
  *  does not match the given value.
  *
  * @param key
@@ -87,10 +105,21 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const
 {
+    return exclude(QDjangoWhere(key, op, value));
+}
+
+/** Returns a new QDjangoQuerySet containing objects for which the given
+ *  where condition is true.
+ *
+ * @param where
+ */
+template <class T>
+QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
+{
     QDjangoQuerySet<T> other;
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
-    other.addFilter(!QDjangoWhere(key, op, value));
+    other.addFilter(where);
     return other;
 }
 
@@ -104,11 +133,22 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, QDjangoWhere:
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const
 {
-    QDjangoQuerySet<T> other;
-    other.m_selectRelated = m_selectRelated;
-    other.m_where = m_where;
-    other.addFilter(QDjangoWhere(key, op, value));
-    return other;
+    return filter(QDjangoWhere(key, op, value));
+}
+
+/** Returns the object in the QDjangoQuerySet for which the given
+ *  where condition is true.
+ *  Returns 0 if the number of matching object is not exactly one.
+ *
+ *  You must free the newly allocated object yourself.
+ *
+ * @param where
+ */
+template <class T>
+T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
+{
+    QDjangoQuerySet<T> qs = filter(where);
+    return qs.size() == 1 ? qs.at(0) : 0;
 }
 
 /** Returns the object in the QDjangoQuerySet for which the given key matches
@@ -124,8 +164,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, QDjangoWhere::
 template <class T>
 T *QDjangoQuerySet<T>::get(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const
 {
-    QDjangoQuerySet<T> qs = filter(key, op, value);
-    return qs.size() == 1 ? qs.at(0) : 0;
+    return get(QDjangoWhere(key, op, value));
 }
 
 /** Deletes all objects in the QDjangoQuerySet.
