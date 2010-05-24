@@ -53,10 +53,7 @@ void QDjangoQueryBase::addFilter(const QString &key, QDjangoWhere::Operation op,
 {
     const QDjangoModel *model = QDjango::model(m_modelName);
     QDjangoWhere q(model->databaseColumn(key), op, value);
-    if (m_where.isEmpty())
-        m_where = q;
-    else
-        m_where = m_where && q;
+    m_where = m_where && q;
 }
 
 void QDjangoQueryBase::sqlDelete()

@@ -249,14 +249,22 @@ void TestWhere::simpleNegate()
 
 void TestWhere::andWhere()
 {
+    QDjangoWhere testQuery;
+
     QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
     QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
-    QDjangoWhere queryAnd = queryId && queryUsername;
-    QCOMPARE(queryAnd.sql(), QLatin1String("id = :id AND username = :username"));
+    testQuery = queryId && queryUsername;
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id AND username = :username"));
 
-    QDjangoWhere queryNegate = !queryAnd;
-    QCOMPARE(queryNegate.sql(), QLatin1String("NOT (id = :id AND username = :username)"));
+    testQuery = QDjangoWhere() && queryId;
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
+
+    testQuery = queryId && QDjangoWhere();
+    QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
+
+    testQuery = !(queryId && queryUsername);
+    QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = :id AND username = :username)"));
 }
 
 void TestWhere::orWhere()

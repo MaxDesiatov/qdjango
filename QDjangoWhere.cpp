@@ -81,6 +81,11 @@ QDjangoWhere QDjangoWhere::operator!() const
  */
 QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
 {
+    if (isEmpty())
+        return other;
+    else if (other.isEmpty())
+        return *this;
+
     QDjangoWhere result;
     result.m_combine = AndCombine;
     result.m_children << *this << other;
@@ -91,6 +96,11 @@ QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
  */
 QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
 {
+    if (isEmpty())
+        return *this;
+    else if (other.isEmpty())
+        return other;
+
     QDjangoWhere result;
     result.m_combine = OrCombine;
     result.m_children << *this << other;
@@ -112,7 +122,7 @@ void QDjangoWhere::bindValues(QSqlQuery &query) const
  */
 bool QDjangoWhere::isEmpty() const
 {
-    return m_combine == NoCombine && m_operation == None;
+    return m_combine == NoCombine && m_operation == None && m_negate == false;
 }
 
 /** Returns the SQL code corresponding for the current QDjangoWhere.
