@@ -53,6 +53,7 @@ QDjangoWhere QDjangoWhere::operator!() const
     result.m_placeholder = m_placeholder;
     result.m_data = m_data;
     result.m_combine = m_combine;
+    result.m_negate = !m_negate;
     if (m_children.isEmpty())
     {
         switch (m_operation)
@@ -61,17 +62,19 @@ QDjangoWhere QDjangoWhere::operator!() const
             result.m_operation = None;
             break;
         case Equals:
+            // simplify !(a = b) to a != b
             result.m_operation = NotEquals;
+            result.m_negate = m_negate;
             break;
         case NotEquals:
+            // simplify !(a != b) to a = b
             result.m_operation = Equals;
+            result.m_negate = m_negate;
             break;
         }
-        result.m_negate = m_negate;
     } else {
         result.m_children = m_children;
         result.m_operation = m_operation;
-        result.m_negate = !m_negate;
     }
     
     return result;
@@ -81,9 +84,9 @@ QDjangoWhere QDjangoWhere::operator!() const
  */
 QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
 {
-    if (isEmpty())
+    if (isAll())
         return other;
-    else if (other.isEmpty())
+    else if (other.isAll())
         return *this;
 
     QDjangoWhere result;
@@ -96,9 +99,9 @@ QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
  */
 QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
 {
-    if (isEmpty())
+    if (isAll())
         return *this;
-    else if (other.isEmpty())
+    else if (other.isAll())
         return other;
 
     QDjangoWhere result;
@@ -120,33 +123,46 @@ void QDjangoWhere::bindValues(QSqlQuery &query) const
 
 /** Returns true if the current QDjangoWhere does not express any constraint.
  */
-bool QDjangoWhere::isEmpty() const
+bool QDjangoWhere::isAll() const
 {
     return m_combine == NoCombine && m_operation == None && m_negate == false;
+}
+
+/** Returns true if the current QDjangoWhere expressed an impossible constraint.
+ */
+bool QDjangoWhere::isNone() const
+{
+    return m_combine == NoCombine && m_operation == None && m_negate == true;
 }
 
 /** Returns the SQL code corresponding for the current QDjangoWhere.
  */
 QString QDjangoWhere::sql() const
 {
-    if (m_operation == Equals)
-        return m_key + " = " + m_placeholder;
-    else if (m_operation == NotEquals)
-        return m_key + " != " + m_placeholder;
-    else if (m_combine != NoCombine)
+    switch (m_operation)
     {
-        QStringList bits;
-        foreach (const QDjangoWhere &child, m_children)
-            bits << child.sql();
-        QString combined;
-        if (m_combine == AndCombine)
-            combined = bits.join(" AND ");
-        else if (m_combine == OrCombine)
-            combined = bits.join(" OR ");
-        if (m_negate)
-            combined = QString("NOT (%1)").arg(combined);
-        return combined;
+        case Equals:
+            return m_key + " = " + m_placeholder;
+        case NotEquals:
+            return m_key + " != " + m_placeholder;
+        case None:
+            if (m_combine == NoCombine)
+            {
+                return m_negate ? QString("1 != 0") : QString();
+            } else {
+                QStringList bits;
+                foreach (const QDjangoWhere &child, m_children)
+                    bits << child.sql();
+                QString combined;
+                if (m_combine == AndCombine)
+                    combined = bits.join(" AND ");
+                else if (m_combine == OrCombine)
+                    combined = bits.join(" OR ");
+                if (m_negate)
+                    combined = QString("NOT (%1)").arg(combined);
+                return combined;
+            }
     }
-    return "";
+    return QString();
 }
 

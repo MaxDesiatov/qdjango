@@ -62,11 +62,11 @@ void QDjangoQueryBase::sqlDelete()
     const QDjangoModel *model = QDjango::model(m_modelName);
     QString from = QDjango::quote(model->databaseTable());
     QString sql = "DELETE FROM " + from;
-    if (!m_where.isEmpty())
-        sql += " WHERE " + m_where.sql();
+    QString where = m_where.sql();
+    if (!where.isEmpty())
+        sql += " WHERE " + where;
     QSqlQuery query(sql, QDjangoModel::database());
-    if (!m_where.isEmpty())
-        m_where.bindValues(query);
+    m_where.bindValues(query);
     sqlExec(query);
 
     // invalidate cache
@@ -87,11 +87,11 @@ void QDjangoQueryBase::sqlFetch()
     QString from = QDjango::quote(model->databaseTable());
     QStringList fields = fieldNames(model, from);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
-    if (!m_where.isEmpty())
-        sql += " WHERE " + m_where.sql();
+    QString where = m_where.sql();
+    if (!where.isEmpty())
+        sql += " WHERE " + where;
     QSqlQuery query(sql, QDjangoModel::database());
-    if (!m_where.isEmpty())
-        m_where.bindValues(query);
+    m_where.bindValues(query);
 
     // store results
     if (sqlExec(query))

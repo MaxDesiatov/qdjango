@@ -50,7 +50,8 @@ public:
     QDjangoWhere operator||(const QDjangoWhere &other) const;
 
     void bindValues(QSqlQuery &query) const;
-    bool isEmpty() const;
+    bool isAll() const;
+    bool isNone() const;
     QString sql() const;
 
 private:
