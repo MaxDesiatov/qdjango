@@ -22,6 +22,7 @@
 
 class QSqlDatabase;
 class QSqlQuery;
+class QString;
 
 class QDjangoModel;
 
