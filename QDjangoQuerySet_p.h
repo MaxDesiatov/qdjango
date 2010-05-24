@@ -35,7 +35,7 @@ public:
     QDjangoQueryBase(const QString &modelName);
 
 protected:
-    void addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value);
+    void addFilter(const QDjangoWhere &where);
     void sqlDelete();
     void sqlFetch();
     bool sqlLoad(QDjangoModel *model, int index);

@@ -22,6 +22,7 @@
 
 #include <QVariant>
 
+class QDjangoModel;
 class QSqlQuery;
 
 /** QDjangoWhere expresses a constraint for a database operation.
@@ -56,6 +57,7 @@ public:
     void bindValues(QSqlQuery &query) const;
     bool isAll() const;
     bool isNone() const;
+    bool resolve(const QDjangoModel *model);
     QString sql() const;
 
 private:

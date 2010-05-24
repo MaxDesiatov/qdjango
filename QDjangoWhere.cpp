@@ -155,6 +155,27 @@ bool QDjangoWhere::isNone() const
     return m_combine == NoCombine && m_operation == None && m_negate == true;
 }
 
+/** Resolves field names to database columns.
+ */
+bool QDjangoWhere::resolve(const QDjangoModel *model)
+{
+    // resolve column
+    if (m_operation != None)
+    {
+        m_key = model->databaseColumn(m_key);
+        QStringList bits;
+        foreach (const QString &bit, m_key.split('.'))
+            bits << QDjango::unquote(bit);
+        m_placeholder = ":" + bits.join("_");
+    }
+
+    // recurse into children
+    for (int i = 0; i < m_children.size(); i++)
+        if (!m_children[i].resolve(model))
+            return false;
+    return true;
+}
+
 /** Returns the SQL code corresponding for the current QDjangoWhere.
  */
 QString QDjangoWhere::sql() const

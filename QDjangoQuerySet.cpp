@@ -49,10 +49,11 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &fro
     return fields;
 }
 
-void QDjangoQueryBase::addFilter(const QString &key, QDjangoWhere::Operation op, const QVariant &value)
+void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
 {
     const QDjangoModel *model = QDjango::model(m_modelName);
-    QDjangoWhere q(model->databaseColumn(key), op, value);
+    QDjangoWhere q(where);
+    q.resolve(model);
     m_where = m_where && q;
 }
 
