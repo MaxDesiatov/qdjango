@@ -53,19 +53,19 @@ void TestModel::createUser()
     QCOMPARE(users.all().size(), 1);
 
     // get by id
-    other = users.get("id", QDjangoWhere::Equals, 1);
+    other = users.get(QDjangoWhere("id", QDjangoWhere::Equals, 1));
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
 
     // get by pk
-    other = users.get("pk", QDjangoWhere::Equals, 1);
+    other = users.get(QDjangoWhere("pk", QDjangoWhere::Equals, 1));
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
 
     // get by username
-    other = users.get("username", QDjangoWhere::Equals, "foouser");
+    other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
@@ -75,7 +75,7 @@ void TestModel::createUser()
     QCOMPARE(user.save(), true);
     QCOMPARE(users.all().size(), 1);
 
-    other = users.get("username", QDjangoWhere::Equals, "foouser");
+    other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass2"));
@@ -86,7 +86,7 @@ void TestModel::createUser()
     QCOMPARE(user2.save(), true);
     QCOMPARE(users.all().size(), 2);
 
-    other = users.get("username", QDjangoWhere::Equals, "baruser");
+    other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
     QCOMPARE(other->pk(), QVariant(2));
     QCOMPARE(other->username(), QLatin1String("baruser"));
     QCOMPARE(other->password(), QLatin1String("barpass"));
@@ -422,12 +422,14 @@ void TestRelated::testRelated()
         QCOMPARE(message.save(), true);
     }
 
-    Message *uncached = messages.get(QDjangoWhere("id", QDjangoWhere::Equals, "1"));
+    Message *uncached = messages.get(
+        QDjangoWhere("id", QDjangoWhere::Equals, "1"));
     User *uncachedUser = uncached->user();
     QCOMPARE(uncachedUser->username(), QLatin1String("foouser"));
     QCOMPARE(uncachedUser->password(), QLatin1String("foopass"));
 
-    Message *cached = messages.selectRelated().get("id", QDjangoWhere::Equals, 1);
+    Message *cached = messages.selectRelated().get(
+        QDjangoWhere("id", QDjangoWhere::Equals, 1));
     User *cachedUser = cached->user();
     QCOMPARE(cachedUser->username(), QLatin1String("foouser"));
     QCOMPARE(cachedUser->password(), QLatin1String("foopass"));
@@ -451,7 +453,8 @@ void TestRelated::testGroups()
     userGroup.setGroupId(group.pk().toInt());
     QCOMPARE(userGroup.save(), true);
     
-    UserGroups *ug = userGroups.selectRelated().get("id", QDjangoWhere::Equals, 1);
+    UserGroups *ug = userGroups.selectRelated().get(
+        QDjangoWhere("id", QDjangoWhere::Equals, 1));
 }
 
 void TestRelated::cleanupTestCase()
