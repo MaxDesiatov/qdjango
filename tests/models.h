@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QDateTime>
+
 #include "QDjangoModel.h"
 
 class User : public QDjangoModel
@@ -24,6 +26,7 @@ class User : public QDjangoModel
     Q_OBJECT
     Q_PROPERTY(QString username READ username WRITE setUsername)
     Q_PROPERTY(QString password READ password WRITE setPassword)
+    Q_PROPERTY(QDateTime last_login READ lastLogin WRITE setLastLogin)
 
 public:
     QString username() const;
@@ -32,9 +35,13 @@ public:
     QString password() const;
     void setPassword(const QString &password);
 
+    QDateTime lastLogin() const;
+    void setLastLogin(const QDateTime &lastLogin);
+
 private:
     QString m_username;
     QString m_password;
+    QDateTime m_lastLogin;
 };
 
 class Group : public QDjangoModel

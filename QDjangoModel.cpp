@@ -87,7 +87,9 @@ bool QDjangoModel::createTable() const
     for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
     {
         const QString field = QDjango::quote(QString::fromLatin1(meta->property(i).name()));
-        if (meta->property(i).type() == QVariant::Double)
+        if (meta->property(i).type() == QVariant::DateTime)
+            propSql << field + " DATETIME";
+        else if (meta->property(i).type() == QVariant::Double)
             propSql << field + " REAL";
         else if (meta->property(i).type() == QVariant::Int)
             propSql << field + " INTEGER";
