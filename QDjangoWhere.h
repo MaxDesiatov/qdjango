@@ -45,6 +45,7 @@ public:
     QDjangoWhere();
     QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant value);
 
+    QDjangoWhere operator!() const;
     QDjangoWhere operator&&(const QDjangoWhere &other) const;
     QDjangoWhere operator||(const QDjangoWhere &other) const;
 
@@ -67,6 +68,7 @@ private:
 
     QList<QDjangoWhere> m_children;
     QDjangoWhere::Combine m_combine;
+    bool m_negate;
 };
 
 #endif

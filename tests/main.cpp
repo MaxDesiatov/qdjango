@@ -210,6 +210,15 @@ void TestWhere::simpleWhere()
     QCOMPARE(queryNotId.sql(), QLatin1String("id != :id"));
 }
 
+void TestWhere::simpleNegate()
+{
+    QDjangoWhere queryId = !QDjangoWhere("id", QDjangoWhere::Equals, 1);
+    QCOMPARE(queryId.sql(), QLatin1String("id != :id"));
+
+    QDjangoWhere notQueryId = !QDjangoWhere("id", QDjangoWhere::NotEquals, 1);
+    QCOMPARE(notQueryId.sql(), QLatin1String("id = :id"));
+}
+
 void TestWhere::andWhere()
 {
     QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
@@ -217,6 +226,9 @@ void TestWhere::andWhere()
 
     QDjangoWhere queryAnd = queryId && queryUsername;
     QCOMPARE(queryAnd.sql(), QLatin1String("id = :id AND username = :username"));
+
+    QDjangoWhere queryNegate = !queryAnd;
+    QCOMPARE(queryNegate.sql(), QLatin1String("NOT (id = :id AND username = :username)"));
 }
 
 void TestWhere::orWhere()
