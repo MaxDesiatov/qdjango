@@ -49,7 +49,9 @@ static QScriptValue querySetExclude(QScriptContext *context, QScriptEngine *engi
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
     QString key = context->argument(0).toString();
     QVariant val = context->argument(1).toVariant();
-    return engine->toScriptValue(qs.exclude(key, val));
+    // FIXME : support other operations
+    QDjangoWhere::Operation op = QDjangoWhere::Equals;
+    return engine->toScriptValue(qs.exclude(key, op, val));
 }
 
 template <class T>

@@ -30,7 +30,7 @@ public:
     QDjangoQuerySet();
 
     QDjangoQuerySet all() const;
-    QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
+    QDjangoQuerySet exclude(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     QDjangoQuerySet filter(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     void remove();
     QDjangoQuerySet selectRelated() const;
@@ -81,10 +81,11 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
  *  does not match the given value.
  *
  * @param key
+ * @param op
  * @param value
  */
 template <class T>
-QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVariant &value) const
+QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const
 {
     QDjangoQuerySet<T> other;
     other.m_selectRelated = m_selectRelated;
@@ -97,6 +98,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVarian
  *  matches the given value.
  *
  * @param key
+ * @param op
  * @param value
  */
 template <class T>
