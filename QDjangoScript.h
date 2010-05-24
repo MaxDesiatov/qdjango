@@ -51,7 +51,7 @@ static QScriptValue querySetExclude(QScriptContext *context, QScriptEngine *engi
     QVariant val = context->argument(1).toVariant();
     // FIXME : support other operations
     QDjangoWhere::Operation op = QDjangoWhere::Equals;
-    return engine->toScriptValue(qs.exclude(key, op, val));
+    return engine->toScriptValue(qs.exclude(QDjangoWhere(key, op, val)));
 }
 
 template <class T>
@@ -62,7 +62,7 @@ static QScriptValue querySetFilter(QScriptContext *context, QScriptEngine *engin
     QVariant val = context->argument(1).toVariant();
     // FIXME : support other operations
     QDjangoWhere::Operation op = QDjangoWhere::Equals;
-    return engine->toScriptValue(qs.filter(key, op, val));
+    return engine->toScriptValue(qs.filter(QDjangoWhere(key, op, val)));
 }
 
 template <class T>
@@ -73,7 +73,7 @@ static QScriptValue querySetGet(QScriptContext *context, QScriptEngine *engine)
     QVariant val = context->argument(1).toVariant();
     // FIXME : support other operations
     QDjangoWhere::Operation op = QDjangoWhere::Equals;
-    return engine->newQObject(qs.get(key, op, val), QScriptEngine::ScriptOwnership);
+    return engine->newQObject(qs.get(QDjangoWhere(key, op, val)), QScriptEngine::ScriptOwnership);
 }
 
 template <class T>
