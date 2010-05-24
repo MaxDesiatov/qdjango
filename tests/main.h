@@ -28,6 +28,10 @@ private slots:
     void emptyWhere();
     void equalsWhere();
     void notEqualsWhere();
+    void greaterThan();
+    void greaterOrEquals();
+    void lessThan();
+    void lessOrEquals();
     void andWhere();
     void orWhere();
 };

@@ -40,6 +40,10 @@ public:
         Equals,
         /** Returns true if the two values are not equal */
         NotEquals,
+        GreaterThan,
+        LessThan,
+        GreaterOrEquals,
+        LessOrEquals,
     };
 
     QDjangoWhere();
