@@ -20,6 +20,7 @@
 #ifndef QDJANGO_QUERYSET_H
 #define QDJANGO_QUERYSET_H
 
+#include "QDjangoWhere.h"
 #include "QDjangoQuerySet_p.h"
 
 template <class T>
@@ -30,13 +31,13 @@ public:
 
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QString &key, const QVariant &value) const;
-    QDjangoQuerySet filter(const QString &key, const QVariant &value) const;
+    QDjangoQuerySet filter(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     void remove();
     QDjangoQuerySet selectRelated() const;
     int size();
     QDjangoWhere where() const;
 
-    T *get(const QString &key, const QVariant &value) const;
+    T *get(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const;
     T *at(int index);
 };
 
@@ -99,12 +100,12 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QString &key, const QVarian
  * @param value
  */
 template <class T>
-QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant &value) const
+QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const
 {
     QDjangoQuerySet<T> other;
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
-    other.addFilter(key, QDjangoWhere::Equals, value);
+    other.addFilter(key, op, value);
     return other;
 }
 
@@ -115,12 +116,13 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QString &key, const QVariant
  *  You must free the newly allocated object yourself.
  *
  * @param key
+ * @param op
  * @param value
  */
 template <class T>
-T *QDjangoQuerySet<T>::get(const QString &key, const QVariant &value) const
+T *QDjangoQuerySet<T>::get(const QString &key, QDjangoWhere::Operation op, const QVariant &value) const
 {
-    QDjangoQuerySet<T> qs = filter(key, value);
+    QDjangoQuerySet<T> qs = filter(key, op, value);
     return qs.size() == 1 ? qs.at(0) : 0;
 }
 
