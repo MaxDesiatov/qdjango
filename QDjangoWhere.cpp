@@ -155,7 +155,9 @@ bool QDjangoWhere::isNone() const
     return m_combine == NoCombine && m_operation == None && m_negate == true;
 }
 
-/** Resolves field names to database columns.
+/** Resolves field names to database columns using the given model.
+ *
+ * @param model
  */
 bool QDjangoWhere::resolve(const QDjangoModel *model)
 {
