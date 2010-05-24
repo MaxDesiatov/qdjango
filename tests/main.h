@@ -26,8 +26,8 @@ class TestWhere : public QObject
 private slots:
     void quoting();
     void emptyWhere();
-    void simpleWhere();
-    void simpleNegate();
+    void equalsWhere();
+    void notEqualsWhere();
     void andWhere();
     void orWhere();
 };
