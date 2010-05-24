@@ -177,12 +177,14 @@ QString QDjangoModel::databaseTable() const
 
 /** Declares a foreign-key pointing to a QDjangoModel.
  *
+ * @param name
  * @param field
  * @param model
  */
-void QDjangoModel::addForeignKey(const QString &field, QDjangoModel *model)
+void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDjangoModel *model)
 {
-    m_foreignModels[field] = model;
+    m_foreignKeys[name] = field;
+    m_foreignModels[name] = model;
 }
 
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
