@@ -39,9 +39,12 @@ static bool wantsToQuit;
 static QScriptValue qtscript_dir(QScriptContext *ctx, QScriptEngine *eng)
 {
     QObject *obj = ctx->argument(0).toQObject();
-    const QMetaObject* meta = obj->metaObject();
-    for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
-        qDebug() << meta->property(i).name();
+    if (obj)
+    {
+        const QMetaObject* meta = obj->metaObject();
+        for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
+            qDebug() << meta->property(i).name();
+    }
     return eng->undefinedValue();
 }
 
