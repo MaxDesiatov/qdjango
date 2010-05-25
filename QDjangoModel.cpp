@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QMetaProperty>
 #include <QSqlError>
@@ -28,6 +29,11 @@
 #include "QDjangoQuerySet.h"
 
 static QSqlDatabase globalDb;
+
+static void closeDatabase()
+{
+    globalDb = QSqlDatabase();
+}
 
 /** Construct a new QDjangoModel.
  *
@@ -72,6 +78,7 @@ QSqlDatabase QDjangoModel::database()
 void QDjangoModel::setDatabase(QSqlDatabase database)
 {
     globalDb = database;
+    qAddPostRoutine(closeDatabase);
 }
 
 /** Creates the database table for this QDjangoModel.
