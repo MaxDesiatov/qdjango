@@ -58,11 +58,11 @@ class TestRelated : public QObject
     Q_OBJECT
 
 private slots:
-    void init();
     void initTestCase();
     void testGroups();
     void testRelated();
     void filterRelated();
+    void cleanup();
     void cleanupTestCase();
 };
 

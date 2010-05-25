@@ -20,10 +20,7 @@
 #include <cstdlib>
 
 #include <QCoreApplication>
-#include <QDebug>
-#include <QObject>
 #include <QSqlDatabase>
-#include <QSqlQuery>
 #include <QVariant>
 #include <QtTest/QtTest>
 
@@ -223,9 +220,10 @@ void TestModel::excludeUsers()
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username AND `user`.`password` != :user_password"));
     QCOMPARE(qs.size(), 1);
 }
+
 void TestModel::cleanup()
 {
-    QDjangoModel::database().exec("DELETE FROM user");
+    QDjangoQuerySet<User>().remove();
 }
 
 void TestModel::cleanupTestCase()
@@ -403,14 +401,6 @@ void TestRelated::initTestCase()
     QCOMPARE(UserGroups().createTable(), true);
 }
 
-void TestRelated::init()
-{
-    QDjangoQuerySet<User>().remove();
-    QDjangoQuerySet<Group>().remove();
-    QDjangoQuerySet<Message>().remove();
-    QDjangoQuerySet<UserGroups>().remove();
-}
-
 void TestRelated::testRelated()
 {
     const QDjangoQuerySet<Message> messages;
@@ -497,6 +487,14 @@ void TestRelated::testGroups()
     
     UserGroups *ug = userGroups.selectRelated().get(
         QDjangoWhere("id", QDjangoWhere::Equals, 1));
+}
+
+void TestRelated::cleanup()
+{
+    QDjangoQuerySet<User>().remove();
+    QDjangoQuerySet<Group>().remove();
+    QDjangoQuerySet<Message>().remove();
+    QDjangoQuerySet<UserGroups>().remove();
 }
 
 void TestRelated::cleanupTestCase()
