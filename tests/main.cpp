@@ -540,7 +540,6 @@ int main(int argc, char *argv[])
     TestRelated testRelated;
     QTest::qExec(&testRelated);
 
-    db.close();
     return EXIT_SUCCESS;
 };
 
