@@ -28,7 +28,7 @@
 
 static QMap<QString, QDjangoModel*> registry;
 
-void sqlDebug(const QSqlQuery &query)
+static void sqlDebug(const QSqlQuery &query)
 {
     qDebug() << "SQL query" << query.lastQuery();
     QMapIterator<QString, QVariant> i(query.boundValues());

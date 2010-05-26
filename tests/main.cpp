@@ -20,10 +20,7 @@
 #include <cstdlib>
 
 #include <QCoreApplication>
-#include <QDebug>
-#include <QObject>
 #include <QSqlDatabase>
-#include <QSqlQuery>
 #include <QVariant>
 #include <QtTest/QtTest>
 
@@ -36,8 +33,7 @@
 
 void TestModel::initTestCase()
 {
-    User user;
-    user.createTable();
+    QCOMPARE(User().createTable(), true);
 }
 
 void TestModel::createUser()
@@ -238,14 +234,15 @@ void TestModel::excludeUsers()
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username AND `user`.`password` != :user_password"));
     QCOMPARE(qs.size(), 1);
 }
+
 void TestModel::cleanup()
 {
-    QDjangoModel::database().exec("DELETE FROM user");
+    QDjangoQuerySet<User>().remove();
 }
 
 void TestModel::cleanupTestCase()
 {
-    QDjangoModel::database().exec("DROP TABLE user");
+    QCOMPARE(User().dropTable(), true);
 }
 
 void TestWhere::quoting()
@@ -412,22 +409,10 @@ void TestWhere::complexWhere()
 
 void TestRelated::initTestCase()
 {
-    User user;
-    user.createTable();
-    Group group;
-    group.createTable();
-    Message message;
-    message.createTable();
-    UserGroups userGroups;
-    userGroups.createTable();
-}
-
-void TestRelated::init()
-{
-    QDjangoQuerySet<User>().remove();
-    QDjangoQuerySet<Group>().remove();
-    QDjangoQuerySet<Message>().remove();
-    QDjangoQuerySet<UserGroups>().remove();
+    QCOMPARE(User().createTable(), true);
+    QCOMPARE(Group().createTable(), true);
+    QCOMPARE(Message().createTable(), true);
+    QCOMPARE(UserGroups().createTable(), true);
 }
 
 void TestRelated::testRelated()
@@ -523,12 +508,20 @@ void TestRelated::testGroups()
     delete ug;
 }
 
+void TestRelated::cleanup()
+{
+    QDjangoQuerySet<User>().remove();
+    QDjangoQuerySet<Group>().remove();
+    QDjangoQuerySet<Message>().remove();
+    QDjangoQuerySet<UserGroups>().remove();
+}
+
 void TestRelated::cleanupTestCase()
 {
-    QDjangoModel::database().exec("DROP TABLE user");
-    QDjangoModel::database().exec("DROP TABLE group");
-    QDjangoModel::database().exec("DROP TABLE usergroups");
-    QDjangoModel::database().exec("DROP TABLE message");
+    QCOMPARE(User().dropTable(), true);
+    QCOMPARE(Group().dropTable(), true);
+    QCOMPARE(Message().dropTable(), true);
+    QCOMPARE(UserGroups().dropTable(), true);
 }
 
 int main(int argc, char *argv[])
@@ -559,7 +552,6 @@ int main(int argc, char *argv[])
     TestRelated testRelated;
     QTest::qExec(&testRelated);
 
-    db.close();
     return EXIT_SUCCESS;
 };
 

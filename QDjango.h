@@ -26,7 +26,6 @@ class QString;
 
 class QDjangoModel;
 
-void sqlDebug(const QSqlQuery &query);
 bool sqlExec(QSqlQuery &query);
 
 /** QDjango provides access to registered QDjangoModel classes.

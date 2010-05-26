@@ -66,7 +66,8 @@ void QDjangoQueryBase::sqlDelete()
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    QSqlQuery query(sql, QDjangoModel::database());
+    QSqlQuery query(QDjangoModel::database());
+    query.prepare(sql);
     m_where.bindValues(query);
     sqlExec(query);
 
@@ -91,7 +92,8 @@ void QDjangoQueryBase::sqlFetch()
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    QSqlQuery query(sql, QDjangoModel::database());
+    QSqlQuery query(QDjangoModel::database());
+    query.prepare(sql);
     m_where.bindValues(query);
 
     // store results
