@@ -41,6 +41,16 @@ void User::setPassword(const QString &password)
     m_password = password;
 }
 
+QDateTime User::lastLogin() const
+{
+    return m_lastLogin;
+}
+
+void User::setLastLogin(const QDateTime &lastLogin)
+{
+    m_lastLogin = lastLogin;
+}
+
 QString Group::name() const
 {
     return m_name;

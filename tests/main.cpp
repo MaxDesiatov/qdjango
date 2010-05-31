@@ -50,21 +50,27 @@ void TestModel::createUser()
 
     // get by id
     other = users.get(QDjangoWhere("id", QDjangoWhere::Equals, 1));
+    QVERIFY(other != 0);
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
 
     // get by pk
     other = users.get(QDjangoWhere("pk", QDjangoWhere::Equals, 1));
+    QVERIFY(other != 0);
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
 
     // get by username
     other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
+    QVERIFY(other != 0);
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
 
     // update
     user.setPassword("foopass2");
@@ -72,9 +78,11 @@ void TestModel::createUser()
     QCOMPARE(users.all().size(), 1);
 
     other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
+    QVERIFY(other != 0);
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass2"));
+    delete other;
 
     User user2;
     user2.setUsername("baruser");
@@ -83,9 +91,11 @@ void TestModel::createUser()
     QCOMPARE(users.all().size(), 2);
 
     other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
+    QVERIFY(other != 0);
     QCOMPARE(other->pk(), QVariant(2));
     QCOMPARE(other->username(), QLatin1String("baruser"));
     QCOMPARE(other->password(), QLatin1String("barpass"));
+    delete other;
 }
 
 void TestModel::removeUser()
@@ -148,8 +158,10 @@ void TestModel::getUser()
     QCOMPARE(users.all().size(), 2);
 
     User *other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
+    QVERIFY(other != 0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
 }
 
 void TestModel::filterUsers()
@@ -177,6 +189,7 @@ void TestModel::filterUsers()
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
+    QVERIFY(other != 0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
     delete other;
@@ -212,6 +225,7 @@ void TestModel::excludeUsers()
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
+    QVERIFY(other != 0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
     delete other;
@@ -426,6 +440,7 @@ void TestRelated::testRelated()
     QVERIFY(uncachedUser != 0);
     QCOMPARE(uncachedUser->username(), QLatin1String("foouser"));
     QCOMPARE(uncachedUser->password(), QLatin1String("foopass"));
+    delete uncached;
 
     // cached
     Message *cached = messages.selectRelated().get(
@@ -436,6 +451,7 @@ void TestRelated::testRelated()
     QVERIFY(cachedUser != 0);
     QCOMPARE(cachedUser->username(), QLatin1String("foouser"));
     QCOMPARE(cachedUser->password(), QLatin1String("foopass"));
+    delete cached;
 }
 
 void TestRelated::filterRelated()
@@ -462,6 +478,7 @@ void TestRelated::filterRelated()
     QCOMPARE(qs.size(), 1);
 
     Message *msg = qs.at(0);
+    QVERIFY(msg != 0);
     QCOMPARE(msg->text(), QLatin1String("test message"));
     QCOMPARE(msg->userId(), userPk);
     delete msg;
@@ -487,6 +504,8 @@ void TestRelated::testGroups()
     
     UserGroups *ug = userGroups.selectRelated().get(
         QDjangoWhere("id", QDjangoWhere::Equals, 1));
+    QVERIFY(ug != 0);
+    delete ug;
 }
 
 void TestRelated::cleanup()
