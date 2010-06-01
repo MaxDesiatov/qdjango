@@ -45,6 +45,7 @@ void TestModel::createUser()
     User user;
     user.setUsername("foouser");
     user.setPassword("foopass");
+    user.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
     QCOMPARE(user.save(), true);
     QCOMPARE(users.all().size(), 1);
 
@@ -70,6 +71,7 @@ void TestModel::createUser()
     QCOMPARE(other->pk(), QVariant(1));
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
+    QCOMPARE(other->lastLogin(), QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
     delete other;
 
     // update
@@ -87,6 +89,7 @@ void TestModel::createUser()
     User user2;
     user2.setUsername("baruser");
     user2.setPassword("barpass");
+    user2.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 6, 31)));
     QCOMPARE(user2.save(), true);
     QCOMPARE(users.all().size(), 2);
 
@@ -95,6 +98,7 @@ void TestModel::createUser()
     QCOMPARE(other->pk(), QVariant(2));
     QCOMPARE(other->username(), QLatin1String("baruser"));
     QCOMPARE(other->password(), QLatin1String("barpass"));
+    QCOMPARE(other->lastLogin(), QDateTime(QDate(2010, 6, 1), QTime(10, 6, 31)));
     delete other;
 }
 
@@ -242,13 +246,16 @@ void TestModel::values()
     User user;
     user.setUsername("foouser");
     user.setPassword("foopass");
+    user.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
     QCOMPARE(user.save(), true);
 
     User user2;
     user2.setUsername("baruser");
     user2.setPassword("barpass");
+    user2.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 6, 31)));
     QCOMPARE(user2.save(), true);
 
+    // FIXME : test last_login
     QList< QMap<QString, QVariant> > map = users.all().values();
     QCOMPARE(map.size(), 2);
     QCOMPARE(map[0].keys(), QList<QString>() << "id" << "last_login" << "password" << "username");
@@ -258,6 +265,7 @@ void TestModel::values()
     QCOMPARE(map[1]["username"], QVariant("baruser"));
     QCOMPARE(map[1]["password"], QVariant("barpass"));
 
+    // FIXME : test last_login
     map = users.all().values(QStringList() << "username" << "password");
     QCOMPARE(map.size(), 2);
     QCOMPARE(map[0].keys(), QList<QString>() << "password" << "username");
@@ -266,7 +274,43 @@ void TestModel::values()
     QCOMPARE(map[1].keys(), QList<QString>() << "password" << "username");
     QCOMPARE(map[1]["username"], QVariant("baruser"));
     QCOMPARE(map[1]["password"], QVariant("barpass"));
+}
 
+void TestModel::valuesList()
+{
+    const QDjangoQuerySet<User> users;
+
+    User user;
+    user.setUsername("foouser");
+    user.setPassword("foopass");
+    user.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
+    QCOMPARE(user.save(), true);
+
+    User user2;
+    user2.setUsername("baruser");
+    user2.setPassword("barpass");
+    user2.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 6, 31)));
+    QCOMPARE(user2.save(), true);
+
+    // FIXME : test last_login
+    QList< QList<QVariant> > list = users.all().valuesList();
+    QCOMPARE(list.size(), 2);
+    QCOMPARE(list[0].size(), 4);
+    QCOMPARE(list[0][1], QVariant("foouser"));
+    QCOMPARE(list[0][2], QVariant("foopass"));
+    QCOMPARE(list[1].size(), 4);
+    QCOMPARE(list[1][1], QVariant("baruser"));
+    QCOMPARE(list[1][2], QVariant("barpass"));
+
+    // FIXME : test last_login
+    list = users.all().valuesList(QStringList() << "username" << "password");
+    QCOMPARE(list.size(), 2);
+    QCOMPARE(list[0].size(), 2);
+    QCOMPARE(list[0][0], QVariant("foouser"));
+    QCOMPARE(list[0][1], QVariant("foopass"));
+    QCOMPARE(list[1].size(), 2);
+    QCOMPARE(list[1][0], QVariant("baruser"));
+    QCOMPARE(list[1][1], QVariant("barpass"));
 }
 
 void TestModel::cleanup()
