@@ -133,21 +133,14 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
 
     // process local fields
     const QDjangoModel *model = QDjango::model(m_modelName);
+    const QStringList fieldNames = fields.isEmpty() ? model->databaseFields() : fields;
     foreach (const PropertyMap &props, m_properties)
     {
-        PropertyMap map;
-        foreach (const QString &key, props.keys())
+        QMap<QString, QVariant> map;
+        foreach (const QString &field, fieldNames)
         {
-            QStringList bits = key.split(".");
-            Q_ASSERT(bits.size() == 2);
-
-            const QString table = QDjango::unquote(bits[0]);
-            if (table == model->databaseTable())
-            {
-                const QString field = QDjango::unquote(bits[1]);
-                if (fields.isEmpty() || fields.contains(field))
-                    map[field] = props[key];
-            }
+            const QString key = model->databaseColumn(field);
+            map[field] = props[key];
         }
         values.append(map);
     }
