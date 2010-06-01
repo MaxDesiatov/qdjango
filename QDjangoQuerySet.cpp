@@ -23,6 +23,8 @@
 #include "QDjangoModel.h"
 #include "QDjangoQuerySet.h"
 
+typedef QMap<QString, QVariant> PropertyMap;
+
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
     : m_haveResults(false), m_modelName(modelName)
 {
@@ -122,5 +124,33 @@ bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)
 
     model->databaseLoad(m_properties.at(index));
     return true;
+}
+
+QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &fields)
+{
+    QList< QMap<QString, QVariant> > values;
+    sqlFetch();
+
+    // process local fields
+    const QDjangoModel *model = QDjango::model(m_modelName);
+    foreach (const PropertyMap &props, m_properties)
+    {
+        PropertyMap map;
+        foreach (const QString &key, props.keys())
+        {
+            QStringList bits = key.split(".");
+            Q_ASSERT(bits.size() == 2);
+
+            const QString table = QDjango::unquote(bits[0]);
+            if (table == model->databaseTable())
+            {
+                const QString field = QDjango::unquote(bits[1]);
+                if (fields.isEmpty() || fields.contains(field))
+                    map[field] = props[key];
+            }
+        }
+        values.append(map);
+    }
+    return values;
 }
 

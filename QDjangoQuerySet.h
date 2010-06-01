@@ -20,6 +20,7 @@
 #ifndef QDJANGO_QUERYSET_H
 #define QDJANGO_QUERYSET_H
 
+#include "QDjango.h"
 #include "QDjangoWhere.h"
 #include "QDjangoQuerySet_p.h"
 
@@ -35,6 +36,7 @@ public:
     void remove();
     QDjangoQuerySet selectRelated() const;
     int size();
+    QList< QMap<QString, QVariant> > values(const QStringList &fields = QStringList());
     QDjangoWhere where() const;
 
     T *get(const QDjangoWhere &where) const;
@@ -150,6 +152,14 @@ int QDjangoQuerySet<T>::size()
 {
     sqlFetch();
     return m_properties.size();
+}
+
+/** Returns a list of property hashes for the current QDjangoQuerySet.
+ */
+template <class T>
+QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &fields)
+{
+    return sqlValues(fields);
 }
 
 /** Return the QDjangoWhere expressing the WHERE clause of the
