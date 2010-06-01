@@ -154,3 +154,23 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
     return values;
 }
 
+QList< QList<QVariant> > QDjangoQueryBase::sqlValuesList(const QStringList &fields)
+{
+    QList< QList<QVariant> > values;
+    sqlFetch();
+
+    const QDjangoModel *model = QDjango::model(m_modelName);
+    const QStringList fieldNames = fields.isEmpty() ? model->databaseFields() : fields;
+    foreach (const PropertyMap &props, m_properties)
+    {
+        QList<QVariant> list;
+        foreach (const QString &field, fieldNames)
+        {
+            const QString key = model->databaseColumn(field);
+            list << props.value(key);
+        }
+        values.append(list);
+    }
+    return values;
+}
+

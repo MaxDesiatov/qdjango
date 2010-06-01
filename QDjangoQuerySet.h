@@ -37,6 +37,7 @@ public:
     QDjangoQuerySet selectRelated() const;
     int size();
     QList< QMap<QString, QVariant> > values(const QStringList &fields = QStringList());
+    QList< QList<QVariant> > valuesList(const QStringList &fields = QStringList());
     QDjangoWhere where() const;
 
     T *get(const QDjangoWhere &where) const;
@@ -160,6 +161,14 @@ template <class T>
 QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &fields)
 {
     return sqlValues(fields);
+}
+
+/** Returns a list of property lists for the current QDjangoQuerySet.
+ */
+template <class T>
+QList< QList<QVariant> > QDjangoQuerySet<T>::valuesList(const QStringList &fields)
+{
+    return sqlValuesList(fields);
 }
 
 /** Return the QDjangoWhere expressing the WHERE clause of the

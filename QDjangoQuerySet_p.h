@@ -40,6 +40,7 @@ protected:
     void sqlFetch();
     bool sqlLoad(QDjangoModel *model, int index);
     QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
+    QList< QList<QVariant> > sqlValuesList(const QStringList &fields);
 
     QDjangoWhere m_where;
     QList< QMap<QString, QVariant> > m_properties;
