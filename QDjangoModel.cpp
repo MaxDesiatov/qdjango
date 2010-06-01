@@ -210,7 +210,7 @@ void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDja
 
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
  *
- * @param field
+ * @param name
  */
 QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
 {

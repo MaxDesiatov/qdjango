@@ -83,7 +83,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 /** Returns a new QDjangoQuerySet containing objects for which the given key
  *  where condition is false.
  *
- * @where
+ * @param where
  */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
@@ -156,6 +156,9 @@ int QDjangoQuerySet<T>::size()
 }
 
 /** Returns a list of property hashes for the current QDjangoQuerySet.
+ *  If no fields are specified, all the model's declared fields are returned. 
+ *
+ * @param fields
  */
 template <class T>
 QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &fields)
@@ -164,6 +167,10 @@ QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &f
 }
 
 /** Returns a list of property lists for the current QDjangoQuerySet.
+ *  If no fields are specified, all the model's fields are returned in the
+ *  order they where declared.
+ *
+ * @param fields
  */
 template <class T>
 QList< QList<QVariant> > QDjangoQuerySet<T>::valuesList(const QStringList &fields)
