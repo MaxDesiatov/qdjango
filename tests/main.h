@@ -49,6 +49,7 @@ private slots:
     void getUser();
     void filterUsers();
     void excludeUsers();
+    void limit();
     void values();
     void valuesList();
     void cleanup();

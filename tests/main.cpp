@@ -239,6 +239,53 @@ void TestModel::excludeUsers()
     QCOMPARE(qs.size(), 1);
 }
 
+void TestModel::limit()
+{
+    const QDjangoQuerySet<User> users;
+
+    for (int i = 0; i < 10; i++)
+    {
+        User user;
+        user.setUsername(QString("foouser%1").arg(i));
+        user.setPassword(QString("foopass%1").arg(i));
+        QCOMPARE(user.save(), true);
+    }
+
+    // all results
+    QDjangoQuerySet<User> qs = users.limit(0, -1);
+    QCOMPARE(qs.size(), 10);
+
+    // 5 results from offset 0
+    qs = users.limit(0, 5);
+    QCOMPARE(qs.size(), 5);
+    User *other = qs.at(0);
+    QCOMPARE(other->username(), QLatin1String("foouser0"));
+    delete other;
+    other = qs.at(4);
+    QCOMPARE(other->username(), QLatin1String("foouser4"));
+    delete other;
+
+    // 5 results from offset 1
+    qs = users.limit(1, 5);
+    QCOMPARE(qs.size(), 5);
+    other = qs.at(0);
+    QCOMPARE(other->username(), QLatin1String("foouser1"));
+    delete other;
+    other = qs.at(4);
+    QCOMPARE(other->username(), QLatin1String("foouser5"));
+    delete other;
+
+    // all results from offset 1
+    qs = users.limit(1, -1);
+    QCOMPARE(qs.size(), 9);
+    other = qs.at(0);
+    QCOMPARE(other->username(), QLatin1String("foouser1"));
+    delete other;
+    other = qs.at(8);
+    QCOMPARE(other->username(), QLatin1String("foouser9"));
+    delete other;
+}
+
 void TestModel::values()
 {
     const QDjangoQuerySet<User> users;
@@ -549,7 +596,7 @@ void TestRelated::filterRelated()
         QCOMPARE(message.save(), true);
     }
 
-    // FIXME : does not work with selectRelated
+    // FIXME : does not work without selectRelated
     QDjangoQuerySet<Message> qs = messages.selectRelated().filter(
         QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));

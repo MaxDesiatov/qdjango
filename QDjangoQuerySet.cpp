@@ -26,7 +26,10 @@
 typedef QMap<QString, QVariant> PropertyMap;
 
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
-    : m_haveResults(false), m_modelName(modelName)
+    : m_lowMark(0),
+    m_highMark(0),
+    m_haveResults(false),
+    m_modelName(modelName)
 {
 }
 
@@ -68,6 +71,7 @@ void QDjangoQueryBase::sqlDelete()
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
+    sql += sqlLimit();
     QSqlQuery query(QDjangoModel::database());
     query.prepare(sql);
     m_where.bindValues(query);
@@ -94,6 +98,7 @@ void QDjangoQueryBase::sqlFetch()
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
+    sql += sqlLimit();
     QSqlQuery query(QDjangoModel::database());
     query.prepare(sql);
     m_where.bindValues(query);
@@ -110,6 +115,27 @@ void QDjangoQueryBase::sqlFetch()
         }
     }
     m_haveResults = true;
+}
+
+QString QDjangoQueryBase::sqlLimit() const
+{
+    QString limit;
+    if (m_highMark > 0)
+        limit = QString(" LIMIT %1").arg(m_highMark - m_lowMark);
+    if (m_lowMark > 0)
+    {
+        if (m_highMark <= 0)
+        {
+            const QString driverName = QDjangoModel::database().driverName();
+            if (driverName == "QSQLITE" || driverName == "QSQLITE2")
+                limit = " LIMIT -1";
+            else if (driverName == "QMYSQL")
+                // 2^64 - 1, as recommended by the MySQL documentation
+                limit = " LIMIT 18446744073709551615";
+        }
+        limit += QString(" OFFSET %1").arg(m_lowMark);
+    }
+    return limit;
 }
 
 bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)

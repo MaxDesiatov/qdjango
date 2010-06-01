@@ -38,10 +38,13 @@ protected:
     void addFilter(const QDjangoWhere &where);
     void sqlDelete();
     void sqlFetch();
+    QString sqlLimit() const;
     bool sqlLoad(QDjangoModel *model, int index);
     QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
     QList< QList<QVariant> > sqlValuesList(const QStringList &fields);
 
+    int m_lowMark;
+    int m_highMark;
     QDjangoWhere m_where;
     QList< QMap<QString, QVariant> > m_properties;
     bool m_selectRelated;
