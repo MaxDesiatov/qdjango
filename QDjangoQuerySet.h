@@ -33,8 +33,10 @@ public:
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QDjangoWhere &where) const;
     QDjangoQuerySet filter(const QDjangoWhere &where) const;
-    void remove();
+    QDjangoQuerySet limit(int pos, int length = -1) const;
     QDjangoQuerySet selectRelated() const;
+
+    void remove();
     int size();
     QList< QMap<QString, QVariant> > values(const QStringList &fields = QStringList());
     QList< QList<QVariant> > valuesList(const QStringList &fields = QStringList());
@@ -75,6 +77,8 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
     QDjangoQuerySet<T> other;
+    other.m_lowMark = m_lowMark;
+    other.m_highMark = m_highMark;
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
     return other;
@@ -88,9 +92,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
 {
-    QDjangoQuerySet<T> other;
-    other.m_selectRelated = m_selectRelated;
-    other.m_where = m_where;
+    QDjangoQuerySet<T> other = all();
     other.addFilter(!where);
     return other;
 }
@@ -103,9 +105,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
 {
-    QDjangoQuerySet<T> other;
-    other.m_selectRelated = m_selectRelated;
-    other.m_where = m_where;
+    QDjangoQuerySet<T> other = all();
     other.addFilter(where);
     return other;
 }
@@ -125,6 +125,24 @@ T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
     return qs.size() == 1 ? qs.at(0) : 0;
 }
 
+/** Returns a new QDjangoQuerySet containing limiting the number of
+ *  returned objects.
+ *
+ * @param pos
+ * @param length
+ */
+template <class T>
+QDjangoQuerySet<T> QDjangoQuerySet<T>::limit(int pos, int length) const
+{
+    Q_ASSERT(pos >= 0);
+    Q_ASSERT(length >= -1);
+
+    QDjangoQuerySet<T> other = all();
+    other.m_lowMark = pos;
+    other.m_highMark = length >= 0 ? pos + length : 0;
+    return other;
+}
+
 /** Deletes all objects in the QDjangoQuerySet.
  */
 template <class T>
@@ -140,8 +158,7 @@ void QDjangoQuerySet<T>::remove()
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
 {
-    QDjangoQuerySet<T> other;
-    other.m_where = m_where;
+    QDjangoQuerySet<T> other = all();
     other.m_selectRelated = true;
     return other;
 }
