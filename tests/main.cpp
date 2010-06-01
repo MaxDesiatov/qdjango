@@ -235,6 +235,40 @@ void TestModel::excludeUsers()
     QCOMPARE(qs.size(), 1);
 }
 
+void TestModel::values()
+{
+    const QDjangoQuerySet<User> users;
+
+    User user;
+    user.setUsername("foouser");
+    user.setPassword("foopass");
+    QCOMPARE(user.save(), true);
+
+    User user2;
+    user2.setUsername("baruser");
+    user2.setPassword("barpass");
+    QCOMPARE(user2.save(), true);
+
+    QList< QMap<QString, QVariant> > map = users.all().values();
+    QCOMPARE(map.size(), 2);
+    QCOMPARE(map[0].keys(), QList<QString>() << "id" << "last_login" << "password" << "username");
+    QCOMPARE(map[0]["username"], QVariant("foouser"));
+    QCOMPARE(map[0]["password"], QVariant("foopass"));
+    QCOMPARE(map[1].keys(), QList<QString>() << "id" << "last_login" << "password" << "username");
+    QCOMPARE(map[1]["username"], QVariant("baruser"));
+    QCOMPARE(map[1]["password"], QVariant("barpass"));
+
+    map = users.all().values(QStringList() << "username" << "password");
+    QCOMPARE(map.size(), 2);
+    QCOMPARE(map[0].keys(), QList<QString>() << "password" << "username");
+    QCOMPARE(map[0]["username"], QVariant("foouser"));
+    QCOMPARE(map[0]["password"], QVariant("foopass"));
+    QCOMPARE(map[1].keys(), QList<QString>() << "password" << "username");
+    QCOMPARE(map[1]["username"], QVariant("baruser"));
+    QCOMPARE(map[1]["password"], QVariant("barpass"));
+
+}
+
 void TestModel::cleanup()
 {
     QDjangoQuerySet<User>().remove();

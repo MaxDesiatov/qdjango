@@ -39,6 +39,7 @@ protected:
     void sqlDelete();
     void sqlFetch();
     bool sqlLoad(QDjangoModel *model, int index);
+    QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
 
     QDjangoWhere m_where;
     QList< QMap<QString, QVariant> > m_properties;
