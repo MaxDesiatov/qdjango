@@ -132,7 +132,10 @@ T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
 }
 
 /** Returns a new QDjangoQuerySet containing limiting the number of
- *  returned objects.
+ *  records to manipulate.
+ *
+ *  You cannot apply additional restrictions using call filter(),
+ *  exclude() or get() on the returned QDjangoQuerySet.
  *
  * @param pos
  * @param length
