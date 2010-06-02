@@ -56,6 +56,9 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &fro
 
 void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
 {
+    // it is not possible to add filters once a limit has been set
+    Q_ASSERT(!m_lowMark && !m_highMark);
+
     const QDjangoModel *model = QDjango::model(m_modelName);
     QDjangoWhere q(where);
     q.resolve(model);
