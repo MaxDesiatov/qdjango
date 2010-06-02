@@ -26,9 +26,7 @@
 #include "QDjango.h"
 #include "QDjangoModel.h"
 
-/*! \mainpage API documentation
- *
- * \section intro_sec Introduction
+/*! \mainpage
  *
  * QDjango is a simple yet powerful Object Relation Mapper (ORM) built
  * on top of the Qt library. Where possible it tries to follow django's
