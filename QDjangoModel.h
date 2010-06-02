@@ -40,6 +40,11 @@ class QDjangoModel : public QObject
     Q_PROPERTY(QVariant pk READ pk WRITE setPk)
 
 public:
+    enum FieldOption
+    {
+        MaxLengthOption,
+    };
+
     QDjangoModel(QObject *parent = 0);
 
     QVariant pk() const;
@@ -59,6 +64,9 @@ protected:
     void addForeignKey(const QString &name, const QString &field, QDjangoModel *model);
     QDjangoModel *foreignKey(const QString &name) const;
 
+    QVariant fieldOption(const QString &field, FieldOption option) const;
+    void setFieldOption(const QString &field, FieldOption option, const QVariant &value);
+
 private:
     QString databaseColumn(const QString &name) const;
     void databaseLoad(const QMap<QString, QVariant> &props);
@@ -67,6 +75,7 @@ private:
 
     int m_id;
     QString m_pkName;
+    QMap<QString,QMap<FieldOption, QVariant> > m_fieldOptions;
     QMap<QString,QString> m_foreignKeys;
     QMap<QString,QDjangoModel*> m_foreignModels;
 
