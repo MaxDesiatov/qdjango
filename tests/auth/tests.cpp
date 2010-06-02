@@ -176,10 +176,15 @@ void TestModel::filterUsers()
     bar.setPassword("barpass");
     bar.save();
 
+    User wiz;
+    wiz.setUsername("wizuser");
+    wiz.setPassword("wizpass");
+    wiz.save();
+
     // all users
     QDjangoQuerySet<User> qs = users.all();
     QCOMPARE(qs.where().sql(), QLatin1String(""));
-    QCOMPARE(qs.size(), 2);
+    QCOMPARE(qs.size(), 3);
 
     // invalid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
@@ -201,8 +206,9 @@ void TestModel::filterUsers()
     QCOMPARE(qs.size(), 1);
 
     // username in list
-    qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QList<QVariant>() << "foouser"));
-    QCOMPARE(qs.size(), 1);
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QList<QVariant>() << "foouser" << "wizuser"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` IN (:user_username_0, :user_username_1)"));
+    QCOMPARE(qs.size(), 2);
 }
 
 void TestModel::excludeUsers()
