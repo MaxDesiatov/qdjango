@@ -96,6 +96,10 @@ static QScriptValue newModel(QScriptContext *context, QScriptEngine *engine)
     return engine->newQObject(new T, QScriptEngine::ScriptOwnership);
 }
 
+/** Make a QDjangoModel class available to the given QScriptEngine.
+ *
+ * @param engine
+ */
 template <class T>
 void qScriptRegisterModel(QScriptEngine *engine)
 {

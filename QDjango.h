@@ -42,7 +42,7 @@ public:
     static QString unquote(const QString &quoted);
 };
 
-/** Register a QDjangoModel with QDjango.
+/** Register a QDjangoModel class with QDjango.
  */
 template <class T>
 void qDjangoRegisterModel()
