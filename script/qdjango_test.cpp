@@ -23,7 +23,7 @@
 #include <QScriptEngine>
 
 #include "QDjangoScript.h"
-#include "tests/models.h"
+#include "tests/auth/models.h"
 
 Q_DECLARE_METATYPE(QDjangoQuerySet<User>)
 Q_DECLARE_METATYPE(QDjangoQuerySet<Group>)
