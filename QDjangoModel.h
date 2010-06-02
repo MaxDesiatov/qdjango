@@ -40,8 +40,11 @@ class QDjangoModel : public QObject
     Q_PROPERTY(QVariant pk READ pk WRITE setPk)
 
 public:
+    /** Available options for model fields.
+     */
     enum FieldOption
     {
+        /** Maximum length (for string fields). */
         MaxLengthOption,
     };
 
