@@ -26,7 +26,7 @@ class QSqlDatabase;
 #include <QObject>
 #include <QVariant>
 
-/** Base class for all models.
+/** \brief Base class for all models.
  *
  *  To declare your own model, create a class which inherits QDjangoModel
  *  and declare the database fields as properties using the Q_PROPERTY

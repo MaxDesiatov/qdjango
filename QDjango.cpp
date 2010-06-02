@@ -26,6 +26,20 @@
 #include "QDjango.h"
 #include "QDjangoModel.h"
 
+/*! \mainpage API documentation
+ *
+ * \section intro_sec Introduction
+ *
+ * QDjango is a simple yet powerful Object Relation Mapper (ORM) built
+ * on top of the Qt library. Where possible it tries to follow django's
+ * ORM API, hence its name.
+ *
+ * @see QDjango
+ * @see QDjangoModel
+ * @see QDjangoQuerySet
+ */
+
+
 static QMap<QString, QDjangoModel*> registry;
 
 static void sqlDebug(const QSqlQuery &query)
