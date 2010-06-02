@@ -305,10 +305,10 @@ void TestModel::values()
     // FIXME : test last_login
     QList< QMap<QString, QVariant> > map = users.all().values();
     QCOMPARE(map.size(), 2);
-    QCOMPARE(map[0].keys(), QList<QString>() << "id" << "last_login" << "password" << "username");
+    QCOMPARE(map[0].keys(), QList<QString>() << "date_joined" << "email" << "first_name" << "id" << "is_active" << "is_staff" << "is_superuser" << "last_login" << "last_name" << "password" << "username");
     QCOMPARE(map[0]["username"], QVariant("foouser"));
     QCOMPARE(map[0]["password"], QVariant("foopass"));
-    QCOMPARE(map[1].keys(), QList<QString>() << "id" << "last_login" << "password" << "username");
+    QCOMPARE(map[1].keys(), QList<QString>() << "date_joined" << "email" << "first_name" << "id" << "is_active" << "is_staff" << "is_superuser" << "last_login" << "last_name" << "password" << "username");
     QCOMPARE(map[1]["username"], QVariant("baruser"));
     QCOMPARE(map[1]["password"], QVariant("barpass"));
 
@@ -342,12 +342,12 @@ void TestModel::valuesList()
     // FIXME : test last_login
     QList< QList<QVariant> > list = users.all().valuesList();
     QCOMPARE(list.size(), 2);
-    QCOMPARE(list[0].size(), 4);
+    QCOMPARE(list[0].size(), 11);
     QCOMPARE(list[0][1], QVariant("foouser"));
-    QCOMPARE(list[0][2], QVariant("foopass"));
-    QCOMPARE(list[1].size(), 4);
+    QCOMPARE(list[0][5], QVariant("foopass"));
+    QCOMPARE(list[1].size(), 11);
     QCOMPARE(list[1][1], QVariant("baruser"));
-    QCOMPARE(list[1][2], QVariant("barpass"));
+    QCOMPARE(list[1][5], QVariant("barpass"));
 
     // FIXME : test last_login
     list = users.all().valuesList(QStringList() << "username" << "password");
