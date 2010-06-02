@@ -20,9 +20,9 @@
 #include "models.h"
 
 File::File(QObject *parent)
-    : QDjangoModel(parent)
+    : QDjangoModel(parent), m_size(0)
 {
-
+    setFieldOption("path", PrimaryKeyOption, true);
 }
 
 QString File::path() const
@@ -33,5 +33,15 @@ QString File::path() const
 void File::setPath(const QString &path)
 {
     m_path = path;
+}
+
+qint64 File::size() const
+{
+    return m_size;
+}
+
+void File::setSize(qint64 size)
+{
+    m_size = size;
 }
 

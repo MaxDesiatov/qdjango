@@ -17,13 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QtTest/QtTest>
+
+#include "QDjangoQuerySet.h"
+
 #include "models.h"
 #include "tests.h"
 
+void TestShares::initTestCase()
+{
+    QCOMPARE(File().createTable(), true);
+}
+
 void TestShares::testFile()
 {
+    // create a file
     File file;
     file.setPath("foo/bar.txt");
-    file.save();
+    file.setSize(1234);
+    QCOMPARE(file.save(), true);
+
+    // update the file
+    file.setSize(5678);
+    QCOMPARE(file.save(), true);
 }
+
+void TestShares::cleanup()
+{
+    QDjangoQuerySet<File>().remove();
+}
+
+void TestShares::cleanupTestCase()
+{
+    QCOMPARE(File().dropTable(), true);
+}
+
 
