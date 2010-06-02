@@ -25,25 +25,33 @@
 class QDjangoModel;
 class QSqlQuery;
 
-/** QDjangoWhere expresses a constraint for a database operation.
+/** \brief The QDjangoWhere class expresses an SQL constraint.
  *
- * It is used to construct SQL WHERE statements.
+ * The QDjangoWhere class is used to build SQL WHERE statements. In its
+ * simplest form a QDjangoWhere expresses a constraint on a column value.
+ *
+ * QDjangoWhere instances can be negated using the "!" unary operator
+ * or combined using the "&&" and "||" boolean operators.
  */
 class QDjangoWhere
 {
 public:
-    /** A comparison operation. */
+    /** A comparison operation on a database column value. */
     enum Operation
     {
         /** No comparison, always returns true. */
         None,
-        /** Returns true if the two values are equal. */
+        /** Returns true if the column value is equal to the given value. */
         Equals,
-        /** Returns true if the two values are not equal */
+        /** Returns true if the column value is not equal to the given value. */
         NotEquals,
+        /** Returns true if the column value is greater than the given value. */
         GreaterThan,
+        /** Returns true if the column value is less than the given value. */
         LessThan,
+        /** Returns true if the column value is greater or equal to the given value. */
         GreaterOrEquals,
+        /** Returns true if the column value is less or equal to the given value. */
         LessOrEquals,
     };
 

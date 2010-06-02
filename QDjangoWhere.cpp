@@ -24,12 +24,14 @@
 #include "QDjangoModel.h"
 #include "QDjangoWhere.h"
 
+/** Constructs an empty QDjangoWhere, which expresses no constraint.
+ */
 QDjangoWhere::QDjangoWhere()
     :  m_operation(None), m_combine(NoCombine), m_negate(false)
 {
 }
 
-/** Construct a QDjangoWhere expressing a test on a database column.
+/** Constructs a QDjangoWhere expressing a constraint on a database column.
  *
  * @param key
  * @param operation
@@ -44,7 +46,7 @@ QDjangoWhere::QDjangoWhere(const QString &key, QDjangoWhere::Operation operation
     m_placeholder = ":" + bits.join("_");
 }
 
-/** Negate the current QDjangoWhere.
+/** Negates the current QDjangoWhere.
  */
 QDjangoWhere QDjangoWhere::operator!() const
 {
