@@ -12,8 +12,8 @@ qt4_wrap_cpp(qdjango-models_MOC_SOURCES ${qdjango-models_MOC_HEADERS})
 add_library(qdjango-models STATIC ${qdjango-models_SOURCES} ${qdjango-models_MOC_SOURCES})
 
 # test program
-set(qdjango-tests_SOURCES main.cpp shares/tests.cpp)
-set(qdjango-tests_MOC_HEADERS main.h shares/tests.h)
+set(qdjango-tests_SOURCES main.cpp auth/tests.cpp shares/tests.cpp)
+set(qdjango-tests_MOC_HEADERS main.h auth/tests.h shares/tests.h)
 
 qt4_wrap_cpp(qdjango-tests_MOC_SOURCES ${qdjango-tests_MOC_HEADERS})
 add_executable(qdjango-tests ${qdjango-tests_SOURCES} ${qdjango-tests_MOC_SOURCES})

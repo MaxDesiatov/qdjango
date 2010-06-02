@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef QDJANGO_AUTH_MODELS_H
+#define QDJANGO_AUTH_MODELS_H
+
 #include <QDateTime>
 
 #include "QDjangoModel.h"
@@ -139,3 +142,4 @@ private:
     QString m_text;
 };
 
+#endif

@@ -22,7 +22,8 @@
 
 void TestShares::testFile()
 {
-    File f;
-
+    File file;
+    file.setPath("foo/bar.txt");
+    file.save();
 }
 
