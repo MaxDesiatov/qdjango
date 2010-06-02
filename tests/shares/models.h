@@ -28,6 +28,7 @@ class File : public QDjangoModel
 {
     Q_OBJECT
     Q_PROPERTY(QString path READ path WRITE setPath)
+    Q_PROPERTY(qint64 size READ size WRITE setSize)
 
 public:
     File(QObject *parent = 0);
@@ -35,8 +36,12 @@ public:
     QString path() const;
     void setPath(const QString &path);
 
+    qint64 size() const;
+    void setSize(qint64 size);
+
 private:
     QString m_path;
+    qint64 m_size;
 };
 
 #endif
