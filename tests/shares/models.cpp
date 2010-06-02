@@ -23,6 +23,8 @@ File::File(QObject *parent)
     : QDjangoModel(parent), m_size(0)
 {
     setFieldOption("path", PrimaryKeyOption, true);
+    setFieldOption("path", MaxLengthOption, 255);
+    setFieldOption("hash", MaxLengthOption, 32);
 }
 
 QDateTime File::date() const
