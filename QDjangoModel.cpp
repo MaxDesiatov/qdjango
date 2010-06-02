@@ -95,28 +95,50 @@ bool QDjangoModel::createTable() const
     const QMetaObject* meta = metaObject();
 
     QStringList propSql;
-    if (m_pkName == "id")
+    foreach (const QString &fieldName, databaseFields())
     {
-        QString pkSql = QDjango::quote(m_pkName) + " INTEGER PRIMARY KEY";
-        if (db.driverName() == "QSQLITE" || db.driverName() == "QSQLITE2")
-            pkSql += " AUTOINCREMENT";
-        else if (db.driverName() == "QMYSQL")
-            pkSql += " AUTO_INCREMENT";
-        propSql << pkSql;
-    }
-    for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
-    {
-        const QString field = QDjango::quote(QString::fromLatin1(meta->property(i).name()));
-        if (meta->property(i).type() == QVariant::DateTime)
-            propSql << field + " DATETIME";
-        else if (meta->property(i).type() == QVariant::Double)
-            propSql << field + " REAL";
-        else if (meta->property(i).type() == QVariant::Int)
-            propSql << field + " INTEGER";
-        else if (meta->property(i).type() == QVariant::String)
-            propSql << field + " TEXT";
+        bool autoIncrement = false;
+        QVariant::Type fieldType;
+        if (fieldName == "id")
+        {
+            autoIncrement = true;
+            fieldType = QVariant::Int;
+        }
         else
-            qWarning() << "Unhandled property type" << meta->property(i).typeName();
+        {
+            int i = meta->indexOfProperty(fieldName.toLatin1());
+            Q_ASSERT(i >= 0);
+            fieldType = meta->property(i).type();
+        }
+
+        QString fieldSql = QDjango::quote(fieldName);
+        if (fieldType == QVariant::DateTime)
+            fieldSql += " DATETIME";
+        else if (fieldType == QVariant::Double)
+            fieldSql += " REAL";
+        else if (fieldType == QVariant::Int)
+            fieldSql += " INTEGER";
+        else if (fieldType == QVariant::String)
+            fieldSql += " TEXT";
+        else {
+            qWarning() << "Unhandled property" << fieldName;
+            continue;
+        }
+
+        // primary key
+        if (fieldName == m_pkName)
+        {
+            fieldSql += " PRIMARY KEY";
+            if (autoIncrement)
+            {
+                if (db.driverName() == "QSQLITE" || db.driverName() == "QSQLITE2")
+                    fieldSql += " AUTOINCREMENT";
+                else if (db.driverName() == "QMYSQL")
+                    fieldSql += " AUTO_INCREMENT";
+            }
+        }
+
+        propSql << fieldSql;
     }
 
     // create table
