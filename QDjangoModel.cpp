@@ -124,6 +124,8 @@ bool QDjangoModel::createTable() const
             fieldSql += " REAL";
         else if (fieldType == QVariant::Int)
             fieldSql += " INTEGER";
+        else if (fieldType == QVariant::LongLong)
+            fieldSql += " INTEGER";
         else if (fieldType == QVariant::String)
         {
             int maxLength = fieldOption(fieldName, MaxLengthOption).toInt();
@@ -133,7 +135,7 @@ bool QDjangoModel::createTable() const
                 fieldSql += " TEXT";
         }
         else {
-            qWarning() << "Unhandled property" << fieldName;
+            qWarning() << "Unhandled type" << fieldType << "for property" << fieldName;
             continue;
         }
 
@@ -318,6 +320,8 @@ void QDjangoModel::setFieldOption(const QString &field, FieldOption option, cons
         return;
     }
 
+    if (option == PrimaryKeyOption && value.toBool())
+        m_pkName = field;
     m_fieldOptions[field][option] = value;
 }
 
@@ -338,7 +342,6 @@ bool QDjangoModel::save()
 {
     QSqlDatabase db = database();
     QStringList fieldNames = databaseFields();
-    fieldNames.removeAll(m_pkName);
 
     if (!pk().isNull() && !(m_pkName == "id" && !pk().toInt()))
     {
@@ -348,6 +351,10 @@ bool QDjangoModel::save()
         query.bindValue(":pk", pk());
         if (sqlExec(query) && query.next())
         {
+            // remove primary key
+            fieldNames.removeAll(m_pkName);
+
+            // perform update
             QStringList fieldAssign;
             foreach (const QString &name, fieldNames)
                 fieldAssign << QDjango::quote(name) + " = :" + name;
@@ -361,6 +368,10 @@ bool QDjangoModel::save()
             return sqlExec(query);
         }
     }
+
+    // remove auto-increment column
+    if (m_pkName == "id")
+        fieldNames.removeAll(m_pkName);
 
     // perform insert
     QStringList fieldColumns;

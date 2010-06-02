@@ -46,6 +46,7 @@ public:
     {
         /** Maximum length (for string fields). */
         MaxLengthOption,
+        PrimaryKeyOption,
     };
 
     QDjangoModel(QObject *parent = 0);
