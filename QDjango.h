@@ -28,7 +28,9 @@ class QDjangoModel;
 
 bool sqlExec(QSqlQuery &query);
 
-/** QDjango provides access to registered QDjangoModel classes.
+/** \brief The QDjango class provides a set of static functions.
+ *
+ *  It is used to access registered QDjangoModel classes.
  */
 class QDjango
 {

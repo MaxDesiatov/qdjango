@@ -34,6 +34,7 @@
  *
  * @see QDjango
  * @see QDjangoModel
+ * @see QDjangoWhere
  * @see QDjangoQuerySet
  */
 
