@@ -19,21 +19,36 @@
 
 #include <QObject>
 
-class TestWhere : public QObject
+class TestModel: public QObject
 {
     Q_OBJECT
 
 private slots:
-    void quoting();
-    void emptyWhere();
-    void equalsWhere();
-    void notEqualsWhere();
-    void greaterThan();
-    void greaterOrEquals();
-    void lessThan();
-    void lessOrEquals();
-    void andWhere();
-    void orWhere();
-    void complexWhere();
+    void initTestCase();
+    void createUser();
+    void removeUser();
+    void removeUsers();
+    void getUser();
+    void filterUsers();
+    void excludeUsers();
+    void limit();
+    void subLimit();
+    void values();
+    void valuesList();
+    void cleanup();
+    void cleanupTestCase();
+};
+
+class TestRelated : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void testGroups();
+    void testRelated();
+    void filterRelated();
+    void cleanup();
+    void cleanupTestCase();
 };
 
