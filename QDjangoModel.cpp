@@ -112,7 +112,13 @@ bool QDjangoModel::createTable() const
         }
 
         QString fieldSql = QDjango::quote(fieldName);
-        if (fieldType == QVariant::DateTime)
+        if (fieldType == QVariant::Bool)
+            fieldSql += " BOOLEAN";
+        else if (fieldType == QVariant::ByteArray)
+            fieldSql += " BLOB";
+        else if (fieldType == QVariant::Date)
+            fieldSql += " DATE";
+        else if (fieldType == QVariant::DateTime)
             fieldSql += " DATETIME";
         else if (fieldType == QVariant::Double)
             fieldSql += " REAL";
