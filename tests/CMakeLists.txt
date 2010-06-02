@@ -5,8 +5,8 @@ set(QT_USE_QTTEST 1)
 include(${QT_USE_FILE})
 
 # test models
-set(qdjango-models_SOURCES models.cpp)
-set(qdjango-models_MOC_HEADERS models.h)
+set(qdjango-models_SOURCES auth/models.cpp)
+set(qdjango-models_MOC_HEADERS auth/models.h)
 
 qt4_wrap_cpp(qdjango-models_MOC_SOURCES ${qdjango-models_MOC_HEADERS})
 add_library(qdjango-models STATIC ${qdjango-models_SOURCES} ${qdjango-models_MOC_SOURCES})

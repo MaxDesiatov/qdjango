@@ -29,7 +29,7 @@
 #include "QDjangoWhere.h"
 
 #include "main.h"
-#include "models.h"
+#include "auth/models.h"
 
 void TestModel::initTestCase()
 {
