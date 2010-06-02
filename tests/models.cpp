@@ -21,6 +21,16 @@
 
 #include "models.h"
 
+User::User(QObject *parent)
+    : QDjangoModel(parent),
+    m_isActive(true),
+    m_isStaff(false),
+    m_isSuperUser(false)
+{
+    m_dateJoined = QDateTime::currentDateTime();
+    m_lastLogin = QDateTime::currentDateTime();
+}
+
 QString User::username() const
 {
     return m_username;
@@ -31,6 +41,36 @@ void User::setUsername(const QString &username)
     m_username = username;
 }
 
+QString User::firstName() const
+{
+    return m_firstName;
+}
+
+void User::setFirstName(const QString &firstName)
+{
+    m_firstName = firstName;
+}
+
+QString User::lastName() const
+{
+    return m_lastName;
+}
+
+void User::setLastName(const QString &lastName)
+{
+    m_lastName = lastName;
+}
+
+QString User::email() const
+{
+    return m_email;
+}
+
+void User::setEmail(const QString &email)
+{
+    m_email = email;
+}
+
 QString User::password() const
 {
     return m_password;
@@ -39,6 +79,46 @@ QString User::password() const
 void User::setPassword(const QString &password)
 {
     m_password = password;
+}
+
+bool User::isActive() const
+{
+    return m_isActive;
+}
+
+void User::setIsActive(bool isActive)
+{
+    m_isActive = isActive;
+}
+
+bool User::isStaff() const
+{
+    return m_isStaff;
+}
+
+void User::setIsStaff(bool isStaff)
+{
+    m_isStaff = isStaff;
+}
+
+bool User::isSuperUser() const
+{
+    return m_isSuperUser;
+}
+
+void User::setIsSuperUser(bool isSuperUser)
+{
+    m_isSuperUser = isSuperUser;
+}
+
+QDateTime User::dateJoined() const
+{
+    return m_dateJoined;
+}
+
+void User::setDateJoined(const QDateTime &dateJoined)
+{
+    m_dateJoined = dateJoined;
 }
 
 QDateTime User::lastLogin() const
