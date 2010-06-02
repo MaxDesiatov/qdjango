@@ -125,7 +125,13 @@ bool QDjangoModel::createTable() const
         else if (fieldType == QVariant::Int)
             fieldSql += " INTEGER";
         else if (fieldType == QVariant::String)
-            fieldSql += " TEXT";
+        {
+            int maxLength = fieldOption(fieldName, MaxLengthOption).toInt();
+            if (maxLength > 0)
+                fieldSql += QString(" VARCHAR(%1)").arg(maxLength);
+            else
+                fieldSql += " TEXT";
+        }
         else {
             qWarning() << "Unhandled property" << fieldName;
             continue;
