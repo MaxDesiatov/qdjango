@@ -34,9 +34,17 @@ void TestShares::testFile()
     // create a file
     File file;
     file.setDate(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
+    file.setHash(QByteArray("\0\1\2\3\4", 5));
     file.setPath("foo/bar.txt");
     file.setSize(1234);
     QCOMPARE(file.save(), true);
+
+    File *other = QDjangoQuerySet<File>().get(QDjangoWhere("path", QDjangoWhere::Equals, "foo/bar.txt"));
+    QVERIFY(other != 0);
+    QCOMPARE(other->date(), QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
+    QCOMPARE(other->hash(), QByteArray("\0\1\2\3\4", 5));
+    QCOMPARE(other->path(), QLatin1String("foo/bar.txt"));
+    QCOMPARE(other->size(), qint64(1234));
 
     // update the file
     file.setSize(5678);
