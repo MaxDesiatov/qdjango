@@ -24,6 +24,12 @@
 #include "QDjangoWhere.h"
 #include "QDjangoQuerySet_p.h"
 
+/** \brief Template class for performing database queries.
+ *
+ * The QDjangoQuerySet template class allows you to build and execute
+ * database queries. You can chain filter expressions, apply limits on
+ * the rows to retrieve, retrieve database values or model instances.
+ */
 template <class T>
     class QDjangoQuerySet : private QDjangoQueryBase
 {
