@@ -668,15 +668,23 @@ int main(int argc, char *argv[])
     qDjangoRegisterModel<Message>();
     qDjangoRegisterModel<UserGroups>();
 
+    // run tests
+    int errors;
+
     TestWhere testWhere;
-    QTest::qExec(&testWhere);
+    errors += QTest::qExec(&testWhere);
 
     TestModel testModel;
-    QTest::qExec(&testModel);
+    errors += QTest::qExec(&testModel);
 
     TestRelated testRelated;
-    QTest::qExec(&testRelated);
+    errors += QTest::qExec(&testRelated);
 
+    if (errors)
+    {
+        qWarning() << "Total failed tests:" << errors;
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 };
 
