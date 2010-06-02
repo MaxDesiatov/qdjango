@@ -118,6 +118,14 @@ void TestWhere::lessOrEquals()
     QCOMPARE(testQuery.sql(), QLatin1String("id > :id"));
 }
 
+void TestWhere::isIn()
+{
+    QDjangoWhere testQuery;
+
+    testQuery = QDjangoWhere("id", QDjangoWhere::IsIn, QList<QVariant>() << 1 << 2);
+    QCOMPARE(testQuery.sql(), QLatin1String("id IN (:id_0, :id_1)"));
+}
+
 void TestWhere::andWhere()
 {
     QDjangoWhere testQuery;
