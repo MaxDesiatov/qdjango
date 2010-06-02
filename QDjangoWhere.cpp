@@ -61,7 +61,8 @@ QDjangoWhere QDjangoWhere::operator!() const
         switch (m_operation)
         {
         case None:
-            result.m_operation = None;
+        case IsIn:
+            result.m_operation = m_operation;
             break;
         case Equals:
             // simplify !(a = b) to a != b
@@ -136,7 +137,13 @@ QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
  */
 void QDjangoWhere::bindValues(QSqlQuery &query) const
 {
-    if (m_operation != QDjangoWhere::None)
+    if (m_operation == QDjangoWhere::IsIn)
+    {
+        const QList<QVariant> values = m_data.toList();
+        for (int i = 0; i < values.size(); i++)
+            query.bindValue(QString("%1_%2").arg(m_placeholder).arg(i), values[i]);
+    }
+    else if (m_operation != QDjangoWhere::None)
         query.bindValue(m_placeholder, m_data);
     else
         foreach (const QDjangoWhere &child, m_children)
@@ -198,6 +205,13 @@ QString QDjangoWhere::sql() const
             return m_key + " >= " + m_placeholder;
         case LessOrEquals:
             return m_key + " <= " + m_placeholder;
+        case IsIn:
+        {
+            QStringList bits;
+            for (int i = 0; i < m_data.toList().size(); i++)
+                bits << QString("%1_%2").arg(m_placeholder).arg(i);
+            return m_key + " IN (" + bits.join(", ") + ")";
+        }
         case None:
             if (m_combine == NoCombine)
             {

@@ -176,13 +176,16 @@ void TestModel::filterUsers()
     bar.setPassword("barpass");
     bar.save();
 
+    // all users
     QDjangoQuerySet<User> qs = users.all();
     QCOMPARE(qs.where().sql(), QLatin1String(""));
     QCOMPARE(qs.size(), 2);
 
+    // invalid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
     QCOMPARE(qs.size(), 0);
 
+    // valid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
     QCOMPARE(qs.size(), 1);
@@ -192,8 +195,13 @@ void TestModel::filterUsers()
     QCOMPARE(other->password(), QLatin1String("foopass"));
     delete other;
 
+    // chain filters
     qs = qs.filter(QDjangoWhere("password", QDjangoWhere::Equals, "foopass"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username AND `user`.`password` = :user_password"));
+    QCOMPARE(qs.size(), 1);
+
+    // username in list
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QList<QVariant>() << "foouser"));
     QCOMPARE(qs.size(), 1);
 }
 
