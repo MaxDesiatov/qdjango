@@ -35,6 +35,16 @@ void File::setDate(const QDateTime &date)
     m_date = date;
 }
 
+QByteArray File::hash() const
+{
+    return m_hash;
+}
+
+void File::setHash(const QByteArray &hash)
+{
+    m_hash = hash;
+}
+
 QString File::path() const
 {
     return m_path;

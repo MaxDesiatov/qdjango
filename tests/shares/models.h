@@ -27,8 +27,9 @@
 class File : public QDjangoModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ path WRITE setPath)
     Q_PROPERTY(QDateTime date READ date WRITE setDate)
+    Q_PROPERTY(QByteArray hash READ hash WRITE setHash)
+    Q_PROPERTY(QString path READ path WRITE setPath)
     Q_PROPERTY(qint64 size READ size WRITE setSize)
 
 public:
@@ -37,6 +38,9 @@ public:
     QDateTime date() const;
     void setDate(const QDateTime &date);
 
+    QByteArray hash() const;
+    void setHash(const QByteArray &hash);
+
     QString path() const;
     void setPath(const QString &path);
 
@@ -44,8 +48,9 @@ public:
     void setSize(qint64 size);
 
 private:
-    QString m_path;
     QDateTime m_date;
+    QByteArray m_hash;
+    QString m_path;
     qint64 m_size;
 };
 
