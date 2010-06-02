@@ -27,6 +27,13 @@ User::User(QObject *parent)
     m_isStaff(false),
     m_isSuperUser(false)
 {
+    // declare field options
+    setFieldOption("username", MaxLengthOption, 30);
+    setFieldOption("first_name", MaxLengthOption, 30);
+    setFieldOption("last_name", MaxLengthOption, 30);
+    setFieldOption("password", MaxLengthOption, 128);
+
+    // initialise dates
     m_dateJoined = QDateTime::currentDateTime();
     m_lastLogin = QDateTime::currentDateTime();
 }
