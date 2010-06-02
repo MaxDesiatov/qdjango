@@ -115,7 +115,12 @@ bool QDjangoModel::createTable() const
         if (fieldType == QVariant::Bool)
             fieldSql += " BOOLEAN";
         else if (fieldType == QVariant::ByteArray)
+        {
             fieldSql += " BLOB";
+            int maxLength = fieldOption(fieldName, MaxLengthOption).toInt();
+            if (maxLength > 0)
+                fieldSql += QString("(%1)").arg(maxLength);
+        }
         else if (fieldType == QVariant::Date)
             fieldSql += " DATE";
         else if (fieldType == QVariant::DateTime)
