@@ -144,8 +144,15 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::limit(int pos, int length) const
     Q_ASSERT(length >= -1);
 
     QDjangoQuerySet<T> other = all();
-    other.m_lowMark = pos;
-    other.m_highMark = length >= 0 ? pos + length : 0;
+    other.m_lowMark += pos;
+    if (length > 0)
+    {
+        // calculate new high mark
+        other.m_highMark = other.m_lowMark + length;
+        // never exceed the current high mark
+        if (m_highMark > 0 && other.m_highMark > m_highMark)
+            other.m_highMark = m_highMark;
+    }
     return other;
 }
 

@@ -255,34 +255,82 @@ void TestModel::limit()
     QDjangoQuerySet<User> qs = users.limit(0, -1);
     QCOMPARE(qs.size(), 10);
 
+    // all results from offset 1
+    qs = users.limit(1, -1);
+    QCOMPARE(qs.size(), 9);
+    User *other = qs.at(0);
+    QCOMPARE(other->username(), QLatin1String("foouser1"));
+    delete other;
+    other = qs.at(8);
+    QCOMPARE(other->username(), QLatin1String("foouser9"));
+    delete other;
+
     // 5 results from offset 0
     qs = users.limit(0, 5);
     QCOMPARE(qs.size(), 5);
-    User *other = qs.at(0);
+    other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser0"));
     delete other;
     other = qs.at(4);
     QCOMPARE(other->username(), QLatin1String("foouser4"));
     delete other;
 
-    // 5 results from offset 1
-    qs = users.limit(1, 5);
-    QCOMPARE(qs.size(), 5);
+    // 6 results from offset 1
+    qs = users.limit(1, 8);
+    QCOMPARE(qs.size(), 8);
     other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser1"));
     delete other;
-    other = qs.at(4);
-    QCOMPARE(other->username(), QLatin1String("foouser5"));
+    other = qs.at(7);
+    QCOMPARE(other->username(), QLatin1String("foouser8"));
+    delete other;
+}
+
+/** Test chaining limit statements.
+ */
+void TestModel::subLimit()
+{
+    const QDjangoQuerySet<User> users;
+
+    for (int i = 0; i < 10; i++)
+    {
+        User user;
+        user.setUsername(QString("foouser%1").arg(i));
+        user.setPassword(QString("foopass%1").arg(i));
+        QCOMPARE(user.save(), true);
+    }
+
+    // base query : 8 results from offset 1
+    QDjangoQuerySet<User> refQs = users.limit(1, 8);
+
+    // all sub-results from offset 2
+    QDjangoQuerySet<User> qs = refQs.limit(2, -1);
+    QCOMPARE(qs.size(), 6);
+    User *other = qs.at(0);
+    QCOMPARE(other->username(), QLatin1String("foouser3"));
+    delete other;
+    other = qs.at(5);
+    QCOMPARE(other->username(), QLatin1String("foouser8"));
     delete other;
 
-    // all results from offset 1
-    qs = users.limit(1, -1);
-    QCOMPARE(qs.size(), 9);
+    // 4 sub-results from offset 0
+    qs = refQs.limit(0, 4);
+    QCOMPARE(qs.size(), 4);
     other = qs.at(0);
     QCOMPARE(other->username(), QLatin1String("foouser1"));
     delete other;
-    other = qs.at(8);
-    QCOMPARE(other->username(), QLatin1String("foouser9"));
+    other = qs.at(3);
+    QCOMPARE(other->username(), QLatin1String("foouser4"));
+    delete other;
+
+    // 3 sub-results from offset 2
+    qs = refQs.limit(2, 3);
+    QCOMPARE(qs.size(), 3);
+    other = qs.at(0);
+    QCOMPARE(other->username(), QLatin1String("foouser3"));
+    delete other;
+    other = qs.at(2);
+    QCOMPARE(other->username(), QLatin1String("foouser5"));
     delete other;
 }
 
