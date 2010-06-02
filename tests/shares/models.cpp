@@ -25,6 +25,16 @@ File::File(QObject *parent)
     setFieldOption("path", PrimaryKeyOption, true);
 }
 
+QDateTime File::date() const
+{
+    return m_date;
+}
+
+void File::setDate(const QDateTime &date)
+{
+    m_date = date;
+}
+
 QString File::path() const
 {
     return m_path;

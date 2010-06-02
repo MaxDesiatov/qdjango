@@ -33,6 +33,7 @@ void TestShares::testFile()
 {
     // create a file
     File file;
+    file.setDate(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
     file.setPath("foo/bar.txt");
     file.setSize(1234);
     QCOMPARE(file.save(), true);
