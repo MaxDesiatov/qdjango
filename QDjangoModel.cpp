@@ -77,6 +77,12 @@ QSqlDatabase QDjangoModel::database()
  */
 void QDjangoModel::setDatabase(QSqlDatabase database)
 {
+    if (database.driverName() != "QSQLITE" &&
+        database.driverName() != "QSQLITE2" &&
+        database.driverName() != "QMYSQL")
+    {
+        qWarning() << "Unsupported database driver" << database.driverName();
+    }
     globalDb = database;
     qAddPostRoutine(closeDatabase);
 }
@@ -90,7 +96,14 @@ bool QDjangoModel::createTable() const
 
     QStringList propSql;
     if (m_pkName == "id")
-        propSql << QDjango::quote(m_pkName) + " INTEGER PRIMARY KEY AUTOINCREMENT";
+    {
+        QString pkSql = QDjango::quote(m_pkName) + " INTEGER PRIMARY KEY";
+        if (db.driverName() == "QSQLITE" || db.driverName() == "QSQLITE2")
+            pkSql += " AUTOINCREMENT";
+        else if (db.driverName() == "QMYSQL")
+            pkSql += " AUTO_INCREMENT";
+        propSql << pkSql;
+    }
     for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
     {
         const QString field = QDjango::quote(QString::fromLatin1(meta->property(i).name()));
