@@ -60,6 +60,7 @@ QDjangoQuerySet<T>::QDjangoQuerySet()
 }
 
 /** Returns the object in the QDjangoQuerySet at the given index.
+ *
  *  Returns 0 if the index is out of bounds.
  *
  *  You must free the newly allocated object yourself.
@@ -94,7 +95,12 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 /** Returns a new QDjangoQuerySet containing objects for which the given key
  *  where condition is false.
  *
+ *  You can chain calls to filter() and exclude() to further refine the
+ *  filtering conditions.
+ *
  * @param where
+ *
+ * @see filter
  */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
@@ -107,7 +113,12 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
 /** Returns a new QDjangoQuerySet containing objects for which the given
  *  where condition is true.
  *
+ *  You can chain calls to filter() and exclude() to progressively refine
+ *  your filtering conditions.
+ *
  * @param where
+ *
+ * @see exclude
  */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
@@ -119,6 +130,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
 
 /** Returns the object in the QDjangoQuerySet for which the given
  *  where condition is true.
+ *
  *  Returns 0 if the number of matching object is not exactly one.
  *
  *  You must free the newly allocated object yourself.
@@ -135,7 +147,10 @@ T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
 /** Returns a new QDjangoQuerySet containing limiting the number of
  *  records to manipulate.
  *
- *  You cannot apply additional restrictions using call filter(),
+ *  You can chain calls to limit() to further restrict the number
+ *  of returned records.
+ *
+ *  However, you cannot apply additional restrictions using filter(),
  *  exclude() or get() on the returned QDjangoQuerySet.
  *
  * @param pos
