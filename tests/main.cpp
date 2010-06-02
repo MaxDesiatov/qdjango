@@ -203,13 +203,47 @@ void TestWhere::complexWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id OR (username = :username AND password = :password)"));
 }
 
+static int usage()
+{
+    fprintf(stderr, "Usage: qdjango-test [-d <driver>] [-n <database>] [-u <user>] [-p <password>]\n");
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    QString databaseDriver = "QSQLITE";
+    QString databaseName = ":memory";
+    QString databaseUser;
+    QString databasePassword;
+
+    // parse command line arguments
+    if (!(argc % 2))
+    {
+        usage();
+        return EXIT_FAILURE;
+    }
+    for (int i = 1; i < argc - 1; i++)
+    {
+        if (!strcmp(argv[i], "-d"))
+            databaseDriver = QString::fromLocal8Bit(argv[++i]);
+        else if (!strcmp(argv[i], "-n"))
+            databaseName = QString::fromLocal8Bit(argv[++i]);
+        else if (!strcmp(argv[i], "-p"))
+            databasePassword = QString::fromLocal8Bit(argv[++i]);
+        else if (!strcmp(argv[i], "-u"))
+            databaseUser = QString::fromLocal8Bit(argv[++i]);
+        else
+        {
+            usage();
+            return EXIT_FAILURE;
+        }
+    }
 
     // open database
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
+    QSqlDatabase db = QSqlDatabase::addDatabase(databaseDriver);
+    db.setDatabaseName(databaseName);
+    db.setUserName(databaseUser);
+    db.setPassword(databasePassword);
     if (!db.open()) {
         fprintf(stderr, "Could not access database\n");
         return EXIT_FAILURE;
@@ -225,7 +259,7 @@ int main(int argc, char *argv[])
     qDjangoRegisterModel<File>();
 
     // run tests
-    int errors;
+    int errors = 0;
 
     TestWhere testWhere;
     errors += QTest::qExec(&testWhere);
