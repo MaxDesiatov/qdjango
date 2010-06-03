@@ -145,6 +145,15 @@ void TestWhere::endsWith()
     QCOMPARE(query.boundValue(":name"), QVariant("%abc"));
 }
 
+void TestWhere::contains()
+{
+    QSqlQuery query;
+    QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::Contains, "abc");
+    testQuery.bindValues(query);
+    QCOMPARE(testQuery.sql(), QLatin1String("name LIKE :name ESCAPE '\\'"));
+    QCOMPARE(query.boundValue(":name"), QVariant("%abc%"));
+}
+
 void TestWhere::andWhere()
 {
     QDjangoWhere testQuery;
