@@ -24,6 +24,10 @@
 
 #include "QDjangoModel.h"
 
+/** The User class represents a user in the authentication system.
+ *
+ *  It has a many-to-many relationship with the Group class.
+ */
 class User : public QDjangoModel
 {
     Q_OBJECT
@@ -86,6 +90,10 @@ private:
     QDateTime m_lastLogin;
 };
 
+/** The Group class represents a group in the authentication system.
+ *
+ *  It has a many-to-many relationship with the User class.
+ */
 class Group : public QDjangoModel
 {
     Q_OBJECT

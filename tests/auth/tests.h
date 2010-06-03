@@ -19,7 +19,9 @@
 
 #include <QObject>
 
-class TestModel: public QObject
+/** Tests for the User class.
+ */
+class TestUser: public QObject
 {
     Q_OBJECT
 

@@ -19,6 +19,8 @@
 
 #include <QObject>
 
+/** Tests for the File class.
+ */
 class TestShares : public QObject
 {
     Q_OBJECT

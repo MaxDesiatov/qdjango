@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
     TestWhere testWhere;
     errors += QTest::qExec(&testWhere);
 
-    TestModel testModel;
+    TestUser testModel;
     errors += QTest::qExec(&testModel);
 
     TestRelated testRelated;

@@ -19,6 +19,8 @@
 
 #include <QObject>
 
+/** Test QDjangoWhere class.
+ */
 class TestWhere : public QObject
 {
     Q_OBJECT

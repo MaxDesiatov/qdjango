@@ -25,12 +25,12 @@
 #include "models.h"
 #include "tests.h"
 
-void TestModel::initTestCase()
+void TestUser::initTestCase()
 {
     QCOMPARE(User().createTable(), true);
 }
 
-void TestModel::createUser()
+void TestUser::createUser()
 {
     const QDjangoQuerySet<User> users;
     User *other;
@@ -96,7 +96,7 @@ void TestModel::createUser()
     delete other;
 }
 
-void TestModel::removeUser()
+void TestUser::removeUser()
 {
     const QDjangoQuerySet<User> users;
 
@@ -113,7 +113,7 @@ void TestModel::removeUser()
     QCOMPARE(users.all().size(), 0);
 }
 
-void TestModel::removeUsers()
+void TestUser::removeUsers()
 {
     const QDjangoQuerySet<User> users;
 
@@ -139,7 +139,7 @@ void TestModel::removeUsers()
     QCOMPARE(users.all().size(), 1);
 }
 
-void TestModel::getUser()
+void TestUser::getUser()
 {
     const QDjangoQuerySet<User> users;
 
@@ -162,7 +162,7 @@ void TestModel::getUser()
     delete other;
 }
 
-void TestModel::filterUsers()
+void TestUser::filterUsers()
 {
     const QDjangoQuerySet<User> users;
 
@@ -211,7 +211,7 @@ void TestModel::filterUsers()
     QCOMPARE(qs.size(), 2);
 }
 
-void TestModel::filterLike()
+void TestUser::filterLike()
 {
     const QDjangoQuerySet<User> users;
 
@@ -258,7 +258,7 @@ void TestModel::filterLike()
     delete other;
 }
 
-void TestModel::excludeUsers()
+void TestUser::excludeUsers()
 {
     const QDjangoQuerySet<User> users;
 
@@ -294,7 +294,7 @@ void TestModel::excludeUsers()
     QCOMPARE(qs.size(), 1);
 }
 
-void TestModel::limit()
+void TestUser::limit()
 {
     const QDjangoQuerySet<User> users;
 
@@ -343,7 +343,7 @@ void TestModel::limit()
 
 /** Test chaining limit statements.
  */
-void TestModel::subLimit()
+void TestUser::subLimit()
 {
     const QDjangoQuerySet<User> users;
 
@@ -389,7 +389,7 @@ void TestModel::subLimit()
     delete other;
 }
 
-void TestModel::values()
+void TestUser::values()
 {
     const QDjangoQuerySet<User> users;
 
@@ -426,7 +426,7 @@ void TestModel::values()
     QCOMPARE(map[1]["password"], QVariant("barpass"));
 }
 
-void TestModel::valuesList()
+void TestUser::valuesList()
 {
     const QDjangoQuerySet<User> users;
 
@@ -463,12 +463,12 @@ void TestModel::valuesList()
     QCOMPARE(list[1][1], QVariant("barpass"));
 }
 
-void TestModel::cleanup()
+void TestUser::cleanup()
 {
     QDjangoQuerySet<User>().remove();
 }
 
-void TestModel::cleanupTestCase()
+void TestUser::cleanupTestCase()
 {
     QCOMPARE(User().dropTable(), true);
 }
