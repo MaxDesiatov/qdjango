@@ -34,25 +34,33 @@
 #include "shares/models.h"
 #include "shares/tests.h"
 
+/** Test quoting of database and table names.
+ */
 void TestWhere::quoting()
 {
     QCOMPARE(QDjango::quote("foo"), QLatin1String("`foo`"));
     QCOMPARE(QDjango::unquote("`foo`"), QLatin1String("foo"));
 }
 
+/** Test empty where clause.
+ */
 void TestWhere::emptyWhere()
 {
+    // construct empty where clause
     QDjangoWhere testQuery;
     QCOMPARE(testQuery.isAll(), true);
     QCOMPARE(testQuery.isNone(), false);
     QCOMPARE(testQuery.sql(), QString());
 
+    // negate the where clause
     testQuery = !QDjangoWhere();
     QCOMPARE(testQuery.isAll(), false);
     QCOMPARE(testQuery.isNone(), true);
     QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
 }
 
+/** Test "=" comparison.
+ */
 void TestWhere::equalsWhere()
 {
     QDjangoWhere testQuery;
@@ -64,6 +72,8 @@ void TestWhere::equalsWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("id != :id"));
 }
 
+/** Test "!=" comparison.
+ */
 void TestWhere::notEqualsWhere()
 {
     QDjangoWhere testQuery;
@@ -75,6 +85,8 @@ void TestWhere::notEqualsWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id"));
 }
 
+/** Test ">" comparison.
+ */
 void TestWhere::greaterThan()
 {
     QDjangoWhere testQuery;
@@ -86,6 +98,8 @@ void TestWhere::greaterThan()
     QCOMPARE(testQuery.sql(), QLatin1String("id <= :id"));
 }
 
+/** Test ">=" comparison.
+ */
 void TestWhere::greaterOrEquals()
 {
     QDjangoWhere testQuery;
@@ -97,6 +111,8 @@ void TestWhere::greaterOrEquals()
     QCOMPARE(testQuery.sql(), QLatin1String("id < :id"));
 }
 
+/** Test "<" comparison.
+ */
 void TestWhere::lessThan()
 {
     QDjangoWhere testQuery;
@@ -108,6 +124,8 @@ void TestWhere::lessThan()
     QCOMPARE(testQuery.sql(), QLatin1String("id >= :id"));
 }
 
+/** Test "<=" comparison.
+ */
 void TestWhere::lessOrEquals()
 {
     QDjangoWhere testQuery;
@@ -119,6 +137,8 @@ void TestWhere::lessOrEquals()
     QCOMPARE(testQuery.sql(), QLatin1String("id > :id"));
 }
 
+/** Test "in" comparison.
+ */
 void TestWhere::isIn()
 {
     QDjangoWhere testQuery;
@@ -127,6 +147,8 @@ void TestWhere::isIn()
     QCOMPARE(testQuery.sql(), QLatin1String("id IN (:id_0, :id_1)"));
 }
 
+/** Test "startswith" comparison.
+ */
 void TestWhere::startsWith()
 {
     QSqlQuery query;
@@ -136,6 +158,8 @@ void TestWhere::startsWith()
     QCOMPARE(query.boundValue(":name"), QVariant("abc%"));
 }
 
+/** Test "endswith" comparison.
+ */
 void TestWhere::endsWith()
 {
     QSqlQuery query;
@@ -145,6 +169,8 @@ void TestWhere::endsWith()
     QCOMPARE(query.boundValue(":name"), QVariant("%abc"));
 }
 
+/** Test "contains" comparison.
+ */
 void TestWhere::contains()
 {
     QSqlQuery query;
@@ -154,6 +180,8 @@ void TestWhere::contains()
     QCOMPARE(query.boundValue(":name"), QVariant("%abc%"));
 }
 
+/** Test compound where clause, using the AND operator.
+ */
 void TestWhere::andWhere()
 {
     QDjangoWhere testQuery;
@@ -185,6 +213,8 @@ void TestWhere::andWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = :id AND username = :username)"));
 }
 
+/** Test compound where clause, using the OR operator.
+ */
 void TestWhere::orWhere()
 {
     QDjangoWhere testQuery;
@@ -216,6 +246,8 @@ void TestWhere::orWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = :id OR username = :username)"));
 }
 
+/** Test compound where clause, using both the AND and the OR operators.
+ */
 void TestWhere::complexWhere()
 {
     QDjangoWhere testQuery;
@@ -231,6 +263,8 @@ void TestWhere::complexWhere()
     QCOMPARE(testQuery.sql(), QLatin1String("id = :id OR (username = :username AND password = :password)"));
 }
 
+/** Display program usage.
+ */
 static int usage()
 {
     fprintf(stderr, "Usage: qdjango-test [-d <driver>] [-n <database>] [-u <user>] [-p <password>]\n");
@@ -239,8 +273,10 @@ static int usage()
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+
+    // initialise options
     QString databaseDriver = "QSQLITE";
-    QString databaseName = ":memory";
+    QString databaseName = ":memory:";
     QString databaseUser;
     QString databasePassword;
 
