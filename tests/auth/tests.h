@@ -30,6 +30,7 @@ private slots:
     void removeUsers();
     void getUser();
     void filterUsers();
+    void filterLike();
     void excludeUsers();
     void limit();
     void subLimit();

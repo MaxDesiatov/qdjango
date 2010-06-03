@@ -21,6 +21,7 @@
 
 #include <QCoreApplication>
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QVariant>
 #include <QtTest/QtTest>
 
@@ -124,6 +125,24 @@ void TestWhere::isIn()
 
     testQuery = QDjangoWhere("id", QDjangoWhere::IsIn, QList<QVariant>() << 1 << 2);
     QCOMPARE(testQuery.sql(), QLatin1String("id IN (:id_0, :id_1)"));
+}
+
+void TestWhere::startsWith()
+{
+    QSqlQuery query;
+    QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::StartsWith, "abc");
+    testQuery.bindValues(query);
+    QCOMPARE(testQuery.sql(), QLatin1String("name LIKE :name ESCAPE '\\'"));
+    QCOMPARE(query.boundValue(":name"), QVariant("abc%"));
+}
+
+void TestWhere::endsWith()
+{
+    QSqlQuery query;
+    QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::EndsWith, "abc");
+    testQuery.bindValues(query);
+    QCOMPARE(testQuery.sql(), QLatin1String("name LIKE :name ESCAPE '\\'"));
+    QCOMPARE(query.boundValue(":name"), QVariant("%abc"));
 }
 
 void TestWhere::andWhere()

@@ -211,6 +211,35 @@ void TestModel::filterUsers()
     QCOMPARE(qs.size(), 2);
 }
 
+void TestModel::filterLike()
+{
+    const QDjangoQuerySet<User> users;
+
+    User foo;
+    foo.setUsername("foouser");
+    foo.setPassword("foopass");
+    foo.save();
+
+    User bar;
+    bar.setUsername("baruser");
+    bar.setPassword("barpass");
+    bar.save();
+
+    User wiz;
+    wiz.setUsername("wizuser");
+    wiz.setPassword("wizpass");
+    wiz.save();
+
+    // username starts with "foo"
+    QDjangoQuerySet<User> qs = users.filter(QDjangoWhere("username", QDjangoWhere::StartsWith, "foo"));
+    QCOMPARE(qs.size(), 1);
+    User *other = qs.at(0);
+    QVERIFY(other != 0);
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
+}
+
 void TestModel::excludeUsers()
 {
     const QDjangoQuerySet<User> users;

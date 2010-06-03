@@ -53,6 +53,10 @@ public:
         GreaterOrEquals,
         /** Returns true if the column value is less or equal to the given value. */
         LessOrEquals,
+        /** Returns true if the column value starts with the given value. */
+        StartsWith,
+        /** Returns true if the column value ends with the given value. */
+        EndsWith,
         /** Returns true if the column value is one of the given values. */
         IsIn,
     };

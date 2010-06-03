@@ -33,6 +33,8 @@ private slots:
     void lessThan();
     void lessOrEquals();
     void isIn();
+    void startsWith();
+    void endsWith();
     void andWhere();
     void orWhere();
     void complexWhere();
