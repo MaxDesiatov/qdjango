@@ -64,6 +64,7 @@ QDjangoWhere QDjangoWhere::operator!() const
         case IsIn:
         case StartsWith:
         case EndsWith:
+        case Contains:
             result.m_operation = m_operation;
             break;
         case Equals:
@@ -159,6 +160,13 @@ void QDjangoWhere::bindValues(QSqlQuery &query) const
         escaped.replace("_", "\\_");
         query.bindValue(m_placeholder, "%" + escaped);
     }
+    else if (m_operation == QDjangoWhere::Contains)
+    {
+        QString escaped = m_data.toString();
+        escaped.replace("%", "\\%");
+        escaped.replace("_", "\\_");
+        query.bindValue(m_placeholder, "%" + escaped + "%");
+    }
     else if (m_operation != QDjangoWhere::None)
         query.bindValue(m_placeholder, m_data);
     else
@@ -230,6 +238,7 @@ QString QDjangoWhere::sql() const
         }
         case StartsWith:
         case EndsWith:
+        case Contains:
             return m_key + " LIKE " + m_placeholder + " ESCAPE '\\'";
         case None:
             if (m_combine == NoCombine)

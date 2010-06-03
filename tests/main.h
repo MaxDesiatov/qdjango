@@ -35,6 +35,7 @@ private slots:
     void isIn();
     void startsWith();
     void endsWith();
+    void contains();
     void andWhere();
     void orWhere();
     void complexWhere();

@@ -238,6 +238,24 @@ void TestModel::filterLike()
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
     delete other;
+
+    // username ends with "ouser"
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::EndsWith, "ouser"));
+    QCOMPARE(qs.size(), 1);
+    other = qs.at(0);
+    QVERIFY(other != 0);
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
+
+    // username contains "ou"
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::Contains, "ou"));
+    QCOMPARE(qs.size(), 1);
+    other = qs.at(0);
+    QVERIFY(other != 0);
+    QCOMPARE(other->username(), QLatin1String("foouser"));
+    QCOMPARE(other->password(), QLatin1String("foopass"));
+    delete other;
 }
 
 void TestModel::excludeUsers()
