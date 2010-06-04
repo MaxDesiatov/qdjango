@@ -54,9 +54,6 @@ public:
     QVariant pk() const;
     void setPk(const QVariant &pk);
 
-    static QSqlDatabase database();
-    static void setDatabase(QSqlDatabase database);
-
 public slots:
     bool createTable() const;
     bool dropTable() const;

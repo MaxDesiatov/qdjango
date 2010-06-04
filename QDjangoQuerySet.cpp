@@ -75,7 +75,7 @@ void QDjangoQueryBase::sqlDelete()
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QSqlQuery query(QDjangoModel::database());
+    QSqlQuery query(QDjango::database());
     query.prepare(sql);
     m_where.bindValues(query);
     sqlExec(query);
@@ -102,7 +102,7 @@ void QDjangoQueryBase::sqlFetch()
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QSqlQuery query(QDjangoModel::database());
+    QSqlQuery query(QDjango::database());
     query.prepare(sql);
     m_where.bindValues(query);
 

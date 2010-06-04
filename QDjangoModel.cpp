@@ -28,13 +28,6 @@
 #include "QDjangoModel.h"
 #include "QDjangoQuerySet.h"
 
-static QSqlDatabase globalDb;
-
-static void closeDatabase()
-{
-    globalDb = QSqlDatabase();
-}
-
 /** Construct a new QDjangoModel.
  *
  * @param parent
@@ -66,32 +59,11 @@ void QDjangoModel::setPk(const QVariant &pk)
         setProperty(m_pkName.toLatin1(), pk);
 }
 
-/** Returns the database used by QDjango.
- */
-QSqlDatabase QDjangoModel::database()
-{
-    return globalDb;
-}
-
-/** Sets the database used by QDjango.
- */
-void QDjangoModel::setDatabase(QSqlDatabase database)
-{
-    if (database.driverName() != "QSQLITE" &&
-        database.driverName() != "QSQLITE2" &&
-        database.driverName() != "QMYSQL")
-    {
-        qWarning() << "Unsupported database driver" << database.driverName();
-    }
-    globalDb = database;
-    qAddPostRoutine(closeDatabase);
-}
-
 /** Creates the database table for this QDjangoModel.
  */
 bool QDjangoModel::createTable() const
 {
-    QSqlDatabase db = database();
+    QSqlDatabase db = QDjango::database();
     const QMetaObject* meta = metaObject();
 
     QStringList propSql;
@@ -178,7 +150,7 @@ bool QDjangoModel::createTable() const
  */
 bool QDjangoModel::dropTable() const
 {
-    QSqlQuery query(database());
+    QSqlQuery query(QDjango::database());
     query.prepare(QString("DROP TABLE %1").arg(QDjango::quote(databaseTable())));
     return sqlExec(query);
 }
@@ -330,7 +302,7 @@ void QDjangoModel::setFieldOption(const QString &field, FieldOption option, cons
  */
 bool QDjangoModel::remove()
 {
-    QSqlQuery query(database());
+    QSqlQuery query(QDjango::database());
     query.prepare(QString("DELETE FROM %1 WHERE %2 = :pk")
                   .arg(QDjango::quote(databaseTable()), QDjango::quote(m_pkName)));
     query.bindValue(":pk", pk());
@@ -341,7 +313,7 @@ bool QDjangoModel::remove()
  */
 bool QDjangoModel::save()
 {
-    QSqlDatabase db = database();
+    QSqlDatabase db = QDjango::database();
     QStringList fieldNames = databaseFields();
 
     if (!pk().isNull() && !(m_pkName == "id" && !pk().toInt()))

@@ -37,6 +37,9 @@ class QDjango
 public:
     static void createTables();
 
+    static QSqlDatabase database();
+    static void setDatabase(QSqlDatabase database);
+
     static const QDjangoModel *model(const QString &name);
     static bool registerModel(QDjangoModel *model);
 

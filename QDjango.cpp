@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QMetaProperty>
 #include <QSqlError>
@@ -25,6 +26,13 @@
 
 #include "QDjango.h"
 #include "QDjangoModel.h"
+
+static QSqlDatabase globalDb;
+
+static void closeDatabase()
+{
+    globalDb = QSqlDatabase();
+}
 
 /*! \mainpage
  *
@@ -67,6 +75,27 @@ bool sqlExec(QSqlQuery &query)
 #endif
 }
 
+/** Returns the database used by QDjango.
+ */
+QSqlDatabase QDjango::database()
+{
+    return globalDb;
+}
+
+/** Sets the database used by QDjango.
+ */
+void QDjango::setDatabase(QSqlDatabase database)
+{
+    if (database.driverName() != "QSQLITE" &&
+        database.driverName() != "QSQLITE2" &&
+        database.driverName() != "QMYSQL")
+    {
+        qWarning() << "Unsupported database driver" << database.driverName();
+    }
+    globalDb = database;
+    qAddPostRoutine(closeDatabase);
+}
+
 /** Creates the database tables for all registered models.
  */
 void QDjango::createTables()
@@ -98,7 +127,7 @@ const QDjangoModel *QDjango::model(const QString &name)
  */
 QString QDjango::autoIncrementSql()
 {
-    const QString driverName = QDjangoModel::database().driverName();
+    const QString driverName = QDjango::database().driverName();
     if (driverName == "QSQLITE" || driverName == "QSQLITE2")
         return QLatin1String(" AUTOINCREMENT");
     else if (driverName == "QMYSQL")
@@ -111,7 +140,7 @@ QString QDjango::autoIncrementSql()
  */
 QString QDjango::noLimitSql()
 {
-    const QString driverName = QDjangoModel::database().driverName();
+    const QString driverName = QDjango::database().driverName();
     if (driverName == "QSQLITE" || driverName == "QSQLITE2")
         return QLatin1String(" LIMIT -1");
     else if (driverName == "QMYSQL")

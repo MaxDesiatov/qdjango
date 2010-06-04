@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Could not access database\n");
         return EXIT_FAILURE;
     }
-    QDjangoModel::setDatabase(db);
+    QDjango::setDatabase(db);
 
     // declare models
     qDjangoRegisterModel<User>();
