@@ -40,6 +40,9 @@ public:
     static const QDjangoModel *model(const QString &name);
     static bool registerModel(QDjangoModel *model);
 
+    // backend specific
+    static QString autoIncrementSql();
+    static QString noLimitSql();
     static QString quote(const QString &name);
     static QString unquote(const QString &quoted);
 };
