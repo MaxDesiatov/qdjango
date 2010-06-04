@@ -94,6 +94,33 @@ const QDjangoModel *QDjango::model(const QString &name)
     return registry.value(name);
 }
 
+/** Returns the SQL used to declare a field as auto-increment.
+ */
+QString QDjango::autoIncrementSql()
+{
+    const QString driverName = QDjangoModel::database().driverName();
+    if (driverName == "QSQLITE" || driverName == "QSQLITE2")
+        return QLatin1String(" AUTOINCREMENT");
+    else if (driverName == "QMYSQL")
+        return QLatin1String(" AUTO_INCREMENT");
+    else
+        return QString();
+}
+
+/** Returns the empty SQL limit clause.
+ */
+QString QDjango::noLimitSql()
+{
+    const QString driverName = QDjangoModel::database().driverName();
+    if (driverName == "QSQLITE" || driverName == "QSQLITE2")
+        return QLatin1String(" LIMIT -1");
+    else if (driverName == "QMYSQL")
+        // 2^64 - 1, as recommended by the MySQL documentation
+        return QLatin1String(" LIMIT 18446744073709551615");
+    else
+        return QString();
+}
+
 /** Quotes a database table or column name.
  */
 QString QDjango::quote(const QString &name)

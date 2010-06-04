@@ -127,15 +127,9 @@ QString QDjangoQueryBase::sqlLimit() const
         limit = QString(" LIMIT %1").arg(m_highMark - m_lowMark);
     if (m_lowMark > 0)
     {
+        // no-limit is backend specific
         if (m_highMark <= 0)
-        {
-            const QString driverName = QDjangoModel::database().driverName();
-            if (driverName == "QSQLITE" || driverName == "QSQLITE2")
-                limit = " LIMIT -1";
-            else if (driverName == "QMYSQL")
-                // 2^64 - 1, as recommended by the MySQL documentation
-                limit = " LIMIT 18446744073709551615";
-        }
+            limit = QDjango::noLimitSql();
         limit += QString(" OFFSET %1").arg(m_lowMark);
     }
     return limit;

@@ -148,13 +148,9 @@ bool QDjangoModel::createTable() const
         if (fieldName == m_pkName)
         {
             fieldSql += " PRIMARY KEY";
+            // auto-increment is backend specific
             if (autoIncrement)
-            {
-                if (db.driverName() == "QSQLITE" || db.driverName() == "QSQLITE2")
-                    fieldSql += " AUTOINCREMENT";
-                else if (db.driverName() == "QMYSQL")
-                    fieldSql += " AUTO_INCREMENT";
-            }
+                fieldSql += QDjango::autoIncrementSql();
         }
 
         propSql << fieldSql;
