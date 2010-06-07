@@ -27,9 +27,16 @@
 /** \brief The QDjangoQuerySet class is a template class for performing
  *   database queries.
  *
- *  The QDjangoQuerySet template class allows you to build and execute
- *  database queries. You can chain filter expressions, apply limits on
- *  the rows to retrieve, retrieve database values or model instances.
+ *  The QDjangoQuerySet template class allows you to define and manipulate
+ *  sets of QDjangoModel objects stored in the database.
+ *
+ *  You can chain filter expressions using the filter() and exclude() methods
+ *  or apply limits on the number of rows using the limit() method.
+ *
+ *  You can retrieve database values using the values() and valuesList()
+ *  methods or retrieve model instances using the get() and at() methods.
+ *
+ *  You can also delete sets of objects using the remove() method.
  */
 template <class T>
     class QDjangoQuerySet : private QDjangoQueryBase
