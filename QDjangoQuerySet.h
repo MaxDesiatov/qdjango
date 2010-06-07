@@ -209,12 +209,14 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
     return other;
 }
 
-/** Returns the number or objects in the QDjangoQuerySet.
+/** Returns the number of objects in the QDjangoQuerySet, or -1
+ *  if the query failed.
  */
 template <class T>
 int QDjangoQuerySet<T>::size()
 {
-    sqlFetch();
+    if (!sqlFetch())
+        return -1;
     return m_properties.size();
 }
 
