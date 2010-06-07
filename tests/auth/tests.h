@@ -29,7 +29,8 @@ private slots:
     void initTestCase();
     void createUser();
     void removeUser();
-    void removeUsers();
+    void removeFilter();
+    void removeLimit();
     void getUser();
     void filterUsers();
     void filterLike();
@@ -40,6 +41,9 @@ private slots:
     void valuesList();
     void cleanup();
     void cleanupTestCase();
+
+private:
+    void loadFixtures();
 };
 
 class TestRelated : public QObject
