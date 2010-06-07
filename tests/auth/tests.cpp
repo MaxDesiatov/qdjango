@@ -25,6 +25,8 @@
 #include "models.h"
 #include "tests.h"
 
+/** Create database table before running tests.
+ */
 void TestUser::initTestCase()
 {
     QCOMPARE(User().createTable(), true);
@@ -461,16 +463,22 @@ void TestUser::valuesList()
     QCOMPARE(list[2][1], QVariant("wizpass"));
 }
 
+/** Clear database table after each test.
+ */
 void TestUser::cleanup()
 {
     QCOMPARE(QDjangoQuerySet<User>().remove(), true);
 }
 
+/** Drop database table after running tests.
+ */
 void TestUser::cleanupTestCase()
 {
     QCOMPARE(User().dropTable(), true);
 }
 
+/** Create database tables before running tests.
+ */
 void TestRelated::initTestCase()
 {
     QCOMPARE(User().createTable(), true);
@@ -571,6 +579,8 @@ void TestRelated::testGroups()
     delete ug;
 }
 
+/** Clear database tables after each test.
+ */
 void TestRelated::cleanup()
 {
     QCOMPARE(QDjangoQuerySet<User>().remove(), true);
@@ -579,6 +589,8 @@ void TestRelated::cleanup()
     QCOMPARE(QDjangoQuerySet<UserGroups>().remove(), true);
 }
 
+/** Drop database tables after running tests.
+ */
 void TestRelated::cleanupTestCase()
 {
     QCOMPARE(User().dropTable(), true);
