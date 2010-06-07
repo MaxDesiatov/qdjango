@@ -40,10 +40,10 @@ static void closeDatabase()
  * on top of the Qt library. Where possible it tries to follow django's
  * ORM API, hence its name.
  *
- * @see QDjango
- * @see QDjangoModel
- * @see QDjangoWhere
- * @see QDjangoQuerySet
+ * \sa QDjango
+ * \sa QDjangoModel
+ * \sa QDjangoWhere
+ * \sa QDjangoQuerySet
  */
 
 
