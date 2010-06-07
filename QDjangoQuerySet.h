@@ -101,7 +101,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
  *
  * \param where QDjangoWhere expressing the exclude condition
  *
- * @see filter
+ * \sa filter()
  */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
@@ -119,7 +119,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
  *
  * \param where QDjangoWhere expressing the filter condition
  *
- * @see exclude
+ * \sa exclude()
  */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
