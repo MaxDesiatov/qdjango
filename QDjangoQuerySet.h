@@ -66,7 +66,7 @@ QDjangoQuerySet<T>::QDjangoQuerySet()
  *
  *  You must free the newly allocated object yourself.
  *
- * @param index
+ * \param index
  */
 template <class T>
 T *QDjangoQuerySet<T>::at(int index)
@@ -99,7 +99,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
  *  You can chain calls to filter() and exclude() to further refine the
  *  filtering conditions.
  *
- * @param where
+ * \param where QDjangoWhere expressing the exclude condition
  *
  * @see filter
  */
@@ -117,7 +117,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
  *  You can chain calls to filter() and exclude() to progressively refine
  *  your filtering conditions.
  *
- * @param where
+ * \param where QDjangoWhere expressing the filter condition
  *
  * @see exclude
  */
@@ -136,7 +136,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
  *
  *  You must free the newly allocated object yourself.
  *
- * @param where
+ * \param where QDjangoWhere expressing the lookup condition
  */
 template <class T>
 T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
@@ -154,8 +154,8 @@ T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
  *  However, you cannot apply additional restrictions using filter(),
  *  exclude() or get() on the returned QDjangoQuerySet.
  *
- * @param pos
- * @param length
+ * \param pos offset of the records
+ * \param length maximum number of records
  */
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::limit(int pos, int length) const
@@ -216,9 +216,9 @@ int QDjangoQuerySet<T>::size()
 }
 
 /** Returns a list of property hashes for the current QDjangoQuerySet.
- *  If no fields are specified, all the model's declared fields are returned. 
+ *  If no \a fields are specified, all the model's declared fields are returned.
  *
- * @param fields
+ * \param fields
  */
 template <class T>
 QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &fields)
@@ -227,10 +227,10 @@ QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &f
 }
 
 /** Returns a list of property lists for the current QDjangoQuerySet.
- *  If no fields are specified, all the model's fields are returned in the
+ *  If no \a fields are specified, all the model's fields are returned in the
  *  order they where declared.
  *
- * @param fields
+ * \param fields
  */
 template <class T>
 QList< QList<QVariant> > QDjangoQuerySet<T>::valuesList(const QStringList &fields)

@@ -28,7 +28,7 @@
 
 /** Construct a new QDjangoModel.
  *
- * @param parent
+ * \param parent
  */
 QDjangoModel::QDjangoModel(QObject *parent)
     : QObject(parent), m_id(0), m_pkName("id")
@@ -47,7 +47,7 @@ QVariant QDjangoModel::pk() const
 
 /** Sets the primary key for this QDjangoModel.
  *
- * @param pk
+ * \param pk
  */
 void QDjangoModel::setPk(const QVariant &pk)
 {
@@ -218,9 +218,9 @@ QString QDjangoModel::databaseTable() const
 
 /** Declares a foreign-key pointing to a QDjangoModel.
  *
- * @param name
- * @param field
- * @param model
+ * \param name
+ * \param field
+ * \param model
  */
 void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDjangoModel *model)
 {
@@ -230,7 +230,7 @@ void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDja
 
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
  *
- * @param name
+ * \param name
  */
 QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
 {
@@ -258,8 +258,8 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
 
 /** Retrieves the given option for the given field.
  *
- * @param field
- * @param option
+ * \param field
+ * \param option
  */
 QVariant QDjangoModel::fieldOption(const QString &field, FieldOption option) const
 {
@@ -279,9 +279,9 @@ QVariant QDjangoModel::fieldOption(const QString &field, FieldOption option) con
 
 /** Sets the given option for the given field.
  *
- * @param field
- * @param option
- * @param value
+ * \param field
+ * \param option
+ * \param value
  */
 void QDjangoModel::setFieldOption(const QString &field, FieldOption option, const QVariant &value)
 {
