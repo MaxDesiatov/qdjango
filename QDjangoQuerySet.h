@@ -153,7 +153,7 @@ T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
  *  of returned records.
  *
  *  However, you cannot apply additional restrictions using filter(),
- *  exclude() or get() on the returned QDjangoQuerySet.
+ *  exclude(), get() or remove() on the returned QDjangoQuerySet.
  *
  * \param pos offset of the records
  * \param length maximum number of records
