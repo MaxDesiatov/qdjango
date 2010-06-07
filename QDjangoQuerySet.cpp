@@ -77,6 +77,8 @@ void QDjangoQueryBase::sqlDelete()
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
+    // FIXME : this does not work on SQLite unless compiled with the
+    // SQLITE_ENABLE_UPDATE_DELETE_LIMIT option
     sql += sqlLimit();
     QSqlQuery query(QDjango::database());
     query.prepare(sql);
