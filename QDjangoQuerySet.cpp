@@ -103,10 +103,10 @@ bool QDjangoQueryBase::sqlDelete()
     return true;
 }
 
-void QDjangoQueryBase::sqlFetch()
+bool QDjangoQueryBase::sqlFetch()
 {
     if (m_haveResults || m_where.isNone())
-        return;
+        return true;
 
     // build query
     const QDjangoModel *model = QDjango::model(m_modelName);
@@ -121,18 +121,20 @@ void QDjangoQueryBase::sqlFetch()
     query.prepare(sql);
     m_where.bindValues(query);
 
+    // execute query
+    if (!sqlExec(query))
+        return false;
+
     // store results
-    if (sqlExec(query))
+    while (query.next())
     {
-        while (query.next())
-        {
-            QMap<QString, QVariant> props;
-            for (int i = 0; i < fields.size(); ++i)
-                props.insert(fields[i], query.value(i));
-            m_properties.append(props);
-        }
+        QMap<QString, QVariant> props;
+        for (int i = 0; i < fields.size(); ++i)
+            props.insert(fields[i], query.value(i));
+        m_properties.append(props);
     }
     m_haveResults = true;
+    return true;
 }
 
 QString QDjangoQueryBase::sqlLimit() const
@@ -152,7 +154,8 @@ QString QDjangoQueryBase::sqlLimit() const
 
 bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)
 {
-    sqlFetch();
+    if (!sqlFetch())
+        return false;
 
     if (index < 0 || index >= m_properties.size())
     {
@@ -167,7 +170,8 @@ bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)
 QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &fields)
 {
     QList< QMap<QString, QVariant> > values;
-    sqlFetch();
+    if (!sqlFetch())
+        return values;
 
     // process local fields
     const QDjangoModel *model = QDjango::model(m_modelName);
@@ -188,7 +192,8 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
 QList< QList<QVariant> > QDjangoQueryBase::sqlValuesList(const QStringList &fields)
 {
     QList< QList<QVariant> > values;
-    sqlFetch();
+    if (!sqlFetch())
+        return values;
 
     const QDjangoModel *model = QDjango::model(m_modelName);
     const QStringList fieldNames = fields.isEmpty() ? model->databaseFields() : fields;
