@@ -29,6 +29,8 @@ QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
     : m_lowMark(0),
     m_highMark(0),
     m_haveResults(false),
+    m_needsJoin(false),
+    m_selectRelated(false),
     m_modelName(modelName)
 {
 }
@@ -38,14 +40,15 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &fro
     QStringList fields;
     foreach (const QString &field, model->databaseFields())
         fields.append(model->databaseColumn(field));
-    if (!m_selectRelated)
+    if (!m_selectRelated && !m_needsJoin)
         return fields;
 
     // recurse for foreign keys
     foreach (const QString &fk, model->m_foreignModels.keys())
     {
         const QDjangoModel *foreign = model->m_foreignModels[fk];
-        fields += fieldNames(foreign, from);
+        if (m_selectRelated)
+            fields += fieldNames(foreign, from);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(QDjango::quote(foreign->databaseTable()))
             .arg(foreign->databaseColumn(foreign->m_pkName))
@@ -61,7 +64,7 @@ void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
 
     const QDjangoModel *model = QDjango::model(m_modelName);
     QDjangoWhere q(where);
-    q.resolve(model);
+    q.resolve(model, &m_needsJoin);
     m_where = m_where && q;
 }
 

@@ -198,14 +198,18 @@ bool QDjangoWhere::isNone() const
 
 /** Resolves field names to database columns using the given \a model.
  *
+ *  If the current QDjangoWhere requires a JOIN clause, \a needsJoin is set
+ *  to true.
+ *
  * \param model
+ * \param needsJoin
  */
-bool QDjangoWhere::resolve(const QDjangoModel *model)
+bool QDjangoWhere::resolve(const QDjangoModel *model, bool *needsJoin)
 {
     // resolve column
     if (m_operation != None)
     {
-        m_key = model->databaseColumn(m_key);
+        m_key = model->databaseColumn(m_key, needsJoin);
         QStringList bits;
         foreach (const QString &bit, m_key.split('.'))
             bits << QDjango::unquote(bit);
@@ -214,7 +218,7 @@ bool QDjangoWhere::resolve(const QDjangoModel *model)
 
     // recurse into children
     for (int i = 0; i < m_children.size(); i++)
-        if (!m_children[i].resolve(model))
+        if (!m_children[i].resolve(model, needsJoin))
             return false;
     return true;
 }

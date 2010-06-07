@@ -88,6 +88,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
     QDjangoQuerySet<T> other;
     other.m_lowMark = m_lowMark;
     other.m_highMark = m_highMark;
+    other.m_needsJoin = m_needsJoin;
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
     return other;

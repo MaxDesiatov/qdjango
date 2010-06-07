@@ -532,8 +532,7 @@ void TestRelated::filterRelated()
         QCOMPARE(message.save(), true);
     }
 
-    // FIXME : does not work without selectRelated
-    QDjangoQuerySet<Message> qs = messages.selectRelated().filter(
+    QDjangoQuerySet<Message> qs = messages.filter(
         QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
     QCOMPARE(qs.size(), 1);
