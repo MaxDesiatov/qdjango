@@ -24,6 +24,8 @@
 #include "models.h"
 #include "tests.h"
 
+/** Create database table before running tests.
+ */
 void TestShares::initTestCase()
 {
     QCOMPARE(File().createTable(), true);
@@ -51,14 +53,17 @@ void TestShares::testFile()
     QCOMPARE(file.save(), true);
 }
 
+/** Clear database table after each test.
+ */
 void TestShares::cleanup()
 {
     QCOMPARE(QDjangoQuerySet<File>().remove(), true);
 }
 
+/** Drop database table after running tests.
+ */
 void TestShares::cleanupTestCase()
 {
     QCOMPARE(File().dropTable(), true);
 }
-
 
