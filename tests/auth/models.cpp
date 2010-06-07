@@ -191,6 +191,8 @@ Message::Message(QObject *parent)
     addForeignKey("user", "user_id", new User);
 }
 
+/** Returns the User associated with this Message.
+ */
 User *Message::user() const
 {
     return qobject_cast<User*>(foreignKey("user"));

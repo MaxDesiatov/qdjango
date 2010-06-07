@@ -129,6 +129,8 @@ private:
     int m_groupId;
 };
 
+/** The Message class represents a message for a given User.
+ */
 class Message : public QDjangoModel
 {
     Q_OBJECT
