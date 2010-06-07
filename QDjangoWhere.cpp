@@ -106,7 +106,10 @@ QDjangoWhere QDjangoWhere::operator!() const
     return result;
 }
 
-/** Combines the current QDjangoWhere with another QDjangoWhere using a logical AND.
+/** Combines the current QDjangoWhere with the \a other QDjangoWhere using
+ *  a logical AND.
+ *
+ * \param other
  */
 QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
 {
@@ -121,7 +124,10 @@ QDjangoWhere QDjangoWhere::operator&&(const QDjangoWhere &other) const
     return result;
 }
 
-/** Combines the current QDjangoWhere with another QDjangoWhere using a logical OR.
+/** Combines the current QDjangoWhere with the \a other QDjangoWhere using
+ *  a logical OR.
+ *
+ * \param other
  */
 QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
 {
@@ -136,7 +142,9 @@ QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
     return result;
 }
 
-/** Bind the values associated with this QDjangoWhere to an SQL query.
+/** Bind the values associated with this QDjangoWhere to the given \a query.
+ *
+ * \param query
  */
 void QDjangoWhere::bindValues(QSqlQuery &query) const
 {
@@ -188,7 +196,7 @@ bool QDjangoWhere::isNone() const
     return m_combine == NoCombine && m_operation == None && m_negate == true;
 }
 
-/** Resolves field names to database columns using the given model.
+/** Resolves field names to database columns using the given \a model.
  *
  * \param model
  */
