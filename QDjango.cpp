@@ -23,15 +23,16 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QStringList>
+#include <QThread>
 
 #include "QDjango.h"
 #include "QDjangoModel.h"
 
-static QSqlDatabase globalDb;
+static QMap<QThread*, QSqlDatabase> globalDbs;
 
 static void closeDatabase()
 {
-    globalDb = QSqlDatabase();
+    globalDbs.clear();
 }
 
 /*! \mainpage
@@ -79,7 +80,14 @@ bool sqlExec(QSqlQuery &query)
  */
 QSqlDatabase QDjango::database()
 {
-    return globalDb;
+    QThread *thread = QThread::currentThread();
+    if (!globalDbs.contains(thread))
+    {
+        QSqlDatabase db = QSqlDatabase::cloneDatabase(globalDbs.value(globalDbs.keys().first()), "");
+        Q_ASSERT(db.open());
+        globalDbs.insert(thread, db);
+    }
+    return globalDbs[thread];
 }
 
 /** Sets the database used by QDjango.
@@ -92,7 +100,8 @@ void QDjango::setDatabase(QSqlDatabase database)
     {
         qWarning() << "Unsupported database driver" << database.driverName();
     }
-    globalDb = database;
+    globalDbs.clear();
+    globalDbs.insert(QThread::currentThread(), database);
     qAddPostRoutine(closeDatabase);
 }
 
