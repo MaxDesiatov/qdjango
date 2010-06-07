@@ -36,7 +36,7 @@ public:
 
 protected:
     void addFilter(const QDjangoWhere &where);
-    void sqlDelete();
+    bool sqlDelete();
     void sqlFetch();
     QString sqlLimit() const;
     bool sqlLoad(QDjangoModel *model, int index);
