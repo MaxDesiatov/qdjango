@@ -55,7 +55,7 @@ void TestUser::loadFixtures()
     QCOMPARE(QDjangoQuerySet<User>().size(), 3);
 }
 
-void TestUser::createUser()
+void TestUser::create()
 {
     const QDjangoQuerySet<User> users;
     User *other;
@@ -123,7 +123,7 @@ void TestUser::createUser()
 
 /** Test removing a single user.
  */
-void TestUser::removeUser()
+void TestUser::remove()
 {
     const QDjangoQuerySet<User> users;
 
@@ -131,12 +131,10 @@ void TestUser::removeUser()
     user.setUsername("foouser");
     user.setPassword("foopass");
 
-    bool result = user.save();
-    QCOMPARE(result, true);
+    QCOMPARE(user.save(), true);
     QCOMPARE(users.all().size(), 1);
 
-    result = user.remove();
-    QCOMPARE(result, true);
+    QCOMPARE(user.remove(), true);
     QCOMPARE(users.all().size(), 0);
 }
 
@@ -148,8 +146,11 @@ void TestUser::removeFilter()
 
     // remove "foouser" and "baruser"
     const QDjangoQuerySet<User> users;
-    users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QStringList() << "foouser" << "baruser")).remove();
-    QDjangoQuerySet<User> qs = users.all();
+    QDjangoQuerySet<User> qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QStringList() << "foouser" << "baruser"));
+    QCOMPARE(qs.remove(), true);
+
+    // check remaining user
+    qs = users.all();
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QVERIFY(other != 0);
@@ -163,17 +164,15 @@ void TestUser::removeLimit()
 {
     loadFixtures();
 
-    // FIXME : remove the first two entries
-#if 0
+    // FIXME : remove the first two entries fails
     const QDjangoQuerySet<User> users;
-    users.limit(0, 2).remove();
-    QCOMPARE(users.all().size(), 1);
-#endif
+    QCOMPARE(users.limit(0, 2).remove(), false);
+    QCOMPARE(users.all().size(), 3);
 }
 
 /** Test retrieving a single user.
  */
-void TestUser::getUser()
+void TestUser::get()
 {
     loadFixtures();
 
@@ -196,7 +195,7 @@ void TestUser::getUser()
 
 /** Test filtering users with a "=" comparison.
  */
-void TestUser::filterUsers()
+void TestUser::filter()
 {
     loadFixtures();
 
@@ -231,7 +230,7 @@ void TestUser::filterUsers()
     QCOMPARE(qs.size(), 2);
 }
 
-/** Test filtering users with a "like" condition".
+/** Test filtering users with a "like" condition.
  */
 void TestUser::filterLike()
 {
@@ -266,7 +265,9 @@ void TestUser::filterLike()
     delete other;
 }
 
-void TestUser::excludeUsers()
+/** Test excluding users with an "=" condition.
+ */
+void TestUser::exclude()
 {
     loadFixtures();
     const QDjangoQuerySet<User> users;
@@ -293,6 +294,8 @@ void TestUser::excludeUsers()
     QCOMPARE(qs.size(), 2);
 }
 
+/** Test limiting user results.
+ */
 void TestUser::limit()
 {
     const QDjangoQuerySet<User> users;
@@ -460,7 +463,7 @@ void TestUser::valuesList()
 
 void TestUser::cleanup()
 {
-    QDjangoQuerySet<User>().remove();
+    QCOMPARE(QDjangoQuerySet<User>().remove(), true);
 }
 
 void TestUser::cleanupTestCase()
@@ -570,10 +573,10 @@ void TestRelated::testGroups()
 
 void TestRelated::cleanup()
 {
-    QDjangoQuerySet<User>().remove();
-    QDjangoQuerySet<Group>().remove();
-    QDjangoQuerySet<Message>().remove();
-    QDjangoQuerySet<UserGroups>().remove();
+    QCOMPARE(QDjangoQuerySet<User>().remove(), true);
+    QCOMPARE(QDjangoQuerySet<Group>().remove(), true);
+    QCOMPARE(QDjangoQuerySet<Message>().remove(), true);
+    QCOMPARE(QDjangoQuerySet<UserGroups>().remove(), true);
 }
 
 void TestRelated::cleanupTestCase()

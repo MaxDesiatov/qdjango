@@ -27,14 +27,14 @@ class TestUser: public QObject
 
 private slots:
     void initTestCase();
-    void createUser();
-    void removeUser();
+    void create();
+    void remove();
     void removeFilter();
     void removeLimit();
-    void getUser();
-    void filterUsers();
+    void get();
+    void filter();
     void filterLike();
-    void excludeUsers();
+    void exclude();
     void limit();
     void subLimit();
     void values();
