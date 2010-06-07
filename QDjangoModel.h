@@ -69,7 +69,7 @@ protected:
     void setFieldOption(const QString &field, FieldOption option, const QVariant &value);
 
 private:
-    QString databaseColumn(const QString &name) const;
+    QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
     void databaseLoad(const QMap<QString, QVariant> &props);
     QString databaseTable() const;
     QStringList databaseFields() const;

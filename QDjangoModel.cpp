@@ -153,7 +153,7 @@ bool QDjangoModel::dropTable() const
     return sqlExec(query);
 }
 
-QString QDjangoModel::databaseColumn(const QString &name) const
+QString QDjangoModel::databaseColumn(const QString &name, bool *needsJoin) const
 {
     // foreign key lookup
     if (name.count("__"))
@@ -163,6 +163,8 @@ QString QDjangoModel::databaseColumn(const QString &name) const
         if (m_foreignModels.contains(fk))
         {
             QDjangoModel *foreign = m_foreignModels[fk];
+            if (needsJoin)
+                *needsJoin = true;
             return foreign->databaseColumn(bits.join("__"));
         }
     }
