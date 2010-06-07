@@ -53,7 +53,7 @@ void TestShares::testFile()
 
 void TestShares::cleanup()
 {
-    QDjangoQuerySet<File>().remove();
+    QCOMPARE(QDjangoQuerySet<File>().remove(), true);
 }
 
 void TestShares::cleanupTestCase()
