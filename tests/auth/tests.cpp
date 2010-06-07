@@ -388,78 +388,74 @@ void TestUser::subLimit()
     delete other;
 }
 
+/** Test retrieving maps of values.
+ */
 void TestUser::values()
 {
+    loadFixtures();
+
     const QDjangoQuerySet<User> users;
-
-    User user;
-    user.setUsername("foouser");
-    user.setPassword("foopass");
-    user.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
-    QCOMPARE(user.save(), true);
-
-    User user2;
-    user2.setUsername("baruser");
-    user2.setPassword("barpass");
-    user2.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 6, 31)));
-    QCOMPARE(user2.save(), true);
 
     // FIXME : test last_login
     QList< QMap<QString, QVariant> > map = users.all().values();
-    QCOMPARE(map.size(), 2);
+    QCOMPARE(map.size(), 3);
     QCOMPARE(map[0].keys(), QList<QString>() << "date_joined" << "email" << "first_name" << "id" << "is_active" << "is_staff" << "is_superuser" << "last_login" << "last_name" << "password" << "username");
     QCOMPARE(map[0]["username"], QVariant("foouser"));
     QCOMPARE(map[0]["password"], QVariant("foopass"));
     QCOMPARE(map[1].keys(), QList<QString>() << "date_joined" << "email" << "first_name" << "id" << "is_active" << "is_staff" << "is_superuser" << "last_login" << "last_name" << "password" << "username");
     QCOMPARE(map[1]["username"], QVariant("baruser"));
     QCOMPARE(map[1]["password"], QVariant("barpass"));
+    QCOMPARE(map[2].keys(), QList<QString>() << "date_joined" << "email" << "first_name" << "id" << "is_active" << "is_staff" << "is_superuser" << "last_login" << "last_name" << "password" << "username");
+    QCOMPARE(map[2]["username"], QVariant("wizuser"));
+    QCOMPARE(map[2]["password"], QVariant("wizpass"));
 
     // FIXME : test last_login
     map = users.all().values(QStringList() << "username" << "password");
-    QCOMPARE(map.size(), 2);
+    QCOMPARE(map.size(), 3);
     QCOMPARE(map[0].keys(), QList<QString>() << "password" << "username");
     QCOMPARE(map[0]["username"], QVariant("foouser"));
     QCOMPARE(map[0]["password"], QVariant("foopass"));
     QCOMPARE(map[1].keys(), QList<QString>() << "password" << "username");
     QCOMPARE(map[1]["username"], QVariant("baruser"));
     QCOMPARE(map[1]["password"], QVariant("barpass"));
+    QCOMPARE(map[2].keys(), QList<QString>() << "password" << "username");
+    QCOMPARE(map[2]["username"], QVariant("wizuser"));
+    QCOMPARE(map[2]["password"], QVariant("wizpass"));
 }
 
+/** Test retrieving lists of values.
+ */
 void TestUser::valuesList()
 {
+    loadFixtures();
+
     const QDjangoQuerySet<User> users;
-
-    User user;
-    user.setUsername("foouser");
-    user.setPassword("foopass");
-    user.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
-    QCOMPARE(user.save(), true);
-
-    User user2;
-    user2.setUsername("baruser");
-    user2.setPassword("barpass");
-    user2.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 6, 31)));
-    QCOMPARE(user2.save(), true);
 
     // FIXME : test last_login
     QList< QList<QVariant> > list = users.all().valuesList();
-    QCOMPARE(list.size(), 2);
+    QCOMPARE(list.size(), 3);
     QCOMPARE(list[0].size(), 11);
     QCOMPARE(list[0][1], QVariant("foouser"));
     QCOMPARE(list[0][5], QVariant("foopass"));
     QCOMPARE(list[1].size(), 11);
     QCOMPARE(list[1][1], QVariant("baruser"));
     QCOMPARE(list[1][5], QVariant("barpass"));
+    QCOMPARE(list[2].size(), 11);
+    QCOMPARE(list[2][1], QVariant("wizuser"));
+    QCOMPARE(list[2][5], QVariant("wizpass"));
 
     // FIXME : test last_login
     list = users.all().valuesList(QStringList() << "username" << "password");
-    QCOMPARE(list.size(), 2);
+    QCOMPARE(list.size(), 3);
     QCOMPARE(list[0].size(), 2);
     QCOMPARE(list[0][0], QVariant("foouser"));
     QCOMPARE(list[0][1], QVariant("foopass"));
     QCOMPARE(list[1].size(), 2);
     QCOMPARE(list[1][0], QVariant("baruser"));
     QCOMPARE(list[1][1], QVariant("barpass"));
+    QCOMPARE(list[2].size(), 2);
+    QCOMPARE(list[2][0], QVariant("wizuser"));
+    QCOMPARE(list[2][1], QVariant("wizpass"));
 }
 
 void TestUser::cleanup()
