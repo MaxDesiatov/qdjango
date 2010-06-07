@@ -33,9 +33,9 @@ QDjangoWhere::QDjangoWhere()
 
 /** Constructs a QDjangoWhere expressing a constraint on a database column.
  *
- * @param key
- * @param operation
- * @param value
+ * \param key
+ * \param operation
+ * \param value
  */
 QDjangoWhere::QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant value)
     :  m_key(key), m_operation(operation), m_data(value), m_combine(NoCombine)
@@ -190,7 +190,7 @@ bool QDjangoWhere::isNone() const
 
 /** Resolves field names to database columns using the given model.
  *
- * @param model
+ * \param model
  */
 bool QDjangoWhere::resolve(const QDjangoModel *model)
 {
