@@ -44,7 +44,7 @@ public:
     QDjangoQuerySet none() const;
     QDjangoQuerySet selectRelated() const;
 
-    void remove();
+    bool remove();
     int size();
     QList< QMap<QString, QVariant> > values(const QStringList &fields = QStringList());
     QList< QList<QVariant> > valuesList(const QStringList &fields = QStringList());
@@ -188,11 +188,13 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::none() const
 }
 
 /** Deletes all objects in the QDjangoQuerySet.
+ *
+ * \return true if deletion succeeded, false otherwise
  */
 template <class T>
-void QDjangoQuerySet<T>::remove()
+bool QDjangoQuerySet<T>::remove()
 {
-    sqlDelete();
+    return sqlDelete();
 }
 
 /** Returns a QDjangoQuerySet that will automatically "follow" foreign-key

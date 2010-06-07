@@ -68,10 +68,17 @@ void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
     m_where = m_where && q;
 }
 
-void QDjangoQueryBase::sqlDelete()
+bool QDjangoQueryBase::sqlDelete()
 {
+    // DELETE on an empty queryset doesn't need a query
     if (m_where.isNone())
-        return;
+        return true;
+
+    // FIXME : it is not possible to remove entries once a limit has been set
+    // because SQLite does not support limits on DELETE unless compiled with the
+    // SQLITE_ENABLE_UPDATE_DELETE_LIMIT option
+    if (m_lowMark || m_highMark)
+        return false;
 
     // delete entries
     const QDjangoModel *model = QDjango::model(m_modelName);
@@ -80,13 +87,12 @@ void QDjangoQueryBase::sqlDelete()
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    // FIXME : this does not work on SQLite unless compiled with the
-    // SQLITE_ENABLE_UPDATE_DELETE_LIMIT option
     sql += sqlLimit();
     QSqlQuery query(QDjango::database());
     query.prepare(sql);
     m_where.bindValues(query);
-    sqlExec(query);
+    if (!sqlExec(query))
+        return false;
 
     // invalidate cache
     if (m_haveResults)
@@ -94,6 +100,7 @@ void QDjangoQueryBase::sqlDelete()
         m_properties.clear();
         m_haveResults = false;
     }
+    return true;
 }
 
 void QDjangoQueryBase::sqlFetch()

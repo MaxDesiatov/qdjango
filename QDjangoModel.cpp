@@ -299,6 +299,8 @@ void QDjangoModel::setFieldOption(const QString &field, FieldOption option, cons
 }
 
 /** Deletes the QDjangoModel from the database.
+ *
+ * \return true if deletion succeeded, false otherwise
  */
 bool QDjangoModel::remove()
 {
@@ -310,6 +312,8 @@ bool QDjangoModel::remove()
 }
 
 /** Saves the QDjangoModel to the database.
+ *
+ * \return true if saving succeeded, false otherwise
  */
 bool QDjangoModel::save()
 {
