@@ -67,6 +67,9 @@ void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
 
 void QDjangoQueryBase::sqlDelete()
 {
+    if (m_where.isNone())
+        return;
+
     // delete entries
     const QDjangoModel *model = QDjango::model(m_modelName);
     QString from = QDjango::quote(model->databaseTable());
@@ -90,7 +93,7 @@ void QDjangoQueryBase::sqlDelete()
 
 void QDjangoQueryBase::sqlFetch()
 {
-    if (m_haveResults)
+    if (m_haveResults || m_where.isNone())
         return;
 
     // build query

@@ -41,6 +41,7 @@ public:
     QDjangoQuerySet exclude(const QDjangoWhere &where) const;
     QDjangoQuerySet filter(const QDjangoWhere &where) const;
     QDjangoQuerySet limit(int pos, int length = -1) const;
+    QDjangoQuerySet none() const;
     QDjangoQuerySet selectRelated() const;
 
     void remove();
@@ -172,6 +173,16 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::limit(int pos, int length) const
         if (m_highMark > 0 && other.m_highMark > m_highMark)
             other.m_highMark = m_highMark;
     }
+    return other;
+}
+
+/** Returns an empty QDjangoQuerySet.
+ */
+template <class T>
+QDjangoQuerySet<T> QDjangoQuerySet<T>::none() const
+{
+    QDjangoQuerySet<T> other;
+    other.m_where = !QDjangoWhere();
     return other;
 }
 
