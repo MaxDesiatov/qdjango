@@ -30,6 +30,31 @@ void TestUser::initTestCase()
     QCOMPARE(User().createTable(), true);
 }
 
+/** Load fixtures consisting of 3 users.
+ */
+void TestUser::loadFixtures()
+{
+    User foo;
+    foo.setUsername("foouser");
+    foo.setPassword("foopass");
+    foo.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 5, 14)));
+    QCOMPARE(foo.save(), true);
+
+    User bar;
+    bar.setUsername("baruser");
+    bar.setPassword("barpass");
+    bar.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 6, 31)));
+    QCOMPARE(bar.save(), true);
+
+    User wiz;
+    wiz.setUsername("wizuser");
+    wiz.setPassword("wizpass");
+    wiz.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 7, 18)));
+    QCOMPARE(wiz.save(), true);
+
+    QCOMPARE(QDjangoQuerySet<User>().size(), 3);
+}
+
 void TestUser::createUser()
 {
     const QDjangoQuerySet<User> users;
@@ -96,6 +121,8 @@ void TestUser::createUser()
     delete other;
 }
 
+/** Test removing a single user.
+ */
 void TestUser::removeUser()
 {
     const QDjangoQuerySet<User> users;
@@ -113,75 +140,68 @@ void TestUser::removeUser()
     QCOMPARE(users.all().size(), 0);
 }
 
-void TestUser::removeUsers()
+/** Test removing multiple users.
+  */
+void TestUser::removeFilter()
 {
+    loadFixtures();
+
+    // remove "foouser" and "baruser"
     const QDjangoQuerySet<User> users;
-
-    User user;
-    user.setUsername("foouser");
-    user.setPassword("foopass");
-    QCOMPARE(user.save(), true);
-
-    User user2;
-    user2.setUsername("baruser");
-    user2.setPassword("nopass");
-    QCOMPARE(user2.save(), true);
-
-    User user3;
-    user3.setUsername("wizuser");
-    user3.setPassword("nopass");
-    QCOMPARE(user3.save(), true);
-
-    QCOMPARE(users.all().size(), 3);
-
-    users.filter(QDjangoWhere("password", QDjangoWhere::Equals, "nopass")).remove();
-
-    QCOMPARE(users.all().size(), 1);
+    users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QStringList() << "foouser" << "baruser")).remove();
+    QDjangoQuerySet<User> qs = users.all();
+    QCOMPARE(qs.size(), 1);
+    User *other = qs.at(0);
+    QVERIFY(other != 0);
+    QCOMPARE(other->username(), QLatin1String("wizuser"));
+    delete other;
 }
 
+/** Test removing multiple users with a LIMIT clause.
+ */
+void TestUser::removeLimit()
+{
+    loadFixtures();
+
+    // FIXME : remove the first two entries
+#if 0
+    const QDjangoQuerySet<User> users;
+    users.limit(0, 2).remove();
+    QCOMPARE(users.all().size(), 1);
+#endif
+}
+
+/** Test retrieving a single user.
+ */
 void TestUser::getUser()
 {
+    loadFixtures();
+
+    // get an inexistent user
     const QDjangoQuerySet<User> users;
+    User *other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "does_not_exist"));
+    QVERIFY(other == 0);
 
-    User foo;
-    foo.setUsername("foouser");
-    foo.setPassword("foopass");
-    foo.save();
+    // get multiple users
+    other = users.get(QDjangoWhere());
+    QVERIFY(other == 0);
 
-    User bar;
-    bar.setUsername("baruser");
-    bar.setPassword("barpass");
-    bar.save();
-
-    QCOMPARE(users.all().size(), 2);
-
-    User *other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
+    // get an existing user
+    other = users.get(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
     QVERIFY(other != 0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
     QCOMPARE(other->password(), QLatin1String("foopass"));
     delete other;
 }
 
+/** Test filtering users with a "=" comparison.
+ */
 void TestUser::filterUsers()
 {
-    const QDjangoQuerySet<User> users;
-
-    User foo;
-    foo.setUsername("foouser");
-    foo.setPassword("foopass");
-    foo.save();
-
-    User bar;
-    bar.setUsername("baruser");
-    bar.setPassword("barpass");
-    bar.save();
-
-    User wiz;
-    wiz.setUsername("wizuser");
-    wiz.setPassword("wizpass");
-    wiz.save();
+    loadFixtures();
 
     // all users
+    const QDjangoQuerySet<User> users;
     QDjangoQuerySet<User> qs = users.all();
     QCOMPARE(qs.where().sql(), QLatin1String(""));
     QCOMPARE(qs.size(), 3);
@@ -211,26 +231,14 @@ void TestUser::filterUsers()
     QCOMPARE(qs.size(), 2);
 }
 
+/** Test filtering users with a "like" condition".
+ */
 void TestUser::filterLike()
 {
-    const QDjangoQuerySet<User> users;
-
-    User foo;
-    foo.setUsername("foouser");
-    foo.setPassword("foopass");
-    foo.save();
-
-    User bar;
-    bar.setUsername("baruser");
-    bar.setPassword("barpass");
-    bar.save();
-
-    User wiz;
-    wiz.setUsername("wizuser");
-    wiz.setPassword("wizpass");
-    wiz.save();
+    loadFixtures();
 
     // username starts with "foo"
+    const QDjangoQuerySet<User> users;
     QDjangoQuerySet<User> qs = users.filter(QDjangoWhere("username", QDjangoWhere::StartsWith, "foo"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
@@ -260,29 +268,20 @@ void TestUser::filterLike()
 
 void TestUser::excludeUsers()
 {
+    loadFixtures();
     const QDjangoQuerySet<User> users;
-
-    User foo;
-    foo.setUsername("foouser");
-    foo.setPassword("foopass");
-    foo.save();
-
-    User bar;
-    bar.setUsername("baruser");
-    bar.setPassword("barpass");
-    bar.save();
 
     QDjangoQuerySet<User> qs = users.all();
     QCOMPARE(qs.where().sql(), QLatin1String(""));
-    QCOMPARE(users.all().size(), 2);
+    QCOMPARE(users.all().size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
-    QCOMPARE(qs.size(), 2);
+    QCOMPARE(qs.size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
-    QCOMPARE(qs.size(), 1);
+    QCOMPARE(qs.size(), 2);
     User *other = qs.at(0);
     QVERIFY(other != 0);
     QCOMPARE(other->username(), QLatin1String("foouser"));
@@ -291,7 +290,7 @@ void TestUser::excludeUsers()
 
     qs = qs.exclude(QDjangoWhere("password", QDjangoWhere::Equals, "barpass"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username AND `user`.`password` != :user_password"));
-    QCOMPARE(qs.size(), 1);
+    QCOMPARE(qs.size(), 2);
 }
 
 void TestUser::limit()
