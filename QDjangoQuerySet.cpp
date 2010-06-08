@@ -140,13 +140,34 @@ bool QDjangoQueryBase::sqlFetch()
 QString QDjangoQueryBase::sqlLimit() const
 {
     QString limit;
+
+    // order
+    const QDjangoModel *model = QDjango::model(m_modelName);
+    QStringList bits;
+    QString field;
+    foreach (field, m_orderBy)
+    {
+        QString order = "ASC";
+        if (field.startsWith("-"))
+        {
+            order = "DESC";
+            field = field.mid(1);
+        } else if (field.startsWith("+")) {
+            field = field.mid(1);
+        }
+        bits.append(QString("%1 %2").arg(model->databaseColumn(field), order));
+    }
+    if (!bits.isEmpty())
+        limit += " ORDER BY " + bits.join(", ");
+
+    // limits
     if (m_highMark > 0)
-        limit = QString(" LIMIT %1").arg(m_highMark - m_lowMark);
+        limit += QString(" LIMIT %1").arg(m_highMark - m_lowMark);
     if (m_lowMark > 0)
     {
         // no-limit is backend specific
         if (m_highMark <= 0)
-            limit = QDjango::noLimitSql();
+            limit += QDjango::noLimitSql();
         limit += QString(" OFFSET %1").arg(m_lowMark);
     }
     return limit;

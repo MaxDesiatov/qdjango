@@ -49,6 +49,7 @@ public:
     QDjangoQuerySet filter(const QDjangoWhere &where) const;
     QDjangoQuerySet limit(int pos, int length = -1) const;
     QDjangoQuerySet none() const;
+    QDjangoQuerySet orderBy(const QStringList &keys) const;
     QDjangoQuerySet selectRelated() const;
 
     bool remove();
@@ -96,6 +97,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
     other.m_lowMark = m_lowMark;
     other.m_highMark = m_highMark;
     other.m_needsJoin = m_needsJoin;
+    other.m_orderBy = m_orderBy;
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
     return other;
@@ -191,6 +193,18 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::none() const
 {
     QDjangoQuerySet<T> other;
     other.m_where = !QDjangoWhere();
+    return other;
+}
+
+/** Returns a QDjangoQuerySet whose elements are ordered using the given keys.
+ *
+ * \param keys
+ */
+template <class T>
+QDjangoQuerySet<T> QDjangoQuerySet<T>::orderBy(const QStringList &keys) const
+{
+    QDjangoQuerySet<T> other = all();
+    other.m_orderBy << keys;
     return other;
 }
 
