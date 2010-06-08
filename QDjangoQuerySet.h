@@ -162,7 +162,7 @@ T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
  *  of returned records.
  *
  *  However, you cannot apply additional restrictions using filter(),
- *  exclude(), get() or remove() on the returned QDjangoQuerySet.
+ *  exclude(), get(), orderBy() or remove() on the returned QDjangoQuerySet.
  *
  * \param pos offset of the records
  * \param length maximum number of records
@@ -203,6 +203,9 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::none() const
 template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::orderBy(const QStringList &keys) const
 {
+    // it is not possible to change ordering once a limit has been set
+    Q_ASSERT(!m_lowMark && !m_highMark);
+
     QDjangoQuerySet<T> other = all();
     other.m_orderBy << keys;
     return other;
