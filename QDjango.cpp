@@ -83,7 +83,8 @@ QSqlDatabase QDjango::database()
     QThread *thread = QThread::currentThread();
     if (!globalDbs.contains(thread))
     {
-        QSqlDatabase db = QSqlDatabase::cloneDatabase(globalDbs.value(globalDbs.keys().first()), "");
+        QSqlDatabase db = QSqlDatabase::cloneDatabase(globalDbs.value(globalDbs.keys().first()),
+            QString::number(reinterpret_cast<qint64>(thread)));
         Q_ASSERT(db.open());
         globalDbs.insert(thread, db);
     }
