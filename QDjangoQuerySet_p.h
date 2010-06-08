@@ -47,6 +47,7 @@ protected:
     int m_highMark;
     QDjangoWhere m_where;
     bool m_needsJoin;
+    QStringList m_orderBy;
     QList< QMap<QString, QVariant> > m_properties;
     bool m_selectRelated;
 
