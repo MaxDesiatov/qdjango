@@ -26,13 +26,20 @@
 #include <QThread>
 
 #include "QDjango.h"
+#include "QDjango_p.h"
 #include "QDjangoModel.h"
 
-static QMap<QThread*, QSqlDatabase> globalDbs;
+static QDjangoWatcher *globalWatcher = 0;
+
+void QDjangoWatcher::threadFinished()
+{
+    QThread *thread = qobject_cast<QThread*>(sender());
+    copies.remove(thread);
+}
 
 static void closeDatabase()
 {
-    globalDbs.clear();
+    delete globalWatcher;
 }
 
 /*! \mainpage
@@ -81,14 +88,17 @@ bool sqlExec(QSqlQuery &query)
 QSqlDatabase QDjango::database()
 {
     QThread *thread = QThread::currentThread();
-    if (!globalDbs.contains(thread))
+    if (thread == globalWatcher->thread())
+        return globalWatcher->reference;
+    if (!globalWatcher->copies.contains(thread))
     {
-        QSqlDatabase db = QSqlDatabase::cloneDatabase(globalDbs.value(globalDbs.keys().first()),
+        QObject::connect(thread, SIGNAL(finished()), globalWatcher, SLOT(threadFinished()));
+        QSqlDatabase db = QSqlDatabase::cloneDatabase(globalWatcher->reference,
             QString::number(reinterpret_cast<qint64>(thread)));
         Q_ASSERT(db.open());
-        globalDbs.insert(thread, db);
+        globalWatcher->copies.insert(thread, db);
     }
-    return globalDbs[thread];
+    return globalWatcher->copies[thread];
 }
 
 /** Sets the database used by QDjango.
@@ -101,9 +111,12 @@ void QDjango::setDatabase(QSqlDatabase database)
     {
         qWarning() << "Unsupported database driver" << database.driverName();
     }
-    globalDbs.clear();
-    globalDbs.insert(QThread::currentThread(), database);
-    qAddPostRoutine(closeDatabase);
+    if (!globalWatcher)
+    {
+        globalWatcher = new QDjangoWatcher();
+        qAddPostRoutine(closeDatabase);
+    }
+    globalWatcher->reference = database;
 }
 
 /** Creates the database tables for all registered models.
