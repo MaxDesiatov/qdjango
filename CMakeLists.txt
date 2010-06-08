@@ -27,6 +27,7 @@ set(qdjango_SOURCES
     QDjangoQuerySet.cpp
     QDjangoWhere.cpp)
 set(qdjango_MOC_HEADERS
+    QDjango_p.h
     QDjangoModel.h)
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
