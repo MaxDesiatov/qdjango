@@ -84,6 +84,12 @@ bool sqlExec(QSqlQuery &query)
 }
 
 /** Returns the database used by QDjango.
+ *
+ *  If you call this method from any thread but the application's main thread,
+ *  a new connection to the database will be created. The connection will
+ *  automatically be torn down once the thread finishes.
+ *
+ *  \sa setDatabase()
  */
 QSqlDatabase QDjango::database()
 {
@@ -102,6 +108,10 @@ QSqlDatabase QDjango::database()
 }
 
 /** Sets the database used by QDjango.
+ *
+ *  You must call this method from your application's main thread.
+ *
+ *  \sa database()
  */
 void QDjango::setDatabase(QSqlDatabase database)
 {

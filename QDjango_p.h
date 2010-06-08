@@ -24,6 +24,8 @@
 #include <QObject>
 #include <QSqlDatabase>
 
+/** \internal
+ */
 class QDjangoWatcher : public QObject
 {
     Q_OBJECT
