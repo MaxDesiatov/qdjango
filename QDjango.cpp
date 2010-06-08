@@ -93,6 +93,8 @@ bool sqlExec(QSqlQuery &query)
  */
 QSqlDatabase QDjango::database()
 {
+    Q_ASSERT(globalWatcher != 0);
+
     QThread *thread = QThread::currentThread();
     if (thread == globalWatcher->thread())
         return globalWatcher->reference;
