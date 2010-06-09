@@ -265,7 +265,7 @@ void TestWhere::complexWhere()
 
 /** Display program usage.
  */
-static int usage()
+static void usage()
 {
     fprintf(stderr, "Usage: qdjango-test [-d <driver>] [-n <database>] [-u <user>] [-p <password>]\n");
 }
