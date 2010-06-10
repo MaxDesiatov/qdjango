@@ -31,6 +31,11 @@
 
 static QDjangoWatcher *globalWatcher = 0;
 
+QDjangoWatcher::QDjangoWatcher(QObject *parent)
+    : QObject(parent), connectionId(0)
+{
+}
+
 void QDjangoWatcher::threadFinished()
 {
     QThread *thread = qobject_cast<QThread*>(sender());
@@ -107,7 +112,7 @@ QSqlDatabase QDjango::database()
     // create a new connection for this thread
     QObject::connect(thread, SIGNAL(finished()), globalWatcher, SLOT(threadFinished()));
     QSqlDatabase db = QSqlDatabase::cloneDatabase(globalWatcher->reference,
-        QString::number(reinterpret_cast<qint64>(thread)));
+        QString("_qdjango_%1").arg(globalWatcher->connectionId++));
     Q_ASSERT(db.open());
     globalWatcher->copies.insert(thread, db);
     return db;
