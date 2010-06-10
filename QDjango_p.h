@@ -31,8 +31,10 @@ class QDjangoWatcher : public QObject
     Q_OBJECT
 
 public:
+    QDjangoWatcher(QObject *parent = 0);
     QSqlDatabase reference;
     QMap<QThread*, QSqlDatabase> copies;
+    qint64 connectionId;
 
 private slots:
     void threadFinished();
