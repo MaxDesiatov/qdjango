@@ -29,6 +29,8 @@
 #include "QDjango_p.h"
 #include "QDjangoModel.h"
 
+QMap<QString, QDjangoModel*> QDjango::registry = QMap<QString, QDjangoModel*>();
+
 static QDjangoWatcher *globalWatcher = 0;
 
 QDjangoWatcher::QDjangoWatcher(QObject *parent)
@@ -59,8 +61,6 @@ static void closeDatabase()
  * \sa QDjangoQuerySet
  */
 
-
-static QMap<QString, QDjangoModel*> registry;
 
 static void sqlDebug(const QSqlQuery &query)
 {
@@ -146,18 +146,6 @@ void QDjango::createTables()
 {
     foreach (const QString &key, registry.keys())
         registry[key]->createTable();
-}
-
-/** Registers a QDjangoModel.
- */
-bool QDjango::registerModel(QDjangoModel *model)
-{
-    const QString name = model->metaObject()->className();
-    if (registry.contains(name))
-        return false;
-    qDebug() << "Registering model" << name;
-    registry.insert(name, model);
-    return true;
 }
 
 /** Returns the QDjangoModel with the given name.
