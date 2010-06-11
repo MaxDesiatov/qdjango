@@ -38,6 +38,7 @@ class QDjango
 {
 public:
     static void createTables();
+    static void dropTables();
 
     static QSqlDatabase database();
     static void setDatabase(QSqlDatabase database);
