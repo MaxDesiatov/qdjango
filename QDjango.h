@@ -20,6 +20,8 @@
 #ifndef QDJANGO_H
 #define QDJANGO_H
 
+#include <QMap>
+
 class QSqlDatabase;
 class QSqlQuery;
 class QString;
@@ -51,7 +53,8 @@ public:
 
 private:
     static const QDjangoModel *model(const QString &name);
-    static bool registerModel(QDjangoModel *model);
+
+    static QMap<QString, QDjangoModel*> registry;
 
     friend class QDjangoQueryBase;
 };
@@ -61,12 +64,12 @@ private:
 template <class T>
 bool QDjango::registerModel()
 {
-    if (!model(T::staticMetaObject.className()))
-    {
-        T *model = new T;
-        if (!registerModel(model))
-            delete model;
-    }
+    const QString name = T::staticMetaObject.className();
+    if (registry.contains(name))
+        return false;
+
+    registry.insert(name, new T);
+    return true;
 }
 
 #endif
