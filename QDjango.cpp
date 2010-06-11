@@ -148,6 +148,14 @@ void QDjango::createTables()
         registry[key]->createTable();
 }
 
+/** Drops the database tables for all registered models.
+ */
+void QDjango::dropTables()
+{
+    foreach (const QString &key, registry.keys())
+        registry[key]->dropTable();
+}
+
 /** Returns the QDjangoModel with the given name.
  */
 const QDjangoModel *QDjango::model(const QString &name)
