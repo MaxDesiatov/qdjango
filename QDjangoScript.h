@@ -103,7 +103,7 @@ static QScriptValue newModel(QScriptContext *context, QScriptEngine *engine)
 template <class T>
 void qScriptRegisterModel(QScriptEngine *engine)
 {
-    qDjangoRegisterModel<T>();
+    QDjango::registerModel<T>();
 
     QScriptValue querysetProto = engine->newObject();
     querysetProto.setProperty("all", engine->newFunction(querySetAll<T>));
