@@ -40,16 +40,20 @@ public:
     static QSqlDatabase database();
     static void setDatabase(QSqlDatabase database);
 
-    static const QDjangoModel *model(const QString &name);
     template <class T>
     static bool registerModel();
-    static bool registerModel(QDjangoModel *model);
 
     // backend specific
     static QString autoIncrementSql();
     static QString noLimitSql();
     static QString quote(const QString &name);
     static QString unquote(const QString &quoted);
+
+private:
+    static const QDjangoModel *model(const QString &name);
+    static bool registerModel(QDjangoModel *model);
+
+    friend class QDjangoQueryBase;
 };
 
 /** Register a QDjangoModel class with QDjango.
