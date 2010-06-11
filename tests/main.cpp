@@ -315,12 +315,12 @@ int main(int argc, char *argv[])
     QDjango::setDatabase(db);
 
     // declare models
-    qDjangoRegisterModel<User>();
-    qDjangoRegisterModel<Group>();
-    qDjangoRegisterModel<Message>();
-    qDjangoRegisterModel<UserGroups>();
+    QDjango::registerModel<User>();
+    QDjango::registerModel<Group>();
+    QDjango::registerModel<Message>();
+    QDjango::registerModel<UserGroups>();
 
-    qDjangoRegisterModel<File>();
+    QDjango::registerModel<File>();
 
     // run tests
     int errors = 0;

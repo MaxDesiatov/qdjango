@@ -32,7 +32,7 @@ class QSqlDatabase;
  *  and declare the database fields as properties using the Q_PROPERTY
  *  macro.
  *
- *  You must then register the class with QDjango using qDjangoRegisterModel.
+ *  You must then register the class with QDjango using QDjango::registerModel().
  */
 class QDjangoModel : public QObject
 {

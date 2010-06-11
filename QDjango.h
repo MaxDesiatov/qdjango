@@ -41,6 +41,8 @@ public:
     static void setDatabase(QSqlDatabase database);
 
     static const QDjangoModel *model(const QString &name);
+    template <class T>
+    static bool registerModel();
     static bool registerModel(QDjangoModel *model);
 
     // backend specific
@@ -53,12 +55,12 @@ public:
 /** Register a QDjangoModel class with QDjango.
  */
 template <class T>
-void qDjangoRegisterModel()
+bool QDjango::registerModel()
 {
-    if (!QDjango::model(T::staticMetaObject.className()))
+    if (!model(T::staticMetaObject.className()))
     {
         T *model = new T;
-        if (!QDjango::registerModel(model))
+        if (!registerModel(model))
             delete model;
     }
 }
