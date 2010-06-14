@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <getopt.h>
 #include <cstdlib>
 
 #include <QDebug>
@@ -127,31 +126,46 @@ static void interactive(QScriptEngine *eng)
                 break;
         }
     }
+}
 
+void usage()
+{
+    fprintf(stderr, "Usage: qdjango-console [options]\n\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "-d <database>  use <database>\n");
+    fprintf(stderr, "-p <plugins>   add <plugins> to plugins search path\n");
 }
 
 int main(int argc, char *argv[])
 {
-    int c;
     QString databaseName(":memory:");
 
     /* Create application */
     QCoreApplication app(argc, argv);
 
     /* Parse command line arguments */
-    while ((c = getopt(argc, argv, "cd:hp:")) != -1)
+    for (int i = 1; i < argc; i++)
     {
-        if (c == 'h')
+        if (!strcmp(argv[i], "-h"))
         {
-            fprintf(stderr, "Usage: qdjango-console [options]\n\n");
-            fprintf(stderr, "Options:\n");
-            fprintf(stderr, "-d <database>  use <database>\n");
-            fprintf(stderr, "-p <plugins>   add <plugins> to plugins search path\n");
+            usage();
             return EXIT_SUCCESS;
-        } else if (c == 'd') {
-            databaseName = QString::fromLocal8Bit(optarg);
-        } else if (c == 'p') {
-            app.setLibraryPaths(app.libraryPaths() << QString::fromLocal8Bit(optarg)); 
+        } else if (!strcmp(argv[i], "-d")) {
+            if (i == argc - 1 || !strlen(argv[i]) || argv[i][0] == '-')
+            {
+                fprintf(stderr, "Option -d requires an argument\n");
+                usage();
+                return EXIT_FAILURE;
+            }
+            databaseName = QString::fromLocal8Bit(argv[++i]);
+        } else if (!strcmp(argv[i], "-p")) {
+            if (i == argc - 1 || !strlen(argv[i]) || argv[i][0] == '-')
+            {
+                fprintf(stderr, "Option -p requires an argument\n");
+                usage();
+                return EXIT_FAILURE;
+            }
+            app.setLibraryPaths(app.libraryPaths() << QString::fromLocal8Bit(argv[++i]));
         }
     }
 
@@ -160,7 +174,7 @@ int main(int argc, char *argv[])
     db.setDatabaseName(databaseName);
     if (!db.open())
     {
-        fprintf(stderr, "Could not access database\n");
+        fprintf(stderr, "Could not access database '%s'\n", databaseName.toLocal8Bit().constData());
         return EXIT_FAILURE;
     }
     QDjango::setDatabase(db);
