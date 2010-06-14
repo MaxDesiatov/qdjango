@@ -179,7 +179,8 @@ QStringList QDjangoModel::databaseFields() const
     QStringList properties;
     if (m_pkName == "id")
         properties << m_pkName;
-    for(int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
+    const int count = meta->propertyCount();
+    for(int i = meta->propertyOffset(); i < count; ++i)
         properties << QString::fromLatin1(meta->property(i).name());
     return properties;
 }
