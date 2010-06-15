@@ -28,9 +28,9 @@ typedef QMap<QString, QVariant> PropertyMap;
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
     : m_lowMark(0),
     m_highMark(0),
-    m_haveResults(false),
     m_needsJoin(false),
     m_selectRelated(false),
+    m_haveResults(false),
     m_modelName(modelName)
 {
 }
