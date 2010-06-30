@@ -26,11 +26,11 @@
 typedef QMap<QString, QVariant> PropertyMap;
 
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
-    : m_lowMark(0),
+    : m_haveResults(false),
+    m_lowMark(0),
     m_highMark(0),
     m_needsJoin(false),
     m_selectRelated(false),
-    m_haveResults(false),
     m_modelName(modelName)
 {
 }
@@ -66,6 +66,26 @@ void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
     QDjangoWhere q(where);
     q.resolve(model, &m_needsJoin);
     m_where = m_where && q;
+}
+
+int QDjangoQueryBase::sqlCount() const
+{
+    // prepare query
+    const QDjangoModel *model = QDjango::model(m_modelName);
+    QString from = QDjango::quote(model->databaseTable());
+    QString sql = "SELECT COUNT(*) FROM " + QDjango::quote(model->databaseTable());
+    QString where = m_where.sql();
+    if (!where.isEmpty())
+        sql += " WHERE " + where;
+    sql += sqlLimit();
+    QSqlQuery query(QDjango::database());
+    query.prepare(sql);
+    m_where.bindValues(query);
+
+    // execute query
+    if (!sqlExec(query) || !query.next())
+        return -1;
+    return query.value(0).toInt();
 }
 
 bool QDjangoQueryBase::sqlDelete()

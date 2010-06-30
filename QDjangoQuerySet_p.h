@@ -36,6 +36,7 @@ public:
 
 protected:
     void addFilter(const QDjangoWhere &where);
+    int sqlCount() const;
     bool sqlDelete();
     bool sqlFetch();
     QString sqlLimit() const;
@@ -43,6 +44,7 @@ protected:
     QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
     QList< QList<QVariant> > sqlValuesList(const QStringList &fields);
 
+    bool m_haveResults;
     int m_lowMark;
     int m_highMark;
     QDjangoWhere m_where;
@@ -54,7 +56,6 @@ protected:
 private:
     QStringList fieldNames(const QDjangoModel *model, QString &from);
 
-    bool m_haveResults;
     QString m_modelName;
 
 friend class QDjangoModel;
