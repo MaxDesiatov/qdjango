@@ -85,7 +85,6 @@ private:
     };
 
     QString m_key;
-    QString m_placeholder;
     QDjangoWhere::Operation m_operation;
     QVariant m_data;
 

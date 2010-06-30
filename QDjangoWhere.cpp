@@ -20,14 +20,14 @@
 #include <QSqlQuery>
 #include <QStringList>
 
-#include "QDjango.h"
 #include "QDjangoModel.h"
 #include "QDjangoWhere.h"
+
 
 /** Constructs an empty QDjangoWhere, which expresses no constraint.
  */
 QDjangoWhere::QDjangoWhere()
-    :  m_operation(None), m_combine(NoCombine), m_negate(false)
+    : m_operation(None), m_combine(NoCombine), m_negate(false)
 {
 }
 
@@ -38,12 +38,8 @@ QDjangoWhere::QDjangoWhere()
  * \param value
  */
 QDjangoWhere::QDjangoWhere(const QString &key, QDjangoWhere::Operation operation, QVariant value)
-    :  m_key(key), m_operation(operation), m_data(value), m_combine(NoCombine)
+    : m_key(key), m_operation(operation), m_data(value), m_combine(NoCombine)
 {
-    QStringList bits;
-    foreach (const QString &bit, m_key.split('.'))
-        bits << QDjango::unquote(bit);
-    m_placeholder = ":" + bits.join("_");
 }
 
 /** Negates the current QDjangoWhere.
@@ -52,7 +48,6 @@ QDjangoWhere QDjangoWhere::operator!() const
 {
     QDjangoWhere result;
     result.m_key = m_key;
-    result.m_placeholder = m_placeholder;
     result.m_data = m_data;
     result.m_combine = m_combine;
     result.m_negate = !m_negate;
@@ -152,31 +147,31 @@ void QDjangoWhere::bindValues(QSqlQuery &query) const
     {
         const QList<QVariant> values = m_data.toList();
         for (int i = 0; i < values.size(); i++)
-            query.bindValue(QString("%1_%2").arg(m_placeholder).arg(i), values[i]);
+            query.addBindValue(values[i]);
     }
     else if (m_operation == QDjangoWhere::StartsWith)
     {
         QString escaped = m_data.toString();
         escaped.replace("%", "\\%");
         escaped.replace("_", "\\_");
-        query.bindValue(m_placeholder, escaped + "%");
+        query.addBindValue(escaped + "%");
     }
     else if (m_operation == QDjangoWhere::EndsWith)
     {
         QString escaped = m_data.toString();
         escaped.replace("%", "\\%");
         escaped.replace("_", "\\_");
-        query.bindValue(m_placeholder, "%" + escaped);
+        query.addBindValue("%" + escaped);
     }
     else if (m_operation == QDjangoWhere::Contains)
     {
         QString escaped = m_data.toString();
         escaped.replace("%", "\\%");
         escaped.replace("_", "\\_");
-        query.bindValue(m_placeholder, "%" + escaped + "%");
+        query.addBindValue("%" + escaped + "%");
     }
     else if (m_operation != QDjangoWhere::None)
-        query.bindValue(m_placeholder, m_data);
+        query.addBindValue(m_data);
     else
         foreach (const QDjangoWhere &child, m_children)
             child.bindValues(query);
@@ -208,13 +203,7 @@ bool QDjangoWhere::resolve(const QDjangoModel *model, bool *needsJoin)
 {
     // resolve column
     if (m_operation != None)
-    {
         m_key = model->databaseColumn(m_key, needsJoin);
-        QStringList bits;
-        foreach (const QString &bit, m_key.split('.'))
-            bits << QDjango::unquote(bit);
-        m_placeholder = ":" + bits.join("_");
-    }
 
     // recurse into children
     for (int i = 0; i < m_children.size(); i++)
@@ -230,28 +219,28 @@ QString QDjangoWhere::sql() const
     switch (m_operation)
     {
         case Equals:
-            return m_key + " = " + m_placeholder;
+            return m_key + " = ?";
         case NotEquals:
-            return m_key + " != " + m_placeholder;
+            return m_key + " != ?";
         case GreaterThan:
-            return m_key + " > " + m_placeholder;
+            return m_key + " > ?";
         case LessThan:
-            return m_key + " < " + m_placeholder;
+            return m_key + " < ?";
         case GreaterOrEquals:
-            return m_key + " >= " + m_placeholder;
+            return m_key + " >= ?";
         case LessOrEquals:
-            return m_key + " <= " + m_placeholder;
+            return m_key + " <= ?";
         case IsIn:
         {
             QStringList bits;
             for (int i = 0; i < m_data.toList().size(); i++)
-                bits << QString("%1_%2").arg(m_placeholder).arg(i);
+                bits << "?";
             return m_key + " IN (" + bits.join(", ") + ")";
         }
         case StartsWith:
         case EndsWith:
         case Contains:
-            return m_key + " LIKE " + m_placeholder + " ESCAPE '\\'";
+            return m_key + " LIKE ? ESCAPE '\\'";
         case None:
             if (m_combine == NoCombine)
             {

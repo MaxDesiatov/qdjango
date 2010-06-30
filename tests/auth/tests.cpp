@@ -214,7 +214,7 @@ void TestUser::filter()
 
     // valid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ?"));
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QVERIFY(other != 0);
@@ -224,12 +224,18 @@ void TestUser::filter()
 
     // chain filters
     qs = qs.filter(QDjangoWhere("password", QDjangoWhere::Equals, "foopass"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username AND `user`.`password` = :user_password"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ? AND `user`.`password` = ?"));
     QCOMPARE(qs.size(), 1);
 
     // username in list
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QList<QVariant>() << "foouser" << "wizuser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` IN (:user_username_0, :user_username_1)"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` IN (?, ?)"));
+    QCOMPARE(qs.size(), 2);
+
+    // two tests on username
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser") ||
+                      QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ? OR `user`.`username` = ?"));
     QCOMPARE(qs.size(), 2);
 }
 
@@ -280,11 +286,11 @@ void TestUser::exclude()
     QCOMPARE(users.all().size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != ?"));
     QCOMPARE(qs.size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != ?"));
     QCOMPARE(qs.size(), 2);
     User *other = qs.at(0);
     QVERIFY(other != 0);
@@ -293,7 +299,7 @@ void TestUser::exclude()
     delete other;
 
     qs = qs.exclude(QDjangoWhere("password", QDjangoWhere::Equals, "barpass"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != :user_username AND `user`.`password` != :user_password"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != ? AND `user`.`password` != ?"));
     QCOMPARE(qs.size(), 2);
 }
 
@@ -546,7 +552,7 @@ void TestRelated::filterRelated()
 
     QDjangoQuerySet<Message> qs = messages.filter(
         QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = :user_username"));
+    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ?"));
     QCOMPARE(qs.size(), 1);
 
     Message *msg = qs.at(0);
