@@ -52,6 +52,7 @@ public:
     QDjangoQuerySet orderBy(const QStringList &keys) const;
     QDjangoQuerySet selectRelated() const;
 
+    int count() const;
     bool remove();
     int size();
     QList< QMap<QString, QVariant> > values(const QStringList &fields = QStringList());
@@ -59,7 +60,7 @@ public:
     QDjangoWhere where() const;
 
     T *get(const QDjangoWhere &where) const;
-    T *at(int index);
+    T *at(int index, T *target = 0);
 };
 
 template <class T>
@@ -72,12 +73,14 @@ QDjangoQuerySet<T>::QDjangoQuerySet()
  *
  *  Returns 0 if the index is out of bounds.
  *
- *  You must free the newly allocated object yourself.
+ *  If target is 0, a new object instance will be allocated which
+ *  you must free yourself.
  *
  * \param index
+ * \param target optional existing model instance.
  */
 template <class T>
-T *QDjangoQuerySet<T>::at(int index)
+T *QDjangoQuerySet<T>::at(int index, T *target)
 {
     T *entry = new T;
     if (!sqlLoad(entry, index))
@@ -101,6 +104,23 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
     other.m_selectRelated = m_selectRelated;
     other.m_where = m_where;
     return other;
+}
+
+/** Counts the number of objects in the queryset using an SQL COUNT query,
+ *  or -1 if the query failed.
+ *
+ *  If you intend to iterate over the results, you should consider using
+ *  size() instead.
+ *
+ * \note If the QDjangoQuerySet is already fully fetched, this simply returns
+ *  the number of objects.
+ */
+template <class T>
+int QDjangoQuerySet<T>::count() const
+{
+    if (m_haveResults)
+        return m_properties.size();
+    return sqlCount();
 }
 
 /** Returns a new QDjangoQuerySet containing objects for which the given key
@@ -235,6 +255,9 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
 
 /** Returns the number of objects in the QDjangoQuerySet, or -1
  *  if the query failed.
+ *
+ *  If you do not plan to access the objects, you should consider using
+ *  count() instead.
  */
 template <class T>
 int QDjangoQuerySet<T>::size()

@@ -54,6 +54,7 @@ void TestUser::loadFixtures()
     wiz.setLastLogin(QDateTime(QDate(2010, 6, 1), QTime(10, 7, 18)));
     QCOMPARE(wiz.save(), true);
 
+    QCOMPARE(QDjangoQuerySet<User>().count(), 3);
     QCOMPARE(QDjangoQuerySet<User>().size(), 3);
 }
 
