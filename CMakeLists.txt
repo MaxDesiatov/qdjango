@@ -31,6 +31,7 @@ set(qdjango_MOC_HEADERS
     QDjangoModel.h)
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
+set(QDJANGO_STATIC 1)
 if(QDJANGO_STATIC)
   add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
   target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
