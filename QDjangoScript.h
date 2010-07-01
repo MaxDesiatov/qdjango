@@ -35,6 +35,13 @@ static QScriptValue querySetAll(QScriptContext *context, QScriptEngine *engine)
 }
 
 template <class T>
+static QScriptValue querySetCount(QScriptContext *context, QScriptEngine *engine)
+{
+    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
+    return QScriptValue(engine, qs.count());
+}
+
+template <class T>
 static QScriptValue querySetAt(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
@@ -108,6 +115,7 @@ void qScriptRegisterModel(QScriptEngine *engine)
     QScriptValue querysetProto = engine->newObject();
     querysetProto.setProperty("all", engine->newFunction(querySetAll<T>));
     querysetProto.setProperty("at", engine->newFunction(querySetAt<T>));
+    querysetProto.setProperty("count", engine->newFunction(querySetCount<T>));
     querysetProto.setProperty("exclude", engine->newFunction(querySetExclude<T>));
     querysetProto.setProperty("filter", engine->newFunction(querySetFilter<T>));
     querysetProto.setProperty("get", engine->newFunction(querySetGet<T>));
