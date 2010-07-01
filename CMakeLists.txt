@@ -31,12 +31,18 @@ set(qdjango_MOC_HEADERS
     QDjangoModel.h)
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
-add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
-set_target_properties(qdjango PROPERTIES SOVERSION 0)
-target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
+if(QDJANGO_STATIC)
+  add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
+  target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
+else(QDJANGO_STATIC)
+  add_library(qdjango SHARED ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
+  set_target_properties(qdjango PROPERTIES SOVERSION 0)
+  target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
 
-add_executable(qdjango-console console.cpp)
-target_link_libraries(qdjango-console qdjango ${QT_LIBRARIES})
+  add_executable(qdjango-console console.cpp)
+  target_link_libraries(qdjango-console qdjango ${QT_LIBRARIES})
 
-add_subdirectory(script)
+  add_subdirectory(script)
+endif(QDJANGO_STATIC)
+
 add_subdirectory(tests)
