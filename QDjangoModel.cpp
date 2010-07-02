@@ -123,6 +123,14 @@ bool QDjangoModel::createTable() const
                 fieldSql += QDjango::autoIncrementSql();
         }
 
+        // foreign key
+        const QString fkName = m_foreignKeys.key(fieldName);
+        if (!fkName.isEmpty())
+        {
+            const QDjangoModel *fkModel = m_foreignModels[fkName];
+            fieldSql += QString(" REFERENCES %1 (%2)").arg(
+                QDjango::quote(fkModel->databaseTable()), QDjango::quote(fkModel->m_pkName));
+        }
         propSql << fieldSql;
     }
 
