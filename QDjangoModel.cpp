@@ -132,27 +132,17 @@ bool QDjangoModel::createTable() const
     if (!sqlExec(createQuery))
         return false;
 
-    // create index
-    if (m_pkName != "id")
-    {
-        QString indexName = m_pkName;
-        QSqlQuery indexQuery(db);
-        indexQuery.prepare(QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(
-            QDjango::quote(indexName),
-            QDjango::quote(databaseTable()),
-            QDjango::quote(m_pkName)));
-        if (!sqlExec(indexQuery))
-            return false;
-    }
-
+    // create indices
     foreach (const QString &fieldName, databaseFields())
     {
         bool index = fieldOption(fieldName, IndexOption).toBool();
-        if (index)
+        bool unique = (fieldName == m_pkName && fieldName != "id");
+        if (index || unique)
         {
             const QString indexName = QString("%1_%2").arg(databaseTable(), fieldName);
             QSqlQuery indexQuery(db);
-            indexQuery.prepare(QString("CREATE INDEX %1 ON %2 (%3)").arg(
+            indexQuery.prepare(QString("CREATE %1 %2 ON %3 (%4)").arg(
+                unique ? "UNIQUE INDEX" : "INDEX",
                 QDjango::quote(indexName),
                 QDjango::quote(databaseTable()),
                 QDjango::quote(fieldName)));
