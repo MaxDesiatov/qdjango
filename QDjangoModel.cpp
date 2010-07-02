@@ -137,10 +137,30 @@ bool QDjangoModel::createTable() const
     {
         QString indexName = m_pkName;
         QSqlQuery indexQuery(db);
-        indexQuery.prepare(QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(indexName, QDjango::quote(databaseTable()), m_pkName));
+        indexQuery.prepare(QString("CREATE UNIQUE INDEX %1 ON %2 (%3)").arg(
+            QDjango::quote(indexName),
+            QDjango::quote(databaseTable()),
+            QDjango::quote(m_pkName)));
         if (!sqlExec(indexQuery))
             return false;
     }
+
+    foreach (const QString &fieldName, databaseFields())
+    {
+        bool index = fieldOption(fieldName, IndexOption).toBool();
+        if (index)
+        {
+            const QString indexName = QString("%1_%2").arg(databaseTable(), fieldName);
+            QSqlQuery indexQuery(db);
+            indexQuery.prepare(QString("CREATE INDEX %1 ON %2 (%3)").arg(
+                QDjango::quote(indexName),
+                QDjango::quote(databaseTable()),
+                QDjango::quote(fieldName)));
+            if (!sqlExec(indexQuery))
+                return false;
+        }
+    }
+
     return true;
 }
 
@@ -227,6 +247,7 @@ QString QDjangoModel::databaseTable() const
  */
 void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDjangoModel *model)
 {
+    setFieldOption(field, IndexOption, true);
     m_foreignKeys[name] = field;
     m_foreignModels[name] = model;
 }
