@@ -418,7 +418,26 @@ bool QDjangoMetaModel::dropTable() const
     return sqlExec(query);
 }
 
-/** Delete the QDjangoModel from the database.
+void QDjangoMetaModel::load(QDjangoModel *model, const QMap<QString, QVariant> &props) const
+{
+    // process local fields
+    foreach (const QDjangoMetaField &field, localFields)
+    {
+        const QString key = databaseColumn(field.name);
+        model->setProperty(field.name.toLatin1(), props.value(key));
+
+        // process foreign fields
+        if (!field.foreignModel.isEmpty())
+        {
+            const QDjangoMetaModel metaForeign = QDjango::metaModel(field.foreignModel);
+            metaForeign.load(model->m_foreignModels[field.foreignName], props);
+        }
+    }
+}
+
+/** Removes the given QObject from the database.
+ *
+ * @param model
  */
 bool QDjangoMetaModel::remove(QObject *model) const
 {
@@ -429,7 +448,9 @@ bool QDjangoMetaModel::remove(QObject *model) const
     return sqlExec(query);
 }
 
-/** Saves the QDjangoModel to the database.
+/** Saves the given QObject to the database.
+ *
+ * @param model
  *
  * \return true if saving succeeded, false otherwise
  */
