@@ -55,8 +55,6 @@ protected:
     QDjangoModel *foreignKey(const QString &name) const;
 
 private:
-    void databaseLoad(const QMap<QString, QVariant> &props);
-
     QMap<QString,QString> m_foreignKeys;
     QMap<QString,QDjangoModel*> m_foreignModels;
 

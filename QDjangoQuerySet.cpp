@@ -207,7 +207,8 @@ bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)
         return false;
     }
 
-    model->databaseLoad(m_properties.at(index));
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    metaModel.load(model, m_properties.at(index));
     return true;
 }
 

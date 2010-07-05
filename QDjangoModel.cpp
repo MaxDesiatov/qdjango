@@ -68,22 +68,6 @@ bool QDjangoModel::dropTable() const
     return metaModel.dropTable();
 }
 
-void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
-{
-    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-
-    // process local fields
-    foreach (const QDjangoMetaField &field, metaModel.localFields)
-    {
-        const QString key = metaModel.databaseColumn(field.name);
-        setProperty(field.name.toLatin1(), props.value(key));
-    }
-
-    // process foreign fields
-    foreach (const QString &key, m_foreignModels.keys())
-        m_foreignModels[key]->databaseLoad(props);
-}
-
 /** Declares a foreign-key pointing to a QDjangoModel.
  *
  * \param name
@@ -115,12 +99,12 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
     // if the foreign object was not loaded yet, do it now
     if (foreign->pk() != foreignPk)
     {
+        const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreign->metaObject()->className());
         QDjangoQueryBase qs(foreign->metaObject()->className());
         qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));
         qs.sqlFetch();
-        if (qs.m_properties.size() != 1)
+        if (qs.m_properties.size() != 1 || !qs.sqlLoad(foreign, 0))
             return 0;
-        foreign->databaseLoad(qs.m_properties.at(0));
     }
     return foreign;
 }

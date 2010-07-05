@@ -56,6 +56,7 @@ public:
     bool createTable() const;
     bool dropTable() const;
 
+    void load(QDjangoModel *model, const QMap<QString, QVariant> &props) const;
     bool remove(QObject *model) const;
     bool save(QObject *model) const;
 
