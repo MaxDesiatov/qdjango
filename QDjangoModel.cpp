@@ -105,6 +105,7 @@ void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
  */
 void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDjangoModel *model)
 {
+    model->setParent(this);
     m_foreignKeys[name] = field;
     m_foreignModels[name] = model;
 }

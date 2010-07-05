@@ -297,12 +297,11 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
  
 }
 
-/** Creates the database table for this QDjangoModel.
+/** Creates the database table for this QDjangoMetaModel.
  */
 bool QDjangoMetaModel::createTable() const
 {
     QSqlDatabase db = QDjango::database();
-//    const QMetaObject* meta = metaObject();
 
     QStringList propSql;
     foreach (const QDjangoMetaField &field, localFields)
@@ -382,7 +381,10 @@ bool QDjangoMetaModel::createTable() const
     return true;
 }
 
-/** Returns the database column for the given field.
+/** Returns the database column for the given field of this QDjangoMetaModel.
+ *
+ * @param name
+ * @param needsJoin
  */
 QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) const
 {
