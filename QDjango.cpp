@@ -141,18 +141,24 @@ void QDjango::setDatabase(QSqlDatabase database)
 
 /** Creates the database tables for all registered models.
  */
-void QDjango::createTables()
+bool QDjango::createTables()
 {
+    bool ret = true;
     foreach (const QString &key, globalMetaModels.keys())
-        globalMetaModels[key].createTable();
+        if (!globalMetaModels[key].createTable())
+            ret = false;
+    return ret;
 }
 
 /** Drops the database tables for all registered models.
  */
-void QDjango::dropTables()
+bool QDjango::dropTables()
 {
+    bool ret = true;
     foreach (const QString &key, globalMetaModels.keys())
-        globalMetaModels[key].dropTable();
+        if (!globalMetaModels[key].dropTable())
+            ret = false;
+    return ret;
 }
 
 /** Returns the QDjangoMetaModel with the given name.

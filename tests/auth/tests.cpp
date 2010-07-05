@@ -29,7 +29,7 @@
  */
 void TestUser::initTestCase()
 {
-    QCOMPARE(User().createTable(), true);
+    QCOMPARE(QDjango::createTables(), true);
 }
 
 /** Load fixtures consisting of 3 users.
@@ -481,17 +481,14 @@ void TestUser::cleanup()
  */
 void TestUser::cleanupTestCase()
 {
-    QCOMPARE(User().dropTable(), true);
+    QCOMPARE(QDjango::dropTables(), true);
 }
 
 /** Create database tables before running tests.
  */
 void TestRelated::initTestCase()
 {
-    QCOMPARE(User().createTable(), true);
-    QCOMPARE(Group().createTable(), true);
-    QCOMPARE(Message().createTable(), true);
-    QCOMPARE(UserGroups().createTable(), true);
+    QCOMPARE(QDjango::createTables(), true);
 }
 
 void TestRelated::testRelated()
@@ -600,9 +597,6 @@ void TestRelated::cleanup()
  */
 void TestRelated::cleanupTestCase()
 {
-    QCOMPARE(User().dropTable(), true);
-    QCOMPARE(Group().dropTable(), true);
-    QCOMPARE(Message().dropTable(), true);
-    QCOMPARE(UserGroups().dropTable(), true);
+    QCOMPARE(QDjango::dropTables(), true);
 }
 
