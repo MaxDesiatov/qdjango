@@ -25,6 +25,7 @@
 
 #include "QDjangoWhere.h"
 
+class QDjangoMetaModel;
 class QDjangoModel;
 
 /** \internal
@@ -54,7 +55,7 @@ protected:
     bool m_selectRelated;
 
 private:
-    QStringList fieldNames(const QDjangoModel *model, QString &from);
+    QStringList fieldNames(const QDjangoMetaModel &model, QString &from);
 
     QString m_modelName;
 

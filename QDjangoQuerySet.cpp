@@ -20,6 +20,7 @@
 #include <QSqlQuery>
 
 #include "QDjango.h"
+#include "QDjango_p.h"
 #include "QDjangoModel.h"
 #include "QDjangoQuerySet.h"
 
@@ -35,24 +36,27 @@ QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
 {
 }
 
-QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &from)
+QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QString &from)
 {
     QStringList fields;
-    foreach (const QString &field, model->databaseFields())
-        fields.append(model->databaseColumn(field));
+    foreach (const QDjangoMetaField &field, metaModel.localFields)
+        fields.append(metaModel.databaseColumn(field.name));
     if (!m_selectRelated && !m_needsJoin)
         return fields;
 
     // recurse for foreign keys
-    foreach (const QString &fk, model->m_foreignModels.keys())
+    foreach (const QDjangoMetaField &field, metaModel.localFields)
     {
-        const QDjangoModel *foreign = model->m_foreignModels[fk];
+        if (field.foreignModel.isEmpty())
+            continue;
+
+        QDjangoMetaModel metaForeign = QDjango::metaModel(field.foreignModel);
         if (m_selectRelated)
-            fields += fieldNames(foreign, from);
+            fields += fieldNames(metaForeign, from);
         from += QString(" INNER JOIN %1 ON %2 = %3")
-            .arg(QDjango::quote(foreign->databaseTable()))
-            .arg(foreign->databaseColumn("pk"))
-            .arg(model->databaseColumn(model->m_foreignKeys[fk]));
+            .arg(QDjango::quote(metaForeign.m_table))
+            .arg(metaForeign.databaseColumn("pk"))
+            .arg(metaModel.databaseColumn(field.name));
     }
     return fields;
 }
@@ -62,18 +66,17 @@ void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
     // it is not possible to add filters once a limit has been set
     Q_ASSERT(!m_lowMark && !m_highMark);
 
-    const QDjangoModel *model = QDjango::model(m_modelName);
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QDjangoWhere q(where);
-    q.resolve(model, &m_needsJoin);
+    q.resolve(metaModel, &m_needsJoin);
     m_where = m_where && q;
 }
 
 int QDjangoQueryBase::sqlCount() const
 {
     // prepare query
-    const QDjangoModel *model = QDjango::model(m_modelName);
-    QString from = QDjango::quote(model->databaseTable());
-    QString sql = "SELECT COUNT(*) FROM " + QDjango::quote(model->databaseTable());
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    QString sql = "SELECT COUNT(*) FROM " + QDjango::quote(metaModel.m_table);
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
@@ -101,8 +104,8 @@ bool QDjangoQueryBase::sqlDelete()
         return false;
 
     // delete entries
-    const QDjangoModel *model = QDjango::model(m_modelName);
-    QString from = QDjango::quote(model->databaseTable());
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    QString from = QDjango::quote(metaModel.m_table);
     QString sql = "DELETE FROM " + from;
     QString where = m_where.sql();
     if (!where.isEmpty())
@@ -129,9 +132,9 @@ bool QDjangoQueryBase::sqlFetch()
         return true;
 
     // build query
-    const QDjangoModel *model = QDjango::model(m_modelName);
-    QString from = QDjango::quote(model->databaseTable());
-    QStringList fields = fieldNames(model, from);
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    QString from = QDjango::quote(metaModel.m_table);
+    QStringList fields = fieldNames(metaModel, from);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
     QString where = m_where.sql();
     if (!where.isEmpty())
@@ -162,7 +165,7 @@ QString QDjangoQueryBase::sqlLimit() const
     QString limit;
 
     // order
-    const QDjangoModel *model = QDjango::model(m_modelName);
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QStringList bits;
     QString field;
     foreach (field, m_orderBy)
@@ -175,7 +178,7 @@ QString QDjangoQueryBase::sqlLimit() const
         } else if (field.startsWith("+")) {
             field = field.mid(1);
         }
-        bits.append(QString("%1 %2").arg(model->databaseColumn(field), order));
+        bits.append(QString("%1 %2").arg(metaModel.databaseColumn(field), order));
     }
     if (!bits.isEmpty())
         limit += " ORDER BY " + bits.join(", ");
@@ -214,15 +217,22 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
     if (!sqlFetch())
         return values;
 
-    // process local fields
-    const QDjangoModel *model = QDjango::model(m_modelName);
-    const QStringList fieldNames = fields.isEmpty() ? model->databaseFields() : fields;
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+
+    // build field list
+    QStringList fieldNames;
+    if (fields.isEmpty())
+        foreach (const QDjangoMetaField &field, metaModel.localFields)
+            fieldNames << field.name;
+    else
+        fieldNames = fields;
+
     foreach (const PropertyMap &props, m_properties)
     {
         QMap<QString, QVariant> map;
         foreach (const QString &field, fieldNames)
         {
-            const QString key = model->databaseColumn(field);
+            const QString key = metaModel.databaseColumn(field);
             map[field] = props[key];
         }
         values.append(map);
@@ -236,14 +246,21 @@ QList< QList<QVariant> > QDjangoQueryBase::sqlValuesList(const QStringList &fiel
     if (!sqlFetch())
         return values;
 
-    const QDjangoModel *model = QDjango::model(m_modelName);
-    const QStringList fieldNames = fields.isEmpty() ? model->databaseFields() : fields;
+    // build field list
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    QStringList fieldNames;
+    if (fields.isEmpty())
+        foreach (const QDjangoMetaField &field, metaModel.localFields)
+            fieldNames << field.name;
+    else
+        fieldNames = fields;
+
     foreach (const PropertyMap &props, m_properties)
     {
         QList<QVariant> list;
         foreach (const QString &field, fieldNames)
         {
-            const QString key = model->databaseColumn(field);
+            const QString key = metaModel.databaseColumn(field);
             list << props.value(key);
         }
         values.append(list);

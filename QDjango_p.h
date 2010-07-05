@@ -60,6 +60,8 @@ private:
     const QDjangoModel *m_model;
     QString m_primaryKey;
     QString m_table;
+
+    friend class QDjangoQueryBase;
 };
 
 /** \internal
