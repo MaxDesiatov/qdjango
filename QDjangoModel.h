@@ -44,10 +44,7 @@ public:
      */
     enum FieldOption
     {
-        /** Maximum length (for string fields). */
-        MaxLengthOption,
         PrimaryKeyOption,
-        IndexOption,
     };
 
     QDjangoModel(QObject *parent = 0);

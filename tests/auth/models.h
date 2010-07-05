@@ -42,6 +42,11 @@ class User : public QDjangoModel
     Q_PROPERTY(QDateTime date_joined READ dateJoined WRITE setDateJoined)
     Q_PROPERTY(QDateTime last_login READ lastLogin WRITE setLastLogin)
 
+    Q_CLASSINFO("username", "max_length=30");
+    Q_CLASSINFO("first_name", "max_length=30");
+    Q_CLASSINFO("last_name", "max_length=30");
+    Q_CLASSINFO("password", "max_length=128");
+ 
 public:
     User(QObject *parent = 0);
 
