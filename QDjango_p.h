@@ -41,6 +41,7 @@ public:
     bool index;
     int maxLength;
     bool primaryKey;
+    QString foreignModel;
 };
 
 /** \internal
@@ -50,14 +51,15 @@ class QDjangoMetaModel
 public:
     QDjangoMetaModel(const QDjangoModel *model = 0);
     bool createTable() const;
+    QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
     bool dropTable() const;
 
     QList<QDjangoMetaField> localFields;
-    QString primaryKey;
-    QString table;
 
 private:
     const QDjangoModel *m_model;
+    QString m_primaryKey;
+    QString m_table;
 };
 
 /** \internal

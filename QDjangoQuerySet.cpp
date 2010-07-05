@@ -51,7 +51,7 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoModel *model, QString &fro
             fields += fieldNames(foreign, from);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(QDjango::quote(foreign->databaseTable()))
-            .arg(foreign->databaseColumn(foreign->m_pkName))
+            .arg(foreign->databaseColumn("pk"))
             .arg(model->databaseColumn(model->m_foreignKeys[fk]));
     }
     return fields;

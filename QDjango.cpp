@@ -230,7 +230,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
     : m_model(model)
 {
     const QMetaObject* meta = model->metaObject();
-    table = QString(meta->className()).toLower();
+    m_table = QString(meta->className()).toLower();
 
     // local fields
     const int count = meta->propertyCount();
@@ -239,13 +239,15 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         QDjangoMetaField field;
         field.name = meta->property(i).name();
         field.type = meta->property(i).type();
-        field.index = (model->m_pkName == field.name);
-        field.primaryKey = (model->m_pkName == field.name);
 
         // FIXME get rid of reference to model
-        const QString fkName = model->m_foreignKeys.key(field.name);
+        const QString fkName = m_model->m_foreignKeys.key(field.name);
         if (!fkName.isEmpty())
+        {
+            QDjangoModel *foreign = model->m_foreignModels[fkName];
+            field.foreignModel = foreign->metaObject()->className();
             field.index = true;
+        }
 
         // parse options
         const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
@@ -267,7 +269,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
                         field.index = true;
                         field.primaryKey = true;
 
-                        primaryKey = field.name;
+                        m_primaryKey = field.name;
                     }
                 }
             }
@@ -277,7 +279,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
     }
 
     // automatic primary key
-    if (primaryKey.isEmpty())
+    if (m_primaryKey.isEmpty())
     {
         QDjangoMetaField field;
         field.name = "id";
@@ -287,7 +289,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         field.primaryKey = true;
         localFields.prepend(field);
 
-        primaryKey = field.name;
+        m_primaryKey = field.name;
     }
  
 }
@@ -342,20 +344,18 @@ bool QDjangoMetaModel::createTable() const
             fieldSql += QDjango::autoIncrementSql();
 
         // foreign key
-        // FIXME : get rid of reference to model
-        const QString fkName = m_model->m_foreignKeys.key(field.name);
-        if (!fkName.isEmpty())
+        if (!field.foreignModel.isEmpty())
         {
-            const QDjangoModel *fkModel = m_model->m_foreignModels[fkName];
+            const QDjangoMetaModel foreignMeta = QDjango::metaModel(field.foreignModel);
             fieldSql += QString(" REFERENCES %1 (%2)").arg(
-                QDjango::quote(fkModel->databaseTable()), QDjango::quote(fkModel->m_pkName));
+                QDjango::quote(foreignMeta.m_table), QDjango::quote(foreignMeta.m_primaryKey));
         }
         propSql << fieldSql;
     }
 
     // create table
     QSqlQuery createQuery(db);
-    createQuery.prepare(QString("CREATE TABLE %1 (%2)").arg(QDjango::quote(table), propSql.join(", ")));
+    createQuery.prepare(QString("CREATE TABLE %1 (%2)").arg(QDjango::quote(m_table), propSql.join(", ")));
     if (!sqlExec(createQuery))
         return false;
 
@@ -364,12 +364,12 @@ bool QDjangoMetaModel::createTable() const
     {
         if (field.index)
         {
-            const QString indexName = QString("%1_%2").arg(table, field.name);
+            const QString indexName = QString("%1_%2").arg(m_table, field.name);
             QSqlQuery indexQuery(db);
             indexQuery.prepare(QString("CREATE %1 %2 ON %3 (%4)").arg(
                 field.primaryKey ? "UNIQUE INDEX" : "INDEX",
                 QDjango::quote(indexName),
-                QDjango::quote(table),
+                QDjango::quote(m_table),
                 QDjango::quote(field.name)));
             if (!sqlExec(indexQuery))
                 return false;
@@ -379,12 +379,35 @@ bool QDjangoMetaModel::createTable() const
     return true;
 }
 
+/** Returns the database column for the given field.
+ */
+QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) const
+{
+    // foreign key lookup
+    if (name.count("__"))
+    {
+        QStringList bits = name.split("__");
+        QString fk = bits.takeFirst();
+        if (m_model->m_foreignModels.contains(fk))
+        {
+            QDjangoModel *foreign = m_model->m_foreignModels[fk];
+            const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreign->metaObject()->className());
+            if (needsJoin)
+                *needsJoin = true;
+            return foreignMeta.databaseColumn(bits.join("__"));
+        }
+    }
+
+    QString realName = (name == "pk") ? m_primaryKey : name;
+    return QDjango::quote(m_table) + "." + QDjango::quote(realName);
+}
+
 /** Drops the database table for this QDjangoMetaModel.
  */
 bool QDjangoMetaModel::dropTable() const
 {
     QSqlQuery query(QDjango::database());
-    query.prepare(QString("DROP TABLE %1").arg(QDjango::quote(table)));
+    query.prepare(QString("DROP TABLE %1").arg(QDjango::quote(m_table)));
     return sqlExec(query);
 }
 
