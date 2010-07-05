@@ -52,6 +52,22 @@ void QDjangoModel::setPk(const QVariant &pk)
     setProperty(metaModel.primaryKey().toLatin1(), pk);
 }
 
+/** Creates the database table for this QDjangoModel.
+ */
+bool QDjangoModel::createTable() const
+{
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    return metaModel.createTable();
+}
+
+/** Drops the database table for this QDjangoModel.
+ */
+bool QDjangoModel::dropTable() const
+{
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    return metaModel.dropTable();
+}
+
 /** Declares a foreign-key pointing to a QDjangoModel.
  *
  * \param name
