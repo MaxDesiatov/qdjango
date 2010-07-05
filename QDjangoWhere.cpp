@@ -20,6 +20,7 @@
 #include <QSqlQuery>
 #include <QStringList>
 
+#include "QDjango_p.h"
 #include "QDjangoModel.h"
 #include "QDjangoWhere.h"
 
@@ -199,11 +200,11 @@ bool QDjangoWhere::isNone() const
  * \param model
  * \param needsJoin
  */
-bool QDjangoWhere::resolve(const QDjangoModel *model, bool *needsJoin)
+bool QDjangoWhere::resolve(const QDjangoMetaModel &model, bool *needsJoin)
 {
     // resolve column
     if (m_operation != None)
-        m_key = model->databaseColumn(m_key, needsJoin);
+        m_key = model.databaseColumn(m_key, needsJoin);
 
     // recurse into children
     for (int i = 0; i < m_children.size(); i++)

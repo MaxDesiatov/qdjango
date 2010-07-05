@@ -74,26 +74,6 @@ bool QDjangoModel::dropTable() const
     return metaModel.dropTable();
 }
 
-QString QDjangoModel::databaseColumn(const QString &name, bool *needsJoin) const
-{
-    // foreign key lookup
-    if (name.count("__"))
-    {
-        QStringList bits = name.split("__");
-        QString fk = bits.takeFirst();
-        if (m_foreignModels.contains(fk))
-        {
-            QDjangoModel *foreign = m_foreignModels[fk];
-            if (needsJoin)
-                *needsJoin = true;
-            return foreign->databaseColumn(bits.join("__"));
-        }
-    }
-
-    QString realName = (name == "pk") ? m_pkName : name;
-    return QDjango::quote(databaseTable()) + "." + QDjango::quote(realName);
-}
-
 QStringList QDjangoModel::databaseFields() const
 {
     const QMetaObject* meta = metaObject();
