@@ -61,6 +61,7 @@ private:
     QString m_primaryKey;
     QString m_table;
 
+    friend class QDjangoModel;
     friend class QDjangoQueryBase;
 };
 
