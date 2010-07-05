@@ -160,44 +160,6 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
     return foreign;
 }
 
-/** Retrieves the given option for the given field.
- *
- * \param field
- * \param option
- */
-QVariant QDjangoModel::fieldOption(const QString &field, FieldOption option) const
-{
-    if (!databaseFields().contains(field))
-    {
-        qWarning() << "Cannot get option for unknown field" << field;
-        return QVariant();
-    }
-
-    if (m_fieldOptions.contains(field) && m_fieldOptions[field].contains(option))
-        return m_fieldOptions[field][option];
-    else
-        return QVariant();
-}
-
-/** Sets the given option for the given field.
- *
- * \param field
- * \param option
- * \param value
- */
-void QDjangoModel::setFieldOption(const QString &field, FieldOption option, const QVariant &value)
-{
-    if (!databaseFields().contains(field))
-    {
-        qWarning() << "Cannot set option for unknown field" << field;
-        return;
-    }
-
-    if (option == PrimaryKeyOption && value.toBool())
-        m_pkName = field;
-    m_fieldOptions[field][option] = value;
-}
-
 /** Deletes the QDjangoModel from the database.
  *
  * \return true if deletion succeeded, false otherwise
