@@ -48,8 +48,9 @@ public:
 class QDjangoMetaModel
 {
 public:
-    QDjangoMetaModel(const QDjangoModel *model);
+    QDjangoMetaModel(const QDjangoModel *model = 0);
     bool createTable() const;
+    bool dropTable() const;
 
     QList<QDjangoMetaField> localFields;
     QString table;

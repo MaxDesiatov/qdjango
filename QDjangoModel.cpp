@@ -23,6 +23,7 @@
 #include <QStringList>
 
 #include "QDjango.h"
+#include "QDjango_p.h"
 #include "QDjangoModel.h"
 #include "QDjangoQuerySet.h"
 
@@ -61,114 +62,16 @@ void QDjangoModel::setPk(const QVariant &pk)
  */
 bool QDjangoModel::createTable() const
 {
-    QSqlDatabase db = QDjango::database();
-    const QMetaObject* meta = metaObject();
-
-    QStringList propSql;
-    foreach (const QString &fieldName, databaseFields())
-    {
-        bool autoIncrement = false;
-        QVariant::Type fieldType;
-        if (fieldName == "id")
-        {
-            autoIncrement = true;
-            fieldType = QVariant::Int;
-        }
-        else
-        {
-            int i = meta->indexOfProperty(fieldName.toLatin1());
-            Q_ASSERT(i >= 0);
-            fieldType = meta->property(i).type();
-        }
-
-        QString fieldSql = QDjango::quote(fieldName);
-        if (fieldType == QVariant::Bool)
-            fieldSql += " BOOLEAN";
-        else if (fieldType == QVariant::ByteArray)
-        {
-            fieldSql += " BLOB";
-            int maxLength = fieldOption(fieldName, MaxLengthOption).toInt();
-            if (maxLength > 0)
-                fieldSql += QString("(%1)").arg(maxLength);
-        }
-        else if (fieldType == QVariant::Date)
-            fieldSql += " DATE";
-        else if (fieldType == QVariant::DateTime)
-            fieldSql += " DATETIME";
-        else if (fieldType == QVariant::Double)
-            fieldSql += " REAL";
-        else if (fieldType == QVariant::Int)
-            fieldSql += " INTEGER";
-        else if (fieldType == QVariant::LongLong)
-            fieldSql += " INTEGER";
-        else if (fieldType == QVariant::String)
-        {
-            int maxLength = fieldOption(fieldName, MaxLengthOption).toInt();
-            if (maxLength > 0)
-                fieldSql += QString(" VARCHAR(%1)").arg(maxLength);
-            else
-                fieldSql += " TEXT";
-        }
-        else {
-            qWarning() << "Unhandled type" << fieldType << "for property" << fieldName;
-            continue;
-        }
-
-        // primary key
-        if (fieldName == m_pkName)
-        {
-            fieldSql += " PRIMARY KEY";
-            // auto-increment is backend specific
-            if (autoIncrement)
-                fieldSql += QDjango::autoIncrementSql();
-        }
-
-        // foreign key
-        const QString fkName = m_foreignKeys.key(fieldName);
-        if (!fkName.isEmpty())
-        {
-            const QDjangoModel *fkModel = m_foreignModels[fkName];
-            fieldSql += QString(" REFERENCES %1 (%2)").arg(
-                QDjango::quote(fkModel->databaseTable()), QDjango::quote(fkModel->m_pkName));
-        }
-        propSql << fieldSql;
-    }
-
-    // create table
-    QSqlQuery createQuery(db);
-    createQuery.prepare(QString("CREATE TABLE %1 (%2)").arg(QDjango::quote(databaseTable()), propSql.join(", ")));
-    if (!sqlExec(createQuery))
-        return false;
-
-    // create indices
-    foreach (const QString &fieldName, databaseFields())
-    {
-        bool index = fieldOption(fieldName, IndexOption).toBool();
-        bool unique = (fieldName == m_pkName && fieldName != "id");
-        if (index || unique)
-        {
-            const QString indexName = QString("%1_%2").arg(databaseTable(), fieldName);
-            QSqlQuery indexQuery(db);
-            indexQuery.prepare(QString("CREATE %1 %2 ON %3 (%4)").arg(
-                unique ? "UNIQUE INDEX" : "INDEX",
-                QDjango::quote(indexName),
-                QDjango::quote(databaseTable()),
-                QDjango::quote(fieldName)));
-            if (!sqlExec(indexQuery))
-                return false;
-        }
-    }
-
-    return true;
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    return metaModel.createTable();
 }
 
 /** Drops the database table for this QDjangoModel.
  */
 bool QDjangoModel::dropTable() const
 {
-    QSqlQuery query(QDjango::database());
-    query.prepare(QString("DROP TABLE %1").arg(QDjango::quote(databaseTable())));
-    return sqlExec(query);
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    return metaModel.dropTable();
 }
 
 QString QDjangoModel::databaseColumn(const QString &name, bool *needsJoin) const
