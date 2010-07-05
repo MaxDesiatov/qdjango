@@ -29,8 +29,7 @@
 #include "QDjango_p.h"
 #include "QDjangoModel.h"
 
-QMap<QString, QDjangoMetaModel> QDjango::metaModels = QMap<QString, QDjangoMetaModel>();
-
+QMap<QString, QDjangoMetaModel> globalMetaModels = QMap<QString, QDjangoMetaModel>();
 static QDjangoWatcher *globalWatcher = 0;
 
 QDjangoWatcher::QDjangoWatcher(QObject *parent)
@@ -144,16 +143,16 @@ void QDjango::setDatabase(QSqlDatabase database)
  */
 void QDjango::createTables()
 {
-    foreach (const QString &key, metaModels.keys())
-        metaModels[key].createTable();
+    foreach (const QString &key, globalMetaModels.keys())
+        globalMetaModels[key].createTable();
 }
 
 /** Drops the database tables for all registered models.
  */
 void QDjango::dropTables()
 {
-    foreach (const QString &key, metaModels.keys())
-        metaModels[key].dropTable();
+    foreach (const QString &key, globalMetaModels.keys())
+        globalMetaModels[key].dropTable();
 }
 
 /** Returns the QDjangoMetaModel with the given name.
@@ -162,18 +161,18 @@ void QDjango::dropTables()
  */
 QDjangoMetaModel QDjango::metaModel(const QString &name)
 {
-    return metaModels.value(name);
+    return globalMetaModels.value(name);
 }
 
 bool QDjango::registerModel(QDjangoModel *model)
 {
     const QString name = model->metaObject()->className();
-    if (metaModels.contains(name))
+    if (globalMetaModels.contains(name))
     {
         delete model;
         return false;
     }
-    metaModels.insert(name, QDjangoMetaModel(model));
+    globalMetaModels.insert(name, QDjangoMetaModel(model));
 }
 
 /** Returns the SQL used to declare a field as auto-increment.
