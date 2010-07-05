@@ -74,18 +74,6 @@ bool QDjangoModel::dropTable() const
     return metaModel.dropTable();
 }
 
-QStringList QDjangoModel::databaseFields() const
-{
-    const QMetaObject* meta = metaObject();
-    QStringList properties;
-    if (m_pkName == "id")
-        properties << m_pkName;
-    const int count = meta->propertyCount();
-    for(int i = meta->propertyOffset(); i < count; ++i)
-        properties << QString::fromLatin1(meta->property(i).name());
-    return properties;
-}
-
 void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
 {
     // process local fields
@@ -180,18 +168,27 @@ bool QDjangoModel::remove()
 bool QDjangoModel::save()
 {
     QSqlDatabase db = QDjango::database();
-    QStringList fieldNames = databaseFields();
+    const QDjangoMetaModel metaModel(this);
 
-    if (!pk().isNull() && !(m_pkName == "id" && !pk().toInt()))
+    QStringList fieldNames;
+    QDjangoMetaField primaryKey;
+    foreach (const QDjangoMetaField &field, metaModel.localFields)
+    {
+        if (field.primaryKey == true)
+            primaryKey = field;
+        fieldNames << field.name;
+    }
+
+    if (!pk().isNull() && !(primaryKey.type == QVariant::Int && !pk().toInt()))
     {
         QSqlQuery query(db);
         query.prepare(QString("SELECT 1 AS a FROM %1 WHERE %2 = :pk")
-                      .arg(QDjango::quote(databaseTable()), QDjango::quote(m_pkName)));
+                      .arg(QDjango::quote(metaModel.m_table), QDjango::quote(primaryKey.name)));
         query.bindValue(":pk", pk());
         if (sqlExec(query) && query.next())
         {
             // remove primary key
-            fieldNames.removeAll(m_pkName);
+            fieldNames.removeAll(primaryKey.name);
 
             // perform update
             QStringList fieldAssign;
@@ -200,7 +197,7 @@ bool QDjangoModel::save()
 
             QSqlQuery query(db);
             query.prepare(QString("UPDATE %1 SET %2 WHERE %3 = :pk")
-                  .arg(QDjango::quote(databaseTable()), fieldAssign.join(", "), m_pkName));
+                  .arg(QDjango::quote(databaseTable()), fieldAssign.join(", "), primaryKey.name));
             foreach (const QString &name, fieldNames)
                 query.bindValue(":" + name, property(name.toLatin1()));
             query.bindValue(":pk", pk());
@@ -209,8 +206,8 @@ bool QDjangoModel::save()
     }
 
     // remove auto-increment column
-    if (m_pkName == "id")
-        fieldNames.removeAll(m_pkName);
+    if (primaryKey.autoIncrement)
+        fieldNames.removeAll(primaryKey.name);
 
     // perform insert
     QStringList fieldColumns;
@@ -228,7 +225,7 @@ bool QDjangoModel::save()
         query.bindValue(":" + name, property(name.toLatin1()));
 
     bool ret = sqlExec(query);
-    if (m_pkName == "id")
+    if (primaryKey.autoIncrement)
         setPk(query.lastInsertId());
     return ret;
 }
