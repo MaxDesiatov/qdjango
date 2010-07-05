@@ -228,8 +228,10 @@ QDjangoMetaField::QDjangoMetaField()
 }
 
 QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
-    : m_model(model)
 {
+    if (!model)
+        return;
+
     const QMetaObject* meta = model->metaObject();
     m_table = QString(meta->className()).toLower();
 
@@ -242,11 +244,12 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         field.type = meta->property(i).type();
 
         // FIXME get rid of reference to model
-        const QString fkName = m_model->m_foreignKeys.key(field.name);
+        const QString fkName = model->m_foreignKeys.key(field.name);
         if (!fkName.isEmpty())
         {
             QDjangoModel *foreign = model->m_foreignModels[fkName];
             field.foreignModel = foreign->metaObject()->className();
+            field.foreignName = fkName;
             field.index = true;
         }
 
@@ -389,13 +392,15 @@ QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) c
     {
         QStringList bits = name.split("__");
         QString fk = bits.takeFirst();
-        if (m_model->m_foreignModels.contains(fk))
+        foreach (const QDjangoMetaField &field, localFields)
         {
-            QDjangoModel *foreign = m_model->m_foreignModels[fk];
-            const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreign->metaObject()->className());
-            if (needsJoin)
-                *needsJoin = true;
-            return foreignMeta.databaseColumn(bits.join("__"));
+            if (fk == field.foreignName)
+            {
+                const QDjangoMetaModel foreignMeta = QDjango::metaModel(field.foreignModel);
+                if (needsJoin)
+                    *needsJoin = true;
+                return foreignMeta.databaseColumn(bits.join("__"));
+            }
         }
     }
 

@@ -41,6 +41,7 @@ public:
     bool index;
     int maxLength;
     bool primaryKey;
+    QString foreignName;
     QString foreignModel;
 };
 
@@ -57,7 +58,6 @@ public:
     QList<QDjangoMetaField> localFields;
 
 private:
-    const QDjangoModel *m_model;
     QString m_primaryKey;
     QString m_table;
 
