@@ -32,7 +32,7 @@
  * \param parent
  */
 QDjangoModel::QDjangoModel(QObject *parent)
-    : QObject(parent), m_id(0)
+    : QObject(parent)
 {
 }
 
@@ -41,10 +41,7 @@ QDjangoModel::QDjangoModel(QObject *parent)
 QVariant QDjangoModel::pk() const
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    if (metaModel.m_primaryKey == "id")
-        return m_id;
-    else
-        return property(metaModel.m_primaryKey.toLatin1());
+    return property(metaModel.m_primaryKey.toLatin1());
 }
 
 /** Sets the primary key for this QDjangoModel.
@@ -54,10 +51,7 @@ QVariant QDjangoModel::pk() const
 void QDjangoModel::setPk(const QVariant &pk)
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    if (metaModel.m_primaryKey == "id")
-        m_id = pk.toInt();
-    else
-        setProperty(metaModel.m_primaryKey.toLatin1(), pk);
+    setProperty(metaModel.m_primaryKey.toLatin1(), pk);
 }
 
 /** Creates the database table for this QDjangoModel.
@@ -94,10 +88,7 @@ void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
         if (table == metaModel.m_table)
         {
             const QString field = QDjango::unquote(bits[1]);
-            if (field == metaModel.m_primaryKey)
-                setPk(props[key]);
-            else
-                setProperty(field.toLatin1(), props[key]);
+            setProperty(field.toLatin1(), props[key]);
         }
     }
 

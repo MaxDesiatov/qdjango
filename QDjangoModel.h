@@ -65,7 +65,6 @@ private:
 
     friend class QDjangoMetaModel;
     friend class QDjangoQueryBase;
-    friend class QDjangoWhere;
 };
 
 #endif
