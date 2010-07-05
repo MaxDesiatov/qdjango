@@ -20,8 +20,6 @@
 #ifndef QDJANGO_MODEL_H
 #define QDJANGO_MODEL_H
 
-class QSqlDatabase;
-
 #include <QMap>
 #include <QObject>
 #include <QVariant>

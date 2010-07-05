@@ -18,8 +18,6 @@
  */
 
 #include <QDebug>
-#include <QMetaProperty>
-#include <QSqlQuery>
 #include <QStringList>
 
 #include "QDjango.h"
