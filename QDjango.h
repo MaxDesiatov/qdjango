@@ -54,7 +54,7 @@ public:
     static QString unquote(const QString &quoted);
 
 private:
-    static bool registerModel(QDjangoModel *model);
+    static bool registerModel(const QDjangoModel *model);
     static QDjangoMetaModel metaModel(const QString &name);
 
     friend class QDjangoModel;
@@ -67,7 +67,8 @@ private:
 template <class T>
 bool QDjango::registerModel()
 {
-    return registerModel(new T);
+    T model;
+    return registerModel(&model);
 }
 
 #endif
