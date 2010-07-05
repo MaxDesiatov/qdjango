@@ -233,17 +233,6 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
     table = QString(meta->className()).toLower();
 
     // local fields
-    QStringList properties;
-    if (model->m_pkName == "id")
-    {
-        QDjangoMetaField field;
-        field.name = model->m_pkName;
-        field.type = QVariant::Int;
-        field.autoIncrement = true;
-        field.index = true;
-        field.primaryKey = true;
-        localFields << field;
-    }
     const int count = meta->propertyCount();
     for(int i = meta->propertyOffset(); i < count; ++i)
     {
@@ -273,12 +262,34 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
                     const QString value = assign[1];
                     if (key == "max_length")
                         field.maxLength = value.toInt();
+                    else if (key == "primary_key")
+                    {
+                        field.index = true;
+                        field.primaryKey = true;
+
+                        primaryKey = field.name;
+                    }
                 }
             }
         }
 
         localFields << field;
     }
+
+    // automatic primary key
+    if (primaryKey.isEmpty())
+    {
+        QDjangoMetaField field;
+        field.name = "id";
+        field.type = QVariant::Int;
+        field.autoIncrement = true;
+        field.index = true;
+        field.primaryKey = true;
+        localFields.prepend(field);
+
+        primaryKey = field.name;
+    }
+ 
 }
 
 /** Creates the database table for this QDjangoModel.

@@ -53,6 +53,7 @@ public:
     bool dropTable() const;
 
     QList<QDjangoMetaField> localFields;
+    QString primaryKey;
     QString table;
 
 private:

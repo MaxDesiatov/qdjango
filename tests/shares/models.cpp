@@ -22,7 +22,6 @@
 File::File(QObject *parent)
     : QDjangoModel(parent), m_size(0)
 {
-    setFieldOption("path", PrimaryKeyOption, true);
 }
 
 QDateTime File::date() const
