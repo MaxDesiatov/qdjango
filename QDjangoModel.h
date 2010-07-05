@@ -43,6 +43,9 @@ public:
     QVariant pk() const;
     void setPk(const QVariant &pk);
 
+    bool Q_DECL_DEPRECATED createTable() const;
+    bool Q_DECL_DEPRECATED dropTable() const;
+
 public slots:
     bool remove();
     bool save();
@@ -56,7 +59,6 @@ private:
     QMap<QString,QDjangoModel*> m_foreignModels;
 
     friend class QDjangoMetaModel;
-    friend class QDjangoQueryBase;
 };
 
 #endif
