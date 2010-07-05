@@ -51,9 +51,12 @@ class QDjangoMetaModel
 {
 public:
     QDjangoMetaModel(const QDjangoModel *model = 0);
-    bool createTable() const;
     QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
+
+    bool createTable() const;
     bool dropTable() const;
+
+    bool remove(QObject *model) const;
     bool save(QObject *model) const;
 
     QList<QDjangoMetaField> localFields;
