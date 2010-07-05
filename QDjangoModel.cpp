@@ -39,7 +39,7 @@ QDjangoModel::QDjangoModel(QObject *parent)
 QVariant QDjangoModel::pk() const
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    return property(metaModel.m_primaryKey.toLatin1());
+    return property(metaModel.primaryKey().toLatin1());
 }
 
 /** Sets the primary key for this QDjangoModel.
@@ -49,7 +49,7 @@ QVariant QDjangoModel::pk() const
 void QDjangoModel::setPk(const QVariant &pk)
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    setProperty(metaModel.m_primaryKey.toLatin1(), pk);
+    setProperty(metaModel.primaryKey().toLatin1(), pk);
 }
 
 /** Creates the database table for this QDjangoModel.

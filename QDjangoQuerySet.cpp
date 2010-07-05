@@ -39,13 +39,13 @@ QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
 QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QString &from)
 {
     QStringList fields;
-    foreach (const QDjangoMetaField &field, metaModel.localFields)
+    foreach (const QDjangoMetaField &field, metaModel.m_localFields)
         fields.append(metaModel.databaseColumn(field.name));
     if (!m_selectRelated && !m_needsJoin)
         return fields;
 
     // recurse for foreign keys
-    foreach (const QDjangoMetaField &field, metaModel.localFields)
+    foreach (const QDjangoMetaField &field, metaModel.m_localFields)
     {
         if (field.foreignModel.isEmpty())
             continue;
@@ -223,7 +223,7 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
     // build field list
     QStringList fieldNames;
     if (fields.isEmpty())
-        foreach (const QDjangoMetaField &field, metaModel.localFields)
+        foreach (const QDjangoMetaField &field, metaModel.m_localFields)
             fieldNames << field.name;
     else
         fieldNames = fields;
@@ -251,7 +251,7 @@ QList< QList<QVariant> > QDjangoQueryBase::sqlValuesList(const QStringList &fiel
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QStringList fieldNames;
     if (fields.isEmpty())
-        foreach (const QDjangoMetaField &field, metaModel.localFields)
+        foreach (const QDjangoMetaField &field, metaModel.m_localFields)
             fieldNames << field.name;
     else
         fieldNames = fields;
