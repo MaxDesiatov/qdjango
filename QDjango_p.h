@@ -23,6 +23,40 @@
 #include <QMap>
 #include <QObject>
 #include <QSqlDatabase>
+#include <QStringList>
+#include <QVariant>
+
+class QDjangoModel;
+
+/** \internal
+ */
+class QDjangoMetaField
+{
+public:
+    QDjangoMetaField();
+
+    QString name;
+    QVariant::Type type;
+    bool autoIncrement;
+    bool index;
+    int maxLength;
+    bool primaryKey;
+};
+
+/** \internal
+ */
+class QDjangoMetaModel
+{
+public:
+    QDjangoMetaModel(const QDjangoModel *model);
+    bool createTable() const;
+
+    QList<QDjangoMetaField> localFields;
+    QString table;
+
+private:
+    const QDjangoModel *m_model;
+};
 
 /** \internal
  */
