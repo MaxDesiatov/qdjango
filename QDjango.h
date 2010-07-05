@@ -38,8 +38,8 @@ bool sqlExec(QSqlQuery &query);
 class QDjango
 {
 public:
-    static void createTables();
-    static void dropTables();
+    static bool createTables();
+    static bool dropTables();
 
     static QSqlDatabase database();
     static void setDatabase(QSqlDatabase database);
