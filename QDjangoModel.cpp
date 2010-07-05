@@ -32,7 +32,7 @@
  * \param parent
  */
 QDjangoModel::QDjangoModel(QObject *parent)
-    : QObject(parent), m_id(0), m_pkName("id")
+    : QObject(parent), m_id(0)
 {
 }
 
@@ -40,10 +40,11 @@ QDjangoModel::QDjangoModel(QObject *parent)
  */
 QVariant QDjangoModel::pk() const
 {
-    if (m_pkName == "id")
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    if (metaModel.m_primaryKey == "id")
         return m_id;
     else
-        return property(m_pkName.toLatin1());
+        return property(metaModel.m_primaryKey.toLatin1());
 }
 
 /** Sets the primary key for this QDjangoModel.
@@ -52,10 +53,11 @@ QVariant QDjangoModel::pk() const
  */
 void QDjangoModel::setPk(const QVariant &pk)
 {
-    if (m_pkName == "id")
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    if (metaModel.m_primaryKey == "id")
         m_id = pk.toInt();
     else
-        setProperty(m_pkName.toLatin1(), pk);
+        setProperty(metaModel.m_primaryKey.toLatin1(), pk);
 }
 
 /** Creates the database table for this QDjangoModel.
@@ -92,7 +94,7 @@ void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
         if (table == metaModel.m_table)
         {
             const QString field = QDjango::unquote(bits[1]);
-            if (field == m_pkName)
+            if (field == metaModel.m_primaryKey)
                 setPk(props[key]);
             else
                 setProperty(field.toLatin1(), props[key]);
@@ -135,7 +137,7 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
     if (foreign->pk() != foreignPk)
     {
         QDjangoQueryBase qs(foreign->metaObject()->className());
-        qs.addFilter(QDjangoWhere(foreign->m_pkName, QDjangoWhere::Equals, foreignPk));
+        qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));
         qs.sqlFetch();
         if (qs.m_properties.size() != 1)
             return 0;
