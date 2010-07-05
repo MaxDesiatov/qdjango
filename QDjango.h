@@ -62,6 +62,7 @@ private:
     static QMap<QString, QDjangoMetaModel> metaModels;
 
     friend class QDjangoModel;
+    friend class QDjangoMetaModel;
     friend class QDjangoQueryBase;
 };
 
