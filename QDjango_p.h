@@ -54,6 +54,7 @@ public:
     bool createTable() const;
     QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
     bool dropTable() const;
+    bool save(QObject *model) const;
 
     QList<QDjangoMetaField> localFields;
 
