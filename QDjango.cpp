@@ -418,6 +418,17 @@ bool QDjangoMetaModel::dropTable() const
     return sqlExec(query);
 }
 
+/** Delete the QDjangoModel from the database.
+ */
+bool QDjangoMetaModel::remove(QObject *model) const
+{
+    QSqlQuery query(QDjango::database());
+    query.prepare(QString("DELETE FROM %1 WHERE %2 = :pk")
+                  .arg(QDjango::quote(m_table), QDjango::quote(m_primaryKey)));
+    query.bindValue(":pk", model->property(m_primaryKey.toLatin1()));
+    return sqlExec(query);
+}
+
 /** Saves the QDjangoModel to the database.
  *
  * \return true if saving succeeded, false otherwise
@@ -435,8 +446,7 @@ bool QDjangoMetaModel::save(QObject *model) const
         fieldNames << field.name;
     }
 
-    QVariant pk = model->property(primaryKey.name.toLatin1());
-    qDebug() << "got pk" << primaryKey.name << pk;
+    const QVariant pk = model->property(primaryKey.name.toLatin1());
     if (!pk.isNull() && !(primaryKey.type == QVariant::Int && !pk.toInt()))
     {
         QSqlQuery query(db);

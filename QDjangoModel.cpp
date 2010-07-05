@@ -75,21 +75,10 @@ void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
 
     // process local fields
-    foreach (const QString &key, props.keys())
+    foreach (const QDjangoMetaField &field, metaModel.localFields)
     {
-        QStringList bits = key.split(".");
-        if (bits.size() != 2)
-        {
-            qWarning() << "Invalid column name" << key;
-            continue;
-        }
-
-        const QString table = QDjango::unquote(bits[0]);
-        if (table == metaModel.m_table)
-        {
-            const QString field = QDjango::unquote(bits[1]);
-            setProperty(field.toLatin1(), props[key]);
-        }
+        const QString key = metaModel.databaseColumn(field.name);
+        setProperty(field.name.toLatin1(), props.value(key));
     }
 
     // process foreign fields
@@ -145,11 +134,7 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
 bool QDjangoModel::remove()
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    QSqlQuery query(QDjango::database());
-    query.prepare(QString("DELETE FROM %1 WHERE %2 = :pk")
-                  .arg(QDjango::quote(metaModel.m_table), QDjango::quote(metaModel.m_primaryKey)));
-    query.bindValue(":pk", pk());
-    return sqlExec(query);
+    return metaModel.remove(this);
 }
 
 /** Saves the QDjangoModel to the database.
