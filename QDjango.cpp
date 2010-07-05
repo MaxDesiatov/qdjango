@@ -250,9 +250,33 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         QDjangoMetaField field;
         field.name = meta->property(i).name();
         field.type = meta->property(i).type();
-        field.index = (model->m_pkName == field.name) || model->fieldOption(field.name, QDjangoModel::IndexOption).toBool();
-        field.maxLength = model->fieldOption(field.name, QDjangoModel::MaxLengthOption).toInt();
+        field.index = (model->m_pkName == field.name);
         field.primaryKey = (model->m_pkName == field.name);
+
+        // FIXME get rid of reference to model
+        const QString fkName = model->m_foreignKeys.key(field.name);
+        if (!fkName.isEmpty())
+            field.index = true;
+
+        // parse options
+        const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
+        if (infoIndex >= 0)
+        {
+            QMetaClassInfo classInfo = meta->classInfo(infoIndex);
+            QStringList items = QString(classInfo.value()).split(' ');
+            foreach (const QString &item, items)
+            {
+                QStringList assign = item.split('=');
+                if (assign.length() == 2)
+                {
+                    const QString key = assign[0].toLower();
+                    const QString value = assign[1];
+                    if (key == "max_length")
+                        field.maxLength = value.toInt();
+                }
+            }
+        }
+
         localFields << field;
     }
 }

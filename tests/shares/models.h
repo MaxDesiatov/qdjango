@@ -32,6 +32,9 @@ class File : public QDjangoModel
     Q_PROPERTY(QString path READ path WRITE setPath)
     Q_PROPERTY(qint64 size READ size WRITE setSize)
 
+    Q_CLASSINFO("path", "max_length=255");
+    Q_CLASSINFO("hash", "max_length=32");
+
 public:
     File(QObject *parent = 0);
 

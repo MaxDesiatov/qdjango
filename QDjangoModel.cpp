@@ -148,7 +148,6 @@ QString QDjangoModel::databaseTable() const
  */
 void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDjangoModel *model)
 {
-    setFieldOption(field, IndexOption, true);
     m_foreignKeys[name] = field;
     m_foreignModels[name] = model;
 }
@@ -196,8 +195,6 @@ QVariant QDjangoModel::fieldOption(const QString &field, FieldOption option) con
 
     if (m_fieldOptions.contains(field) && m_fieldOptions[field].contains(option))
         return m_fieldOptions[field][option];
-    if (option == MaxLengthOption)
-        return -1;
     else
         return QVariant();
 }
