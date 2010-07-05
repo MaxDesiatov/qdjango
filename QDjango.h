@@ -54,11 +54,9 @@ public:
     static QString unquote(const QString &quoted);
 
 private:
-    static void registerModel(QDjangoModel *model);
-    static const QDjangoModel *model(const QString &name);
+    static bool registerModel(QDjangoModel *model);
     static QDjangoMetaModel metaModel(const QString &name);
 
-    static QMap<QString, QDjangoModel*> registry;
     static QMap<QString, QDjangoMetaModel> metaModels;
 
     friend class QDjangoModel;
@@ -71,15 +69,7 @@ private:
 template <class T>
 bool QDjango::registerModel()
 {
-    const QString name = T::staticMetaObject.className();
-    if (registry.contains(name))
-        return false;
-
-    T* model = new T;
-    registry.insert(name, model);
-    registerModel(model);
-
-    return true;
+    return registerModel(new T);
 }
 
 #endif

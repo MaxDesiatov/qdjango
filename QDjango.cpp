@@ -29,7 +29,6 @@
 #include "QDjango_p.h"
 #include "QDjangoModel.h"
 
-QMap<QString, QDjangoModel*> QDjango::registry = QMap<QString, QDjangoModel*>();
 QMap<QString, QDjangoMetaModel> QDjango::metaModels = QMap<QString, QDjangoMetaModel>();
 
 static QDjangoWatcher *globalWatcher = 0;
@@ -157,21 +156,23 @@ void QDjango::dropTables()
         metaModels[key].dropTable();
 }
 
+/** Returns the QDjangoMetaModel with the given name.
+ *
+ * @param name
+ */
 QDjangoMetaModel QDjango::metaModel(const QString &name)
 {
     return metaModels.value(name);
 }
 
-/** Returns the QDjangoModel with the given name.
- */
-const QDjangoModel *QDjango::model(const QString &name)
-{
-    return registry.value(name);
-}
-
-void QDjango::registerModel(QDjangoModel *model)
+bool QDjango::registerModel(QDjangoModel *model)
 {
     const QString name = model->metaObject()->className();
+    if (metaModels.contains(name))
+    {
+        delete model;
+        return false;
+    }
     metaModels.insert(name, QDjangoMetaModel(model));
 }
 
