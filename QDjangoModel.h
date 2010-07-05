@@ -58,7 +58,6 @@ protected:
 
 private:
     void databaseLoad(const QMap<QString, QVariant> &props);
-    QString databaseTable() const;
 
     int m_id;
     QString m_pkName;

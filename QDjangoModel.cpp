@@ -76,6 +76,8 @@ bool QDjangoModel::dropTable() const
 
 void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
 {
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+
     // process local fields
     foreach (const QString &key, props.keys())
     {
@@ -87,7 +89,7 @@ void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
         }
 
         const QString table = QDjango::unquote(bits[0]);
-        if (table == databaseTable())
+        if (table == metaModel.m_table)
         {
             const QString field = QDjango::unquote(bits[1]);
             if (field == m_pkName)
@@ -100,12 +102,6 @@ void QDjangoModel::databaseLoad(const QMap<QString, QVariant> &props)
     // process foreign fields
     foreach (const QString &key, m_foreignModels.keys())
         m_foreignModels[key]->databaseLoad(props);
-}
-
-QString QDjangoModel::databaseTable() const
-{
-    QString className(metaObject()->className());
-    return className.toLower();
 }
 
 /** Declares a foreign-key pointing to a QDjangoModel.
@@ -154,9 +150,10 @@ QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
  */
 bool QDjangoModel::remove()
 {
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
     QSqlQuery query(QDjango::database());
     query.prepare(QString("DELETE FROM %1 WHERE %2 = :pk")
-                  .arg(QDjango::quote(databaseTable()), QDjango::quote(m_pkName)));
+                  .arg(QDjango::quote(metaModel.m_table), QDjango::quote(metaModel.m_primaryKey)));
     query.bindValue(":pk", pk());
     return sqlExec(query);
 }
@@ -168,7 +165,7 @@ bool QDjangoModel::remove()
 bool QDjangoModel::save()
 {
     QSqlDatabase db = QDjango::database();
-    const QDjangoMetaModel metaModel(this);
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
 
     QStringList fieldNames;
     QDjangoMetaField primaryKey;
@@ -197,7 +194,7 @@ bool QDjangoModel::save()
 
             QSqlQuery query(db);
             query.prepare(QString("UPDATE %1 SET %2 WHERE %3 = :pk")
-                  .arg(QDjango::quote(databaseTable()), fieldAssign.join(", "), primaryKey.name));
+                  .arg(QDjango::quote(metaModel.m_table), fieldAssign.join(", "), primaryKey.name));
             foreach (const QString &name, fieldNames)
                 query.bindValue(":" + name, property(name.toLatin1()));
             query.bindValue(":pk", pk());
@@ -220,7 +217,7 @@ bool QDjangoModel::save()
 
     QSqlQuery query(db);
     query.prepare(QString("INSERT INTO %1 (%2) VALUES(%3)")
-                  .arg(QDjango::quote(databaseTable()), fieldColumns.join(", "), fieldHolders.join(", ")));
+                  .arg(QDjango::quote(metaModel.m_table), fieldColumns.join(", "), fieldHolders.join(", ")));
     foreach (const QString &name, fieldNames)
         query.bindValue(":" + name, property(name.toLatin1()));
 
