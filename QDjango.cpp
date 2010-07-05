@@ -298,13 +298,13 @@ bool QDjangoMetaModel::createTable() const
             continue;
         }
 
-        // auto-increment is backend specific
-        if (field.autoIncrement)
-            fieldSql += QDjango::autoIncrementSql();
-
         // primary key
         if (field.primaryKey)
             fieldSql += " PRIMARY KEY";
+
+        // auto-increment is backend specific
+        if (field.autoIncrement)
+            fieldSql += QDjango::autoIncrementSql();
 
         // foreign key
         // FIXME : get rid of reference to model
