@@ -30,6 +30,7 @@
 #include "QDjangoModel.h"
 
 QMap<QString, QDjangoModel*> QDjango::registry = QMap<QString, QDjangoModel*>();
+QMap<QString, QDjangoMetaModel> QDjango::metaModels = QMap<QString, QDjangoMetaModel>();
 
 static QDjangoWatcher *globalWatcher = 0;
 
@@ -163,6 +164,12 @@ const QDjangoModel *QDjango::model(const QString &name)
     return registry.value(name);
 }
 
+void QDjango::registerModel(QDjangoModel *model)
+{
+    const QString name = model->metaObject()->className();
+    metaModels.insert(name, QDjangoMetaModel(model));
+}
+
 /** Returns the SQL used to declare a field as auto-increment.
  */
 QString QDjango::autoIncrementSql()
@@ -204,5 +211,132 @@ QString QDjango::unquote(const QString &quoted)
     if (quoted.startsWith("`") && quoted.endsWith("`"))
         return quoted.mid(1, quoted.size() - 2);
     return quoted;
+}
+
+QDjangoMetaField::QDjangoMetaField()
+    : autoIncrement(false),
+    index(false),
+    maxLength(0),
+    primaryKey(false)
+{
+}
+
+QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
+    : m_model(model)
+{
+    const QMetaObject* meta = model->metaObject();
+    table = QString(meta->className()).toLower();
+
+    // local fields
+    QStringList properties;
+    if (model->m_pkName == "id")
+    {
+        QDjangoMetaField field;
+        field.name = model->m_pkName;
+        field.type = QVariant::Int;
+        field.autoIncrement = true;
+        field.index = true;
+        field.primaryKey = true;
+        localFields << field;
+    }
+    const int count = meta->propertyCount();
+    for(int i = meta->propertyOffset(); i < count; ++i)
+    {
+        QDjangoMetaField field;
+        field.name = meta->property(i).name();
+        field.type = meta->property(i).type();
+        field.index = (model->m_pkName == field.name) || model->fieldOption(field.name, QDjangoModel::IndexOption).toBool();
+        field.maxLength = model->fieldOption(field.name, QDjangoModel::MaxLengthOption).toInt();
+        field.primaryKey = (model->m_pkName == field.name);
+        localFields << field;
+    }
+}
+
+/** Creates the database table for this QDjangoModel.
+ */
+bool QDjangoMetaModel::createTable() const
+{
+    QSqlDatabase db = QDjango::database();
+//    const QMetaObject* meta = metaObject();
+
+    QStringList propSql;
+    foreach (const QDjangoMetaField &field, localFields)
+    {
+        QString fieldSql = QDjango::quote(field.name);
+        if (field.type == QVariant::Bool)
+            fieldSql += " BOOLEAN";
+        else if (field.type == QVariant::ByteArray)
+        {
+            fieldSql += " BLOB";
+            if (field.maxLength > 0)
+                fieldSql += QString("(%1)").arg(field.maxLength);
+        }
+        else if (field.type == QVariant::Date)
+            fieldSql += " DATE";
+        else if (field.type == QVariant::DateTime)
+            fieldSql += " DATETIME";
+        else if (field.type == QVariant::Double)
+            fieldSql += " REAL";
+        else if (field.type == QVariant::Int)
+            fieldSql += " INTEGER";
+        else if (field.type == QVariant::LongLong)
+            fieldSql += " INTEGER";
+        else if (field.type == QVariant::String)
+        {
+            if (field.maxLength > 0)
+                fieldSql += QString(" VARCHAR(%1)").arg(field.maxLength);
+            else
+                fieldSql += " TEXT";
+        }
+        else {
+            qWarning() << "Unhandled type" << field.type << "for property" << field.name;
+            continue;
+        }
+
+        // auto-increment is backend specific
+        if (field.autoIncrement)
+            fieldSql += QDjango::autoIncrementSql();
+
+        // primary key
+        if (field.primaryKey)
+            fieldSql += " PRIMARY KEY";
+
+#if 0
+        // foreign key
+        const QString fkName = m_foreignKeys.key(fieldName);
+        if (!fkName.isEmpty())
+        {
+            const QDjangoModel *fkModel = m_foreignModels[fkName];
+            fieldSql += QString(" REFERENCES %1 (%2)").arg(
+                QDjango::quote(fkModel->databaseTable()), QDjango::quote(fkModel->m_pkName));
+        }
+#endif
+        propSql << fieldSql;
+    }
+
+    // create table
+    QSqlQuery createQuery(db);
+    createQuery.prepare(QString("CREATE TABLE %1 (%2)").arg(QDjango::quote(table), propSql.join(", ")));
+    if (!sqlExec(createQuery))
+        return false;
+
+    // create indices
+    foreach (const QDjangoMetaField &field, localFields)
+    {
+        if (field.index)
+        {
+            const QString indexName = QString("%1_%2").arg(table, field.name);
+            QSqlQuery indexQuery(db);
+            indexQuery.prepare(QString("CREATE %1 %2 ON %3 (%4)").arg(
+                field.primaryKey ? "UNIQUE INDEX" : "INDEX",
+                QDjango::quote(indexName),
+                QDjango::quote(table),
+                QDjango::quote(field.name)));
+            if (!sqlExec(indexQuery))
+                return false;
+        }
+    }
+
+    return true;
 }
 

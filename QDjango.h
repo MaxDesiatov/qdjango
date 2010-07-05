@@ -27,6 +27,7 @@ class QSqlQuery;
 class QString;
 
 class QDjangoModel;
+class QDjangoMetaModel;
 
 bool sqlExec(QSqlQuery &query);
 
@@ -53,9 +54,12 @@ public:
     static QString unquote(const QString &quoted);
 
 private:
+    static void registerModel(QDjangoModel *model);
     static const QDjangoModel *model(const QString &name);
+    static const QDjangoMetaModel &metaModel(const QString &name);
 
     static QMap<QString, QDjangoModel*> registry;
+    static QMap<QString, QDjangoMetaModel> metaModels;
 
     friend class QDjangoQueryBase;
 };
@@ -69,7 +73,10 @@ bool QDjango::registerModel()
     if (registry.contains(name))
         return false;
 
-    registry.insert(name, new T);
+    T* model = new T;
+    registry.insert(name, model);
+    registerModel(model);
+
     return true;
 }
 

@@ -81,6 +81,7 @@ private:
     QMap<QString,QString> m_foreignKeys;
     QMap<QString,QDjangoModel*> m_foreignModels;
 
+    friend class QDjangoMetaModel;
     friend class QDjangoQueryBase;
     friend class QDjangoWhere;
 };
