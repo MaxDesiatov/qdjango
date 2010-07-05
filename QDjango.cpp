@@ -145,16 +145,21 @@ void QDjango::setDatabase(QSqlDatabase database)
  */
 void QDjango::createTables()
 {
-    foreach (const QString &key, registry.keys())
-        registry[key]->createTable();
+    foreach (const QString &key, metaModels.keys())
+        metaModels[key].createTable();
 }
 
 /** Drops the database tables for all registered models.
  */
 void QDjango::dropTables()
 {
-    foreach (const QString &key, registry.keys())
-        registry[key]->dropTable();
+    foreach (const QString &key, metaModels.keys())
+        metaModels[key].dropTable();
+}
+
+QDjangoMetaModel QDjango::metaModel(const QString &name)
+{
+    return metaModels.value(name);
 }
 
 /** Returns the QDjangoModel with the given name.
@@ -301,16 +306,15 @@ bool QDjangoMetaModel::createTable() const
         if (field.primaryKey)
             fieldSql += " PRIMARY KEY";
 
-#if 0
         // foreign key
-        const QString fkName = m_foreignKeys.key(fieldName);
+        // FIXME : get rid of reference to model
+        const QString fkName = m_model->m_foreignKeys.key(field.name);
         if (!fkName.isEmpty())
         {
-            const QDjangoModel *fkModel = m_foreignModels[fkName];
+            const QDjangoModel *fkModel = m_model->m_foreignModels[fkName];
             fieldSql += QString(" REFERENCES %1 (%2)").arg(
                 QDjango::quote(fkModel->databaseTable()), QDjango::quote(fkModel->m_pkName));
         }
-#endif
         propSql << fieldSql;
     }
 
@@ -338,5 +342,14 @@ bool QDjangoMetaModel::createTable() const
     }
 
     return true;
+}
+
+/** Drops the database table for this QDjangoMetaModel.
+ */
+bool QDjangoMetaModel::dropTable() const
+{
+    QSqlQuery query(QDjango::database());
+    query.prepare(QString("DROP TABLE %1").arg(QDjango::quote(table)));
+    return sqlExec(query);
 }
 

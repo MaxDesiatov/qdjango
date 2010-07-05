@@ -55,10 +55,10 @@ public:
     QVariant pk() const;
     void setPk(const QVariant &pk);
 
-public slots:
-    bool createTable() const;
-    bool dropTable() const;
+    bool Q_DECL_DEPRECATED createTable() const;
+    bool Q_DECL_DEPRECATED dropTable() const;
 
+public slots:
     bool remove();
     bool save();
 

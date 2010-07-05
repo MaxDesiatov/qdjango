@@ -56,11 +56,12 @@ public:
 private:
     static void registerModel(QDjangoModel *model);
     static const QDjangoModel *model(const QString &name);
-    static const QDjangoMetaModel &metaModel(const QString &name);
+    static QDjangoMetaModel metaModel(const QString &name);
 
     static QMap<QString, QDjangoModel*> registry;
     static QMap<QString, QDjangoMetaModel> metaModels;
 
+    friend class QDjangoModel;
     friend class QDjangoQueryBase;
 };
 
