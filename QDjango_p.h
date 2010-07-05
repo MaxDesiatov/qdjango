@@ -60,13 +60,13 @@ public:
     bool remove(QObject *model) const;
     bool save(QObject *model) const;
 
-    QList<QDjangoMetaField> localFields;
+    QString primaryKey() const;
 
 private:
+    QList<QDjangoMetaField> m_localFields;
     QString m_primaryKey;
     QString m_table;
 
-    friend class QDjangoModel;
     friend class QDjangoQueryBase;
 };
 

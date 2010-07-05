@@ -278,7 +278,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
             }
         }
 
-        localFields << field;
+        m_localFields << field;
     }
 
     // automatic primary key
@@ -290,8 +290,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         field.autoIncrement = true;
         field.index = true;
         field.primaryKey = true;
-        localFields.prepend(field);
-
+        m_localFields.prepend(field);
         m_primaryKey = field.name;
     }
  
@@ -304,7 +303,7 @@ bool QDjangoMetaModel::createTable() const
     QSqlDatabase db = QDjango::database();
 
     QStringList propSql;
-    foreach (const QDjangoMetaField &field, localFields)
+    foreach (const QDjangoMetaField &field, m_localFields)
     {
         QString fieldSql = QDjango::quote(field.name);
         if (field.type == QVariant::Bool)
@@ -362,7 +361,7 @@ bool QDjangoMetaModel::createTable() const
         return false;
 
     // create indices
-    foreach (const QDjangoMetaField &field, localFields)
+    foreach (const QDjangoMetaField &field, m_localFields)
     {
         if (field.index)
         {
@@ -393,7 +392,7 @@ QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) c
     {
         QStringList bits = name.split("__");
         QString fk = bits.takeFirst();
-        foreach (const QDjangoMetaField &field, localFields)
+        foreach (const QDjangoMetaField &field, m_localFields)
         {
             if (fk == field.foreignName)
             {
@@ -421,7 +420,7 @@ bool QDjangoMetaModel::dropTable() const
 void QDjangoMetaModel::load(QDjangoModel *model, const QMap<QString, QVariant> &props) const
 {
     // process local fields
-    foreach (const QDjangoMetaField &field, localFields)
+    foreach (const QDjangoMetaField &field, m_localFields)
     {
         const QString key = databaseColumn(field.name);
         model->setProperty(field.name.toLatin1(), props.value(key));
@@ -433,6 +432,11 @@ void QDjangoMetaModel::load(QDjangoModel *model, const QMap<QString, QVariant> &
             metaForeign.load(model->m_foreignModels[field.foreignName], props);
         }
     }
+}
+
+QString QDjangoMetaModel::primaryKey() const
+{
+    return m_primaryKey;
 }
 
 /** Removes the given QObject from the database.
@@ -460,7 +464,7 @@ bool QDjangoMetaModel::save(QObject *model) const
 
     QStringList fieldNames;
     QDjangoMetaField primaryKey;
-    foreach (const QDjangoMetaField &field, localFields)
+    foreach (const QDjangoMetaField &field, m_localFields)
     {
         if (field.primaryKey == true)
             primaryKey = field;
