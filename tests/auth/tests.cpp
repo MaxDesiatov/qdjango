@@ -538,14 +538,14 @@ void TestRelated::filterRelated()
     const QDjangoQuerySet<Message> messages;
     QVariant userPk;
     {
-        User user;
-        user.setUsername("foouser");
-        user.setPassword("foopass");
-        QCOMPARE(user.save(), true);
-        userPk = user.pk();
+        User *user = new User;
+        user->setUsername("foouser");
+        user->setPassword("foopass");
+        QCOMPARE(user->save(), true);
+        userPk = user->pk();
 
         Message message;
-        message.setProperty("user_id", userPk);
+        message.setUser(user);
         message.setText("test message");
         QCOMPARE(message.save(), true);
     }
