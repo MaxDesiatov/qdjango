@@ -86,13 +86,14 @@ void QDjangoModel::addForeignKey(const QString &name, QDjangoModel *model)
 QObject *QDjangoModel::foreignKey(const QString &name) const
 {
     QObject *foreign = property(QString("%1_ptr").arg(name).toLatin1()).value<QObject*>();
-    const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreign->metaObject()->className());
+    const QString foreignClass = foreign->metaObject()->className();
+    const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
     const QVariant foreignPk = property(QString("%1_id").arg(name).toLatin1());
 
     // if the foreign object was not loaded yet, do it now
     if (foreign->property(foreignMeta.primaryKey().toLatin1()) != foreignPk)
     {
-        QDjangoQueryBase qs(foreign->metaObject()->className());
+        QDjangoQueryBase qs(foreignClass);
         qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));
         qs.sqlFetch();
         if (qs.m_properties.size() != 1 || !qs.sqlLoad(foreign, 0))
