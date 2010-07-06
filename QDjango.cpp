@@ -231,6 +231,10 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
     const int count = meta->propertyCount();
     for(int i = meta->propertyOffset(); i < count; ++i)
     {
+        QString typeName = meta->property(i).typeName();
+        if (typeName.endsWith("*"))
+            continue;
+
         QDjangoMetaField field;
         field.name = meta->property(i).name();
         field.type = meta->property(i).type();

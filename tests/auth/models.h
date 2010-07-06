@@ -115,6 +115,8 @@ private:
 class UserGroups : public QDjangoModel
 {
     Q_OBJECT
+    Q_PROPERTY(User* user READ user);
+    Q_PROPERTY(Group* group READ group);
 
 public:
     UserGroups(QObject *parent = 0);
@@ -129,6 +131,7 @@ class Message : public QDjangoModel
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(User* user READ user);
 
 public:
     Message(QObject *parent = 0);
