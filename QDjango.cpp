@@ -236,6 +236,9 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
 
             QDjangoMetaField field;
             field.name = fkName + "_id";
+            // FIXME : the key is not necessarily an INTEGER field, we should
+            // probably perform a lookup on the foreign model, but are we sure
+            // it is already registered?
             field.type = QVariant::Int;
             field.foreignModel = fkModel;
             field.index = true;
