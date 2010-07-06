@@ -62,7 +62,7 @@ public:
 
 private:
     QList<QDjangoMetaField> m_localFields;
-    QMap<QString, QString> m_foreignFields;
+    QMap<QByteArray, QString> m_foreignFields;
     QByteArray m_primaryKey;
     QByteArray m_table;
 
