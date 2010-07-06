@@ -278,6 +278,7 @@ int main(int argc, char *argv[])
     QString databaseName = ":memory:";
     QString databaseUser;
     QString databasePassword;
+    int count = 1;
 
     // parse command line arguments
     if (!(argc % 2))
@@ -287,7 +288,9 @@ int main(int argc, char *argv[])
     }
     for (int i = 1; i < argc - 1; i++)
     {
-        if (!strcmp(argv[i], "-d"))
+        if (!strcmp(argv[i], "-c"))
+            count = QString::fromLocal8Bit(argv[++i]).toInt();
+        else if (!strcmp(argv[i], "-d"))
             databaseDriver = QString::fromLocal8Bit(argv[++i]);
         else if (!strcmp(argv[i], "-n"))
             databaseName = QString::fromLocal8Bit(argv[++i]);
@@ -324,17 +327,20 @@ int main(int argc, char *argv[])
     // run tests
     int errors = 0;
 
-    TestWhere testWhere;
-    errors += QTest::qExec(&testWhere);
+    for (int i = 0; i < count; ++i)
+    {
+        TestWhere testWhere;
+        errors += QTest::qExec(&testWhere);
 
-    TestUser testModel;
-    errors += QTest::qExec(&testModel);
+        TestUser testModel;
+        errors += QTest::qExec(&testModel);
 
-    TestRelated testRelated;
-    errors += QTest::qExec(&testRelated);
+        TestRelated testRelated;
+        errors += QTest::qExec(&testRelated);
 
-    TestShares testShares;
-    errors += QTest::qExec(&testShares);
+        TestShares testShares;
+        errors += QTest::qExec(&testShares);
+    }
 
     if (errors)
     {
