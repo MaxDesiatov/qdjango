@@ -269,7 +269,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
                     const QString value = assign[1];
                     if (key == "max_length")
                         field.maxLength = value.toInt();
-                    else if (key == "primary_key")
+                    else if (key == "primary_key" && value.toInt() == 1)
                     {
                         field.index = true;
                         field.primaryKey = true;
