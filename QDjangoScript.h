@@ -24,7 +24,6 @@
 #include <QtScript/QScriptEngine>
 
 #include "QDjango.h"
-#include "QDjangoModel.h"
 #include "QDjangoQuerySet.h"
 
 template <class T>
