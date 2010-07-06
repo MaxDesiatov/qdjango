@@ -449,9 +449,9 @@ QByteArray QDjangoMetaModel::primaryKey() const
 bool QDjangoMetaModel::remove(QObject *model) const
 {
     QSqlQuery query(QDjango::database());
-    query.prepare(QString("DELETE FROM %1 WHERE %2 = :pk")
+    query.prepare(QString("DELETE FROM %1 WHERE %2 = ?")
                   .arg(QDjango::quote(m_table), QDjango::quote(m_primaryKey)));
-    query.bindValue(":pk", model->property(m_primaryKey));
+    query.addBindValue(model->property(m_primaryKey));
     return sqlExec(query);
 }
 
@@ -478,9 +478,9 @@ bool QDjangoMetaModel::save(QObject *model) const
     if (!pk.isNull() && !(primaryKey.type == QVariant::Int && !pk.toInt()))
     {
         QSqlQuery query(db);
-        query.prepare(QString("SELECT 1 AS a FROM %1 WHERE %2 = :pk")
+        query.prepare(QString("SELECT 1 AS a FROM %1 WHERE %2 = ?")
                       .arg(QDjango::quote(m_table), QDjango::quote(primaryKey.name)));
-        query.bindValue(":pk", pk);
+        query.addBindValue(pk);
         if (sqlExec(query) && query.next())
         {
             // remove primary key
@@ -489,14 +489,14 @@ bool QDjangoMetaModel::save(QObject *model) const
             // perform update
             QStringList fieldAssign;
             foreach (const QString &name, fieldNames)
-                fieldAssign << QDjango::quote(name) + " = :" + name;
+                fieldAssign << QDjango::quote(name) + " = ?";
 
             QSqlQuery query(db);
-            query.prepare(QString("UPDATE %1 SET %2 WHERE %3 = :pk")
+            query.prepare(QString("UPDATE %1 SET %2 WHERE %3 = ?")
                   .arg(QDjango::quote(m_table), fieldAssign.join(", "), primaryKey.name));
             foreach (const QString &name, fieldNames)
-                query.bindValue(":" + name, model->property(name.toLatin1()));
-            query.bindValue(":pk", pk);
+                query.addBindValue(model->property(name.toLatin1()));
+            query.addBindValue(pk);
             return sqlExec(query);
         }
     }
@@ -511,14 +511,14 @@ bool QDjangoMetaModel::save(QObject *model) const
     foreach (const QString &name, fieldNames)
     {
         fieldColumns << QDjango::quote(name);
-        fieldHolders << ":" + name;
+        fieldHolders << "?";
     }
 
     QSqlQuery query(db);
     query.prepare(QString("INSERT INTO %1 (%2) VALUES(%3)")
                   .arg(QDjango::quote(m_table), fieldColumns.join(", "), fieldHolders.join(", ")));
     foreach (const QString &name, fieldNames)
-        query.bindValue(":" + name, model->property(name.toLatin1()));
+        query.addBindValue(model->property(name.toLatin1()));
 
     bool ret = sqlExec(query);
     if (primaryKey.autoIncrement)
