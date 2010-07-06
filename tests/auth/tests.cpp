@@ -566,18 +566,18 @@ void TestRelated::testGroups()
 {
     const QDjangoQuerySet<UserGroups> userGroups;
 
-    User user;
-    user.setUsername("foouser");
-    user.setPassword("foopass");
-    QCOMPARE(user.save(), true);
+    User *user = new User;
+    user->setUsername("foouser");
+    user->setPassword("foopass");
+    QCOMPARE(user->save(), true);
 
-    Group group;
-    group.setName("foogroup");
-    QCOMPARE(group.save(), true);
+    Group *group = new Group;
+    group->setName("foogroup");
+    QCOMPARE(group->save(), true);
 
     UserGroups userGroup;
-    userGroup.setProperty("user_id", user.pk());
-    userGroup.setProperty("group_id", group.pk());
+    userGroup.setUser(user);
+    userGroup.setGroup(group);
     QCOMPARE(userGroup.save(), true);
     
     UserGroups *ug = userGroups.selectRelated().get(

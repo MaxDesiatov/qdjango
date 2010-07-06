@@ -154,9 +154,19 @@ User *UserGroups::user() const
     return qobject_cast<User*>(foreignKey("user"));
 }
 
+void UserGroups::setUser(User *user)
+{
+    setForeignKey("user", user);
+}
+
 Group *UserGroups::group() const
 {
     return qobject_cast<Group*>(foreignKey("group"));
+}
+
+void UserGroups::setGroup(Group *group)
+{
+    setForeignKey("group", group);
 }
 
 Message::Message(QObject *parent)
