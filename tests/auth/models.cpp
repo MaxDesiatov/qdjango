@@ -182,3 +182,6 @@ void Message::setText(const QString &text)
     m_text = text;
 }
 
+Q_DECLARE_METATYPE(Group*)
+Q_DECLARE_METATYPE(User*)
+
