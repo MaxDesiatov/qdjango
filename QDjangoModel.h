@@ -68,9 +68,6 @@ public slots:
 protected:
     void addForeignKey(const QString &name, QDjangoModel *model);
     QObject *foreignKey(const QString &name) const;
-
-private:
-    friend class QDjangoMetaModel;
 };
 
 #endif
