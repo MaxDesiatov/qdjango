@@ -35,7 +35,7 @@ class QDjangoMetaField
 public:
     QDjangoMetaField();
 
-    QString name;
+    QByteArray name;
     QVariant::Type type;
     bool autoIncrement;
     bool index;
@@ -66,7 +66,7 @@ private:
     QList<QDjangoMetaField> m_localFields;
     QMap<QString, QString> m_foreignFields;
     QByteArray m_primaryKey;
-    QString m_table;
+    QByteArray m_table;
 
     friend class QDjangoQueryBase;
 };

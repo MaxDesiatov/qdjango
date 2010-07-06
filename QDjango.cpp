@@ -225,7 +225,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         return;
 
     const QMetaObject* meta = model->metaObject();
-    m_table = QString(meta->className()).toLower();
+    m_table = QString(meta->className()).toLower().toLatin1();
 
     const int count = meta->propertyCount();
     for(int i = meta->propertyOffset(); i < count; ++i)
@@ -235,12 +235,12 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         // foreign field
         if (typeName.endsWith("*"))
         {
-            const QString fkName = meta->property(i).name();
+            const QByteArray fkName = meta->property(i).name();
             const QString fkModel = typeName.left(typeName.size() - 1);
             m_foreignFields.insert(fkName, fkModel);
 
             QDjangoMetaField field;
-            field.name = QString("%1_id").arg(fkName);
+            field.name = fkName + "_id";
             field.type = QVariant::Int;
             field.foreignModel = fkModel;
             field.foreignName = fkName;
@@ -274,7 +274,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
                         field.index = true;
                         field.primaryKey = true;
 
-                        m_primaryKey = field.name.toLatin1();
+                        m_primaryKey = field.name;
                     }
                 }
             }
@@ -293,7 +293,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         field.index = true;
         field.primaryKey = true;
         m_localFields.prepend(field);
-        m_primaryKey = field.name.toLatin1();
+        m_primaryKey = field.name;
     }
  
 }
@@ -367,7 +367,7 @@ bool QDjangoMetaModel::createTable() const
     {
         if (field.index)
         {
-            const QString indexName = QString("%1_%2").arg(m_table, field.name);
+            const QByteArray indexName = m_table + "_" + field.name;
             QSqlQuery indexQuery(db);
             indexQuery.prepare(QString("CREATE %1 %2 ON %3 (%4)").arg(
                 field.primaryKey ? "UNIQUE INDEX" : "INDEX",
@@ -425,14 +425,14 @@ void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props
     foreach (const QDjangoMetaField &field, m_localFields)
     {
         const QString key = databaseColumn(field.name);
-        model->setProperty(field.name.toLatin1(), props.value(key));
+        model->setProperty(field.name, props.value(key));
     }
 
     // process foreign fields
     foreach (const QString &fkName, m_foreignFields.keys())
     {
         const QDjangoMetaModel metaForeign = QDjango::metaModel(m_foreignFields[fkName]);
-        QObject *object = model->property(QString("%1_ptr").arg(fkName).toLatin1()).value<QObject*>();
+        QObject *object = model->property(fkName.toLatin1() + "_ptr").value<QObject*>();
         metaForeign.load(object, props);
     }
 }
@@ -474,7 +474,7 @@ bool QDjangoMetaModel::save(QObject *model) const
         fieldNames << field.name;
     }
 
-    const QVariant pk = model->property(primaryKey.name.toLatin1());
+    const QVariant pk = model->property(primaryKey.name);
     if (!pk.isNull() && !(primaryKey.type == QVariant::Int && !pk.toInt()))
     {
         QSqlQuery query(db);
@@ -522,7 +522,7 @@ bool QDjangoMetaModel::save(QObject *model) const
 
     bool ret = sqlExec(query);
     if (primaryKey.autoIncrement)
-        model->setProperty(primaryKey.name.toLatin1(), query.lastInsertId());
+        model->setProperty(primaryKey.name, query.lastInsertId());
     return ret;
 }
 
