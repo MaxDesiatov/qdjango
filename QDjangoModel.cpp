@@ -73,10 +73,10 @@ bool QDjangoModel::dropTable() const
  * \param name
  * \param model
  */
-void QDjangoModel::addForeignKey(const QString &name, QDjangoModel *model)
+void QDjangoModel::addForeignKey(const QString &name, QObject *model)
 {
     model->setParent(this);
-    setProperty(name.toLatin1() + "_ptr", qVariantFromValue((QObject*)model));
+    setProperty(name.toLatin1() + "_ptr", qVariantFromValue(model));
 }
 
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
