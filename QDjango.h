@@ -45,12 +45,12 @@ public:
     template <class T>
     static void registerModel();
 
+private:
     // backend specific
     static QString autoIncrementSql();
     static QString noLimitSql();
     static QString quote(const QString &name);
 
-private:
     static void registerModel(const QDjangoModel *model);
     static QDjangoMetaModel metaModel(const QString &name);
 

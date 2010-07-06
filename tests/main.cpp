@@ -34,13 +34,6 @@
 #include "shares/models.h"
 #include "shares/tests.h"
 
-/** Test quoting of database and table names.
- */
-void TestWhere::quoting()
-{
-    QCOMPARE(QDjango::quote("foo"), QLatin1String("`foo`"));
-}
-
 /** Test empty where clause.
  */
 void TestWhere::emptyWhere()
