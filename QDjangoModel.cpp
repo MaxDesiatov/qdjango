@@ -71,13 +71,11 @@ bool QDjangoModel::dropTable() const
 /** Declares a foreign-key pointing to a QDjangoModel.
  *
  * \param name
- * \param field
  * \param model
  */
-void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDjangoModel *model)
+void QDjangoModel::addForeignKey(const QString &name, QDjangoModel *model)
 {
     model->setParent(this);
-    m_foreignKeys[name] = field;
     m_foreignModels[name] = model;
 }
 
@@ -87,14 +85,14 @@ void QDjangoModel::addForeignKey(const QString &name, const QString &field, QDja
  */
 QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
 {
-    if (!m_foreignKeys.contains(name) || !m_foreignModels.contains(name))
+    if (!m_foreignModels.contains(name))
     {
         qWarning() << "Unknown foreign key" << name;
         return 0;
     }
 
     QDjangoModel *foreign = m_foreignModels[name];
-    QVariant foreignPk = property(m_foreignKeys[name].toLatin1());
+    QVariant foreignPk = property(QString("%1_id").arg(name).toLatin1());
 
     // if the foreign object was not loaded yet, do it now
     if (foreign->pk() != foreignPk)

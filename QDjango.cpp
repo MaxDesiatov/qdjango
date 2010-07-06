@@ -235,16 +235,6 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         field.name = meta->property(i).name();
         field.type = meta->property(i).type();
 
-        // FIXME get rid of reference to model
-        const QString fkName = model->m_foreignKeys.key(field.name);
-        if (!fkName.isEmpty())
-        {
-            QDjangoModel *foreign = model->m_foreignModels[fkName];
-            field.foreignModel = foreign->metaObject()->className();
-            field.foreignName = fkName;
-            field.index = true;
-        }
-
         // parse options
         const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
         if (infoIndex >= 0)
@@ -271,6 +261,20 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
             }
         }
 
+        m_localFields << field;
+    }
+
+    // FIXME get rid of reference to model
+    foreach (const QString &fkName, model->m_foreignModels.keys())
+    {
+        QDjangoModel *foreign = model->m_foreignModels[fkName];
+
+        QDjangoMetaField field;
+        field.name = QString("%1_id").arg(fkName);
+        field.type = QVariant::Int;
+        field.foreignModel = foreign->metaObject()->className();
+        field.foreignName = fkName;
+        field.index = true;
         m_localFields << field;
     }
 

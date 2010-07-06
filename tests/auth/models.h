@@ -115,23 +115,12 @@ private:
 class UserGroups : public QDjangoModel
 {
     Q_OBJECT
-    Q_PROPERTY(int user_id READ userId WRITE setUserId)
-    Q_PROPERTY(int group_id READ groupId WRITE setGroupId)
 
 public:
     UserGroups(QObject *parent = 0);
 
     User *user() const;
-    int userId() const;
-    void setUserId(int userId);
-
     Group *group() const;
-    int groupId() const;
-    void setGroupId(int groupId);
-
-private:
-    int m_userId;
-    int m_groupId;
 };
 
 /** The Message class represents a message for a given User.
@@ -139,21 +128,17 @@ private:
 class Message : public QDjangoModel
 {
     Q_OBJECT
-    Q_PROPERTY(int user_id READ userId WRITE setUserId)
     Q_PROPERTY(QString text READ text WRITE setText)
 
 public:
     Message(QObject *parent = 0);
 
     User *user() const;
-    int userId() const;
-    void setUserId(int userId);
 
     QString text() const;
     void setText(const QString &text);
 
 private:
-    int m_userId;
     QString m_text;
 };
 
