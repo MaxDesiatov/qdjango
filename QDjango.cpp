@@ -392,7 +392,7 @@ QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) c
     if (name.count("__"))
     {
         QStringList bits = name.split("__");
-        QString fk = bits.takeFirst();
+        const QByteArray fk = bits.takeFirst().toLatin1();
         if (m_foreignFields.contains(fk))
         {
             const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[fk]);
@@ -425,10 +425,10 @@ void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props
     }
 
     // process foreign fields
-    foreach (const QString &fkName, m_foreignFields.keys())
+    foreach (const QByteArray &fkName, m_foreignFields.keys())
     {
         const QDjangoMetaModel metaForeign = QDjango::metaModel(m_foreignFields[fkName]);
-        QObject *object = model->property(fkName.toLatin1() + "_ptr").value<QObject*>();
+        QObject *object = model->property(fkName + "_ptr").value<QObject*>();
         metaForeign.load(object, props);
     }
 }
