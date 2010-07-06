@@ -68,17 +68,6 @@ bool QDjangoModel::dropTable() const
     return metaModel.dropTable();
 }
 
-/** Declares a foreign-key pointing to a QDjangoModel.
- *
- * \param name
- * \param model
- */
-void QDjangoModel::addForeignKey(const QString &name, QObject *model)
-{
-    model->setParent(this);
-    setProperty(name.toLatin1() + "_ptr", qVariantFromValue(model));
-}
-
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
  *
  * \param name

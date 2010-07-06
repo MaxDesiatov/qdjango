@@ -145,8 +145,8 @@ void Group::setName(const QString &name)
 UserGroups::UserGroups(QObject *parent)
     : QDjangoModel(parent)
 {
-    addForeignKey("user", new User);
-    addForeignKey("group", new Group);
+    setForeignKey("user", new User);
+    setForeignKey("group", new Group);
 }
 
 User *UserGroups::user() const
@@ -172,7 +172,7 @@ void UserGroups::setGroup(Group *group)
 Message::Message(QObject *parent)
     : QDjangoModel(parent)
 {
-    addForeignKey("user", new User);
+    setForeignKey("user", new User);
 }
 
 /** Returns the User associated with this Message.
