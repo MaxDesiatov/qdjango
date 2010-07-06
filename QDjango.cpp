@@ -61,8 +61,9 @@ static void closeDatabase()
  */
 
 
-static void sqlDebug(const QSqlQuery &query)
+bool sqlExec(QSqlQuery &query)
 {
+#ifdef QDJANGO_DEBUG_SQL
     qDebug() << "SQL query" << query.lastQuery();
     QMapIterator<QString, QVariant> i(query.boundValues());
     while (i.hasNext()) {
@@ -70,12 +71,6 @@ static void sqlDebug(const QSqlQuery &query)
         qDebug() << "   " << i.key().toAscii().data() << "="
                  << i.value().toString().toAscii().data();
     }
-}
-
-bool sqlExec(QSqlQuery &query)
-{
-#ifdef QDJANGO_DEBUG_SQL
-    sqlDebug(query);
     if (!query.exec())
     {
         qWarning() << "SQL error" << query.lastError();
