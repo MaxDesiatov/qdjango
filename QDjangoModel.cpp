@@ -76,7 +76,7 @@ bool QDjangoModel::dropTable() const
 void QDjangoModel::addForeignKey(const QString &name, QDjangoModel *model)
 {
     model->setParent(this);
-    setProperty(QString("%1_ptr").arg(name).toLatin1(), qVariantFromValue((QObject*)model));
+    setProperty(name.toLatin1() + "_ptr", qVariantFromValue((QObject*)model));
 }
 
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
@@ -85,10 +85,10 @@ void QDjangoModel::addForeignKey(const QString &name, QDjangoModel *model)
  */
 QObject *QDjangoModel::foreignKey(const QString &name) const
 {
-    QObject *foreign = property(QString("%1_ptr").arg(name).toLatin1()).value<QObject*>();
+    QObject *foreign = property(name.toLatin1() + "_ptr").value<QObject*>();
     const QString foreignClass = foreign->metaObject()->className();
     const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
-    const QVariant foreignPk = property(QString("%1_id").arg(name).toLatin1());
+    const QVariant foreignPk = property(name.toLatin1() + "_id");
 
     // if the foreign object was not loaded yet, do it now
     if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
