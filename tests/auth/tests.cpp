@@ -499,13 +499,13 @@ void TestRelated::testRelated()
     const QDjangoQuerySet<Message> messages;
 
     {
-        User user;
-        user.setUsername("foouser");
-        user.setPassword("foopass");
-        QCOMPARE(user.save(), true);
+        User *user = new User;
+        user->setUsername("foouser");
+        user->setPassword("foopass");
+        QCOMPARE(user->save(), true);
 
         Message message;
-        message.setProperty("user_id", user.pk());
+        message.setUser(user);
         message.setText("test message");
         QCOMPARE(message.save(), true);
     }
