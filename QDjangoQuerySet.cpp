@@ -196,7 +196,7 @@ QString QDjangoQueryBase::sqlLimit() const
     return limit;
 }
 
-bool QDjangoQueryBase::sqlLoad(QDjangoModel *model, int index)
+bool QDjangoQueryBase::sqlLoad(QObject *model, int index)
 {
     if (!sqlFetch())
         return false;

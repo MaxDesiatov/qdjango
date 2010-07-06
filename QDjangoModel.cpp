@@ -76,28 +76,22 @@ bool QDjangoModel::dropTable() const
 void QDjangoModel::addForeignKey(const QString &name, QDjangoModel *model)
 {
     model->setParent(this);
-    m_foreignModels[name] = model;
+    setProperty(QString("%1_ptr").arg(name).toLatin1(), qVariantFromValue((QObject*)model));
 }
 
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
  *
  * \param name
  */
-QDjangoModel *QDjangoModel::foreignKey(const QString &name) const
+QObject *QDjangoModel::foreignKey(const QString &name) const
 {
-    if (!m_foreignModels.contains(name))
-    {
-        qWarning() << "Unknown foreign key" << name;
-        return 0;
-    }
-
-    QDjangoModel *foreign = m_foreignModels[name];
-    QVariant foreignPk = property(QString("%1_id").arg(name).toLatin1());
+    QObject *foreign = property(QString("%1_ptr").arg(name).toLatin1()).value<QObject*>();
+    const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreign->metaObject()->className());
+    const QVariant foreignPk = property(QString("%1_id").arg(name).toLatin1());
 
     // if the foreign object was not loaded yet, do it now
-    if (foreign->pk() != foreignPk)
+    if (foreign->property(foreignMeta.primaryKey().toLatin1()) != foreignPk)
     {
-        const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreign->metaObject()->className());
         QDjangoQueryBase qs(foreign->metaObject()->className());
         qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));
         qs.sqlFetch();

@@ -56,7 +56,7 @@ public:
     bool createTable() const;
     bool dropTable() const;
 
-    void load(QDjangoModel *model, const QMap<QString, QVariant> &props) const;
+    void load(QObject *model, const QMap<QString, QVariant> &props) const;
     bool remove(QObject *model) const;
     bool save(QObject *model) const;
 
@@ -64,6 +64,7 @@ public:
 
 private:
     QList<QDjangoMetaField> m_localFields;
+    QMap<QString, QString> m_foreignFields;
     QString m_primaryKey;
     QString m_table;
 
