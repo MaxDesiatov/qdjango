@@ -51,7 +51,6 @@ public:
     static QString autoIncrementSql();
     static QString noLimitSql();
     static QString quote(const QString &name);
-    static QString unquote(const QString &quoted);
 
 private:
     static void registerModel(const QDjangoModel *model);

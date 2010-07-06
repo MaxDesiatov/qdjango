@@ -211,15 +211,6 @@ QString QDjango::quote(const QString &name)
     return "`" + name + "`";
 }
 
-/** Unquotes a database table or column name.
- */
-QString QDjango::unquote(const QString &quoted)
-{
-    if (quoted.startsWith("`") && quoted.endsWith("`"))
-        return quoted.mid(1, quoted.size() - 2);
-    return quoted;
-}
-
 QDjangoMetaField::QDjangoMetaField()
     : autoIncrement(false),
     index(false),
