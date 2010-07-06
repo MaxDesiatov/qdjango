@@ -20,11 +20,11 @@
 #ifndef QDJANGO_H
 #define QDJANGO_H
 
+class QObject;
 class QSqlDatabase;
 class QSqlQuery;
 class QString;
 
-class QDjangoModel;
 class QDjangoMetaModel;
 
 bool sqlExec(QSqlQuery &query);
@@ -51,7 +51,7 @@ private:
     static QString noLimitSql();
     static QString quote(const QString &name);
 
-    static void registerModel(const QDjangoModel *model);
+    static void registerModel(const QObject *model);
     static QDjangoMetaModel metaModel(const QString &name);
 
     friend class QDjangoModel;
