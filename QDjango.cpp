@@ -219,7 +219,7 @@ QDjangoMetaField::QDjangoMetaField()
 {
 }
 
-QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
+QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
 {
     if (!model)
         return;

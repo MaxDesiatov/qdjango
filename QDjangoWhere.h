@@ -22,7 +22,7 @@
 
 #include <QVariant>
 
-class QDjangoModel;
+class QDjangoMetaModel;
 class QSqlQuery;
 
 /** \brief The QDjangoWhere class expresses an SQL constraint.
