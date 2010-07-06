@@ -115,14 +115,17 @@ private:
 class UserGroups : public QDjangoModel
 {
     Q_OBJECT
-    Q_PROPERTY(User* user READ user);
-    Q_PROPERTY(Group* group READ group);
+    Q_PROPERTY(User* user READ user WRITE setUser);
+    Q_PROPERTY(Group* group READ group WRITE setGroup);
 
 public:
     UserGroups(QObject *parent = 0);
 
     User *user() const;
+    void setUser(User *user);
+
     Group *group() const;
+    void setGroup(Group *group);
 };
 
 /** The Message class represents a message for a given User.
