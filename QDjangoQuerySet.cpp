@@ -54,7 +54,7 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QStr
         if (m_selectRelated)
             fields += fieldNames(metaForeign, from);
         from += QString(" INNER JOIN %1 ON %2 = %3")
-            .arg(QDjango::quote(metaForeign.m_table))
+            .arg(metaForeign.databaseTable())
             .arg(metaForeign.databaseColumn("pk"))
             .arg(metaModel.databaseColumn(field.name));
     }
@@ -76,7 +76,7 @@ int QDjangoQueryBase::sqlCount() const
 {
     // prepare query
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QString sql = "SELECT COUNT(*) FROM " + QDjango::quote(metaModel.m_table);
+    QString sql = "SELECT COUNT(*) FROM " + metaModel.databaseTable();
     QString where = m_where.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
@@ -105,7 +105,7 @@ bool QDjangoQueryBase::sqlDelete()
 
     // delete entries
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QString from = QDjango::quote(metaModel.m_table);
+    QString from = metaModel.databaseTable();
     QString sql = "DELETE FROM " + from;
     QString where = m_where.sql();
     if (!where.isEmpty())
@@ -133,7 +133,7 @@ bool QDjangoQueryBase::sqlFetch()
 
     // build query
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QString from = QDjango::quote(metaModel.m_table);
+    QString from = metaModel.databaseTable();
     QStringList fields = fieldNames(metaModel, from);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
     QString where = m_where.sql();

@@ -25,6 +25,8 @@
 #include <QSqlDatabase>
 #include <QVariant>
 
+#include "QDjango.h"
+
 /** \internal
  */
 class QDjangoMetaField
@@ -48,6 +50,10 @@ class QDjangoMetaModel
 public:
     QDjangoMetaModel(const QObject *model = 0);
     QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
+    QString databaseTable() const
+    {
+        return QDjango::quote(m_table);
+    };
 
     bool createTable() const;
     bool dropTable() const;
