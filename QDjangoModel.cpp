@@ -39,7 +39,7 @@ QDjangoModel::QDjangoModel(QObject *parent)
 QVariant QDjangoModel::pk() const
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    return property(metaModel.primaryKey().toLatin1());
+    return property(metaModel.primaryKey());
 }
 
 /** Sets the primary key for this QDjangoModel.
@@ -49,7 +49,7 @@ QVariant QDjangoModel::pk() const
 void QDjangoModel::setPk(const QVariant &pk)
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    setProperty(metaModel.primaryKey().toLatin1(), pk);
+    setProperty(metaModel.primaryKey(), pk);
 }
 
 /** Creates the database table for this QDjangoModel.
@@ -91,7 +91,7 @@ QObject *QDjangoModel::foreignKey(const QString &name) const
     const QVariant foreignPk = property(QString("%1_id").arg(name).toLatin1());
 
     // if the foreign object was not loaded yet, do it now
-    if (foreign->property(foreignMeta.primaryKey().toLatin1()) != foreignPk)
+    if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
     {
         QDjangoQueryBase qs(foreignClass);
         qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));

@@ -274,7 +274,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
                         field.index = true;
                         field.primaryKey = true;
 
-                        m_primaryKey = field.name;
+                        m_primaryKey = field.name.toLatin1();
                     }
                 }
             }
@@ -293,7 +293,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
         field.index = true;
         field.primaryKey = true;
         m_localFields.prepend(field);
-        m_primaryKey = field.name;
+        m_primaryKey = field.name.toLatin1();
     }
  
 }
@@ -437,7 +437,7 @@ void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props
     }
 }
 
-QString QDjangoMetaModel::primaryKey() const
+QByteArray QDjangoMetaModel::primaryKey() const
 {
     return m_primaryKey;
 }
@@ -451,7 +451,7 @@ bool QDjangoMetaModel::remove(QObject *model) const
     QSqlQuery query(QDjango::database());
     query.prepare(QString("DELETE FROM %1 WHERE %2 = :pk")
                   .arg(QDjango::quote(m_table), QDjango::quote(m_primaryKey)));
-    query.bindValue(":pk", model->property(m_primaryKey.toLatin1()));
+    query.bindValue(":pk", model->property(m_primaryKey));
     return sqlExec(query);
 }
 
