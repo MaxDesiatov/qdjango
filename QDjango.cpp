@@ -227,14 +227,29 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
     const QMetaObject* meta = model->metaObject();
     m_table = QString(meta->className()).toLower();
 
-    // local fields
     const int count = meta->propertyCount();
     for(int i = meta->propertyOffset(); i < count; ++i)
     {
         QString typeName = meta->property(i).typeName();
-        if (typeName.endsWith("*"))
-            continue;
 
+        // foreign field
+        if (typeName.endsWith("*"))
+        {
+            const QString fkName = meta->property(i).name();
+            const QString fkModel = typeName.left(typeName.size() - 1);
+            m_foreignFields.insert(fkName, fkModel);
+
+            QDjangoMetaField field;
+            field.name = QString("%1_id").arg(fkName);
+            field.type = QVariant::Int;
+            field.foreignModel = fkModel;
+            field.foreignName = fkName;
+            field.index = true;
+            m_localFields << field;
+            continue;
+        }
+
+        // local field
         QDjangoMetaField field;
         field.name = meta->property(i).name();
         field.type = meta->property(i).type();
@@ -265,20 +280,6 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
             }
         }
 
-        m_localFields << field;
-    }
-
-    // FIXME get rid of reference to model
-    foreach (const QString &fkName, model->m_foreignModels.keys())
-    {
-        QDjangoModel *foreign = model->m_foreignModels[fkName];
-
-        QDjangoMetaField field;
-        field.name = QString("%1_id").arg(fkName);
-        field.type = QVariant::Int;
-        field.foreignModel = foreign->metaObject()->className();
-        field.foreignName = fkName;
-        field.index = true;
         m_localFields << field;
     }
 
@@ -418,20 +419,21 @@ bool QDjangoMetaModel::dropTable() const
     return sqlExec(query);
 }
 
-void QDjangoMetaModel::load(QDjangoModel *model, const QMap<QString, QVariant> &props) const
+void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props) const
 {
     // process local fields
     foreach (const QDjangoMetaField &field, m_localFields)
     {
         const QString key = databaseColumn(field.name);
         model->setProperty(field.name.toLatin1(), props.value(key));
+    }
 
-        // process foreign fields
-        if (!field.foreignModel.isEmpty())
-        {
-            const QDjangoMetaModel metaForeign = QDjango::metaModel(field.foreignModel);
-            metaForeign.load(model->m_foreignModels[field.foreignName], props);
-        }
+    // process foreign fields
+    foreach (const QString &fkName, m_foreignFields.keys())
+    {
+        const QDjangoMetaModel metaForeign = QDjango::metaModel(m_foreignFields[fkName]);
+        QObject *object = model->property(QString("%1_ptr").arg(fkName).toLatin1()).value<QObject*>();
+        metaForeign.load(object, props);
     }
 }
 

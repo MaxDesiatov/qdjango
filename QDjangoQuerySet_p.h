@@ -41,7 +41,7 @@ protected:
     bool sqlDelete();
     bool sqlFetch();
     QString sqlLimit() const;
-    bool sqlLoad(QDjangoModel *model, int index);
+    bool sqlLoad(QObject *model, int index);
     QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
     QList< QList<QVariant> > sqlValuesList(const QStringList &fields);
 
