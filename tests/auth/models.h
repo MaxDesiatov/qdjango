@@ -131,12 +131,13 @@ class Message : public QDjangoModel
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(User* user READ user);
+    Q_PROPERTY(User* user READ user WRITE setUser);
 
 public:
     Message(QObject *parent = 0);
 
     User *user() const;
+    void setUser(User *user);
 
     QString text() const;
     void setText(const QString &text);
