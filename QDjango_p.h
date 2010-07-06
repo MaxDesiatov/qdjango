@@ -23,7 +23,6 @@
 #include <QMap>
 #include <QObject>
 #include <QSqlDatabase>
-#include <QStringList>
 #include <QVariant>
 
 class QDjangoModel;
@@ -41,7 +40,6 @@ public:
     bool index;
     int maxLength;
     bool primaryKey;
-    QString foreignName;
     QString foreignModel;
 };
 

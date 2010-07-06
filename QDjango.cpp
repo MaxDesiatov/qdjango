@@ -243,7 +243,6 @@ QDjangoMetaModel::QDjangoMetaModel(const QDjangoModel *model)
             field.name = fkName + "_id";
             field.type = QVariant::Int;
             field.foreignModel = fkModel;
-            field.foreignName = fkName;
             field.index = true;
             m_localFields << field;
             continue;
@@ -394,15 +393,12 @@ QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) c
     {
         QStringList bits = name.split("__");
         QString fk = bits.takeFirst();
-        foreach (const QDjangoMetaField &field, m_localFields)
+        if (m_foreignFields.contains(fk))
         {
-            if (fk == field.foreignName)
-            {
-                const QDjangoMetaModel foreignMeta = QDjango::metaModel(field.foreignModel);
-                if (needsJoin)
-                    *needsJoin = true;
-                return foreignMeta.databaseColumn(bits.join("__"));
-            }
+            const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[fk]);
+            if (needsJoin)
+                *needsJoin = true;
+            return foreignMeta.databaseColumn(bits.join("__"));
         }
     }
 
