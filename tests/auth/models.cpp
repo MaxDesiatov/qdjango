@@ -172,6 +172,11 @@ User *Message::user() const
     return qobject_cast<User*>(foreignKey("user"));
 }
 
+void Message::setUser(User *user)
+{
+    setForeignKey("user", user);
+}
+
 QString Message::text() const
 {
     return m_text;
