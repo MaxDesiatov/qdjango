@@ -505,7 +505,7 @@ void TestRelated::testRelated()
         QCOMPARE(user.save(), true);
 
         Message message;
-        message.setUserId(user.pk().toInt());
+        message.setProperty("user_id", user.pk());
         message.setText("test message");
         QCOMPARE(message.save(), true);
     }
@@ -536,16 +536,16 @@ void TestRelated::testRelated()
 void TestRelated::filterRelated()
 {
     const QDjangoQuerySet<Message> messages;
-    int userPk;
+    QVariant userPk;
     {
         User user;
         user.setUsername("foouser");
         user.setPassword("foopass");
         QCOMPARE(user.save(), true);
-        userPk = user.pk().toInt();
+        userPk = user.pk();
 
         Message message;
-        message.setUserId(userPk);
+        message.setProperty("user_id", userPk);
         message.setText("test message");
         QCOMPARE(message.save(), true);
     }
@@ -558,7 +558,7 @@ void TestRelated::filterRelated()
     Message *msg = qs.at(0);
     QVERIFY(msg != 0);
     QCOMPARE(msg->text(), QLatin1String("test message"));
-    QCOMPARE(msg->userId(), userPk);
+    QCOMPARE(msg->property("user_id"), userPk);
     delete msg;
 }
 
@@ -576,8 +576,8 @@ void TestRelated::testGroups()
     QCOMPARE(group.save(), true);
 
     UserGroups userGroup;
-    userGroup.setUserId(user.pk().toInt());
-    userGroup.setGroupId(group.pk().toInt());
+    userGroup.setProperty("user_id", user.pk());
+    userGroup.setProperty("group_id", group.pk());
     QCOMPARE(userGroup.save(), true);
     
     UserGroups *ug = userGroups.selectRelated().get(
