@@ -62,6 +62,7 @@ public:
     bool remove(QObject *model) const;
     bool save(QObject *model) const;
 
+    QString foreignModel(const QByteArray &name) const;
     QByteArray primaryKey() const;
 
 private:

@@ -431,6 +431,11 @@ void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props
     }
 }
 
+QString QDjangoMetaModel::foreignModel(const QByteArray &name) const
+{
+    return m_foreignFields.value(name);
+}
+
 QByteArray QDjangoMetaModel::primaryKey() const
 {
     return m_primaryKey;

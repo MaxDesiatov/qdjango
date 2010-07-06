@@ -85,12 +85,13 @@ void QDjangoModel::addForeignKey(const QString &name, QObject *model)
  */
 QObject *QDjangoModel::foreignKey(const QString &name) const
 {
-    QObject *foreign = property(name.toLatin1() + "_ptr").value<QObject*>();
-    const QString foreignClass = foreign->metaObject()->className();
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    const QString foreignClass = metaModel.foreignModel(name.toLatin1());
     const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
-    const QVariant foreignPk = property(name.toLatin1() + "_id");
 
     // if the foreign object was not loaded yet, do it now
+    QObject *foreign = property(name.toLatin1() + "_ptr").value<QObject*>();
+    const QVariant foreignPk = property(name.toLatin1() + "_id");
     if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
     {
         QDjangoQueryBase qs(foreignClass);
@@ -100,6 +101,26 @@ QObject *QDjangoModel::foreignKey(const QString &name) const
             return 0;
     }
     return foreign;
+}
+
+/** Sets the QDjangoModel pointed to by the given foreign-key.
+ *
+ * \param name
+ * \param model
+ */
+void QDjangoModel::setForeignKey(const QString &name, QObject *model)
+{
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    const QString foreignClass = metaModel.foreignModel(name.toLatin1());
+    const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
+
+    QObject *old = property(name.toLatin1() + "_ptr").value<QObject*>();
+    if (old)
+        delete old;
+
+    setProperty(name.toLatin1() + "_id", model->property(foreignMeta.primaryKey()));
+    model->setParent(this);
+    setProperty(name.toLatin1() + "_ptr", qVariantFromValue(model));
 }
 
 /** Deletes the QDjangoModel from the database.
