@@ -170,7 +170,7 @@ QDjangoMetaModel QDjango::metaModel(const QString &name)
     return globalMetaModels.value(name);
 }
 
-bool QDjango::registerModel(const QDjangoModel *model)
+void QDjango::registerModel(const QDjangoModel *model)
 {
     const QString name = model->metaObject()->className();
     if (!globalMetaModels.contains(name))

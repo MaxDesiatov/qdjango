@@ -45,7 +45,7 @@ public:
     static void setDatabase(QSqlDatabase database);
 
     template <class T>
-    static bool registerModel();
+    static void registerModel();
 
     // backend specific
     static QString autoIncrementSql();
@@ -54,7 +54,7 @@ public:
     static QString unquote(const QString &quoted);
 
 private:
-    static bool registerModel(const QDjangoModel *model);
+    static void registerModel(const QDjangoModel *model);
     static QDjangoMetaModel metaModel(const QString &name);
 
     friend class QDjangoModel;
@@ -65,10 +65,10 @@ private:
 /** Register a QDjangoModel class with QDjango.
  */
 template <class T>
-bool QDjango::registerModel()
+void QDjango::registerModel()
 {
     T model;
-    return registerModel(&model);
+    registerModel(&model);
 }
 
 #endif
