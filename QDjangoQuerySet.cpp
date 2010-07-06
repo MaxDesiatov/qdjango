@@ -45,18 +45,15 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QStr
         return fields;
 
     // recurse for foreign keys
-    foreach (const QDjangoMetaField &field, metaModel.m_localFields)
+    foreach (const QByteArray &fkName, metaModel.m_foreignFields.keys())
     {
-        if (field.foreignModel.isEmpty())
-            continue;
-
-        QDjangoMetaModel metaForeign = QDjango::metaModel(field.foreignModel);
+        QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel.m_foreignFields[fkName]);
         if (m_selectRelated)
             fields += fieldNames(metaForeign, from);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(metaForeign.databaseTable())
             .arg(metaForeign.databaseColumn("pk"))
-            .arg(metaModel.databaseColumn(field.name));
+            .arg(metaModel.databaseColumn(fkName + "_id"));
     }
     return fields;
 }
