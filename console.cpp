@@ -31,7 +31,6 @@
 #include <QtPlugin>
 
 #include "QDjango.h"
-#include "QDjangoModel.h"
 
 static bool wantsToQuit;
 
