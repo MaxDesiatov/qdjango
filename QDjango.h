@@ -20,8 +20,6 @@
 #ifndef QDJANGO_H
 #define QDJANGO_H
 
-#include <QMap>
-
 class QSqlDatabase;
 class QSqlQuery;
 class QString;
