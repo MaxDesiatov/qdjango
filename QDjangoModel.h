@@ -30,6 +30,21 @@
  *  and declare the database fields as properties using the Q_PROPERTY
  *  macro.
  *
+ *  You can provide additional information about a field using the Q_CLASSINFO
+ *  macro, in the form:
+ *
+ *  \code
+ *  Q_PROPERTY("field_name", "keyword1=value1 .. keywordN=valueN")
+ *  \endcode
+ *
+ *  The following keywords are recognised:
+ *
+ *  \li \c max_length the maximum length of the field (used when creating
+ *  the database table)
+ *  \li \c primary_key if set to '1', this field will be used as the primary
+ *  key. If no primary key is explicitly defined, an auto-increment integer
+ *  field will be added.
+ *
  *  You must then register the class with QDjango using QDjango::registerModel().
  */
 class QDjangoModel : public QObject
