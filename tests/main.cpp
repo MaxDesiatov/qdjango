@@ -39,7 +39,6 @@
 void TestWhere::quoting()
 {
     QCOMPARE(QDjango::quote("foo"), QLatin1String("`foo`"));
-    QCOMPARE(QDjango::unquote("`foo`"), QLatin1String("foo"));
 }
 
 /** Test empty where clause.
