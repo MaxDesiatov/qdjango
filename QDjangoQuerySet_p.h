@@ -26,7 +26,6 @@
 #include "QDjangoWhere.h"
 
 class QDjangoMetaModel;
-class QDjangoModel;
 
 /** \internal
  */
@@ -59,7 +58,7 @@ private:
 
     QString m_modelName;
 
-friend class QDjangoModel;
+    friend class QDjangoModel;
 };
 
 #endif
