@@ -30,14 +30,14 @@
 #include "QDjangoModel.h"
 
 QMap<QString, QDjangoMetaModel> globalMetaModels = QMap<QString, QDjangoMetaModel>();
-static QDjangoWatcher *globalWatcher = 0;
+static QDjangoDatabase *globalDatabase = 0;
 
-QDjangoWatcher::QDjangoWatcher(QObject *parent)
+QDjangoDatabase::QDjangoDatabase(QObject *parent)
     : QObject(parent), connectionId(0)
 {
 }
 
-void QDjangoWatcher::threadFinished()
+void QDjangoDatabase::threadFinished()
 {
     QThread *thread = qobject_cast<QThread*>(sender());
     copies.remove(thread);
@@ -45,7 +45,7 @@ void QDjangoWatcher::threadFinished()
 
 static void closeDatabase()
 {
-    delete globalWatcher;
+    delete globalDatabase;
 }
 
 /*! \mainpage
@@ -92,23 +92,23 @@ bool sqlExec(QSqlQuery &query)
  */
 QSqlDatabase QDjango::database()
 {
-    Q_ASSERT(globalWatcher != 0);
+    Q_ASSERT(globalDatabase != 0);
     QThread *thread = QThread::currentThread();
 
     // if we are in the main thread, return reference connection
-    if (thread == globalWatcher->thread())
-        return globalWatcher->reference;
+    if (thread == globalDatabase->thread())
+        return globalDatabase->reference;
 
     // if we have a connection for this thread, return it
-    if (globalWatcher->copies.contains(thread))
-        return globalWatcher->copies[thread];
+    if (globalDatabase->copies.contains(thread))
+        return globalDatabase->copies[thread];
 
     // create a new connection for this thread
-    QObject::connect(thread, SIGNAL(finished()), globalWatcher, SLOT(threadFinished()));
-    QSqlDatabase db = QSqlDatabase::cloneDatabase(globalWatcher->reference,
-        QString("_qdjango_%1").arg(globalWatcher->connectionId++));
+    QObject::connect(thread, SIGNAL(finished()), globalDatabase, SLOT(threadFinished()));
+    QSqlDatabase db = QSqlDatabase::cloneDatabase(globalDatabase->reference,
+        QString("_qdjango_%1").arg(globalDatabase->connectionId++));
     Q_ASSERT(db.open());
-    globalWatcher->copies.insert(thread, db);
+    globalDatabase->copies.insert(thread, db);
     return db;
 }
 
@@ -126,12 +126,12 @@ void QDjango::setDatabase(QSqlDatabase database)
     {
         qWarning() << "Unsupported database driver" << database.driverName();
     }
-    if (!globalWatcher)
+    if (!globalDatabase)
     {
-        globalWatcher = new QDjangoWatcher();
+        globalDatabase = new QDjangoDatabase();
         qAddPostRoutine(closeDatabase);
     }
-    globalWatcher->reference = database;
+    globalDatabase->reference = database;
 }
 
 /** Creates the database tables for all registered models.
