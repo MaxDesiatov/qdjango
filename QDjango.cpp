@@ -420,15 +420,6 @@ bool QDjangoMetaModel::dropTable() const
     return sqlExec(query);
 }
 
-/** Returns the name of the model for the given foreign key.
- *
- * \param name
- */
-QString QDjangoMetaModel::foreignModel(const QByteArray &name) const
-{
-    return m_foreignFields.value(name);
-}
-
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
  *
  * \param model
@@ -441,7 +432,7 @@ QObject *QDjangoMetaModel::foreignKey(const QObject *model, const QByteArray &na
         return 0;
 
     // if the foreign object was not loaded yet, do it now
-    const QString foreignClass = foreignModel(name);
+    const QString foreignClass = m_foreignFields[name];
     const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
     const QVariant foreignPk = model->property(name + "_id");
     if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
@@ -473,8 +464,7 @@ void QDjangoMetaModel::setForeignKey(QObject *model, const QByteArray &name, QOb
     model->setProperty(name + "_ptr", qVariantFromValue(foreign));
     if (foreign)
     {
-        const QString foreignClass = foreignModel(name);
-        const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
+        const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[name]);
         model->setProperty(name + "_id", foreign->property(foreignMeta.primaryKey()));
         foreign->setParent(model);
     }
@@ -508,8 +498,8 @@ void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &prope
         QObject *object = model->property(fkName + "_ptr").value<QObject*>();
         if (object)
         {
-            const QDjangoMetaModel metaForeign = QDjango::metaModel(m_foreignFields[fkName]);
-            metaForeign.load(object, properties);
+            const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[fkName]);
+            foreignMeta.load(object, properties);
         }
     }
 }

@@ -77,7 +77,6 @@ public:
     QObject *foreignKey(const QObject *model, const QByteArray &name) const;
     void setForeignKey(QObject *model, const QByteArray &name, QObject *foreign) const;
 
-    QString foreignModel(const QByteArray &name) const;
     QByteArray primaryKey() const;
 
 private:
