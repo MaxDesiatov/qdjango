@@ -25,8 +25,6 @@
 #include <QSqlDatabase>
 #include <QVariant>
 
-#include "QDjango.h"
-
 /** \brief The QDjangoMetaField class holds the database schema for a field.
  *
  * \internal
@@ -56,14 +54,9 @@ class QDjangoMetaModel
 {
 public:
     QDjangoMetaModel(const QObject *model = 0);
-    QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
 
-    /** Returns the quoted database table name.
-     */
-    QString databaseTable() const
-    {
-        return QDjango::quote(m_table);
-    };
+    QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
+    QString databaseTable() const;
 
     bool isValid() const;
 
