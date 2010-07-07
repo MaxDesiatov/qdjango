@@ -29,7 +29,7 @@
 
 /** \brief The QDjangoMetaField class holds the database schema for a field.
  *
- *  \internal
+ * \internal
  */
 class QDjangoMetaField
 {
@@ -50,7 +50,7 @@ public:
  *  It manages table creation and deletion operations as well as row
  *  serialisation, deserialisation and deletion operations.
  *
- *  \internal
+ * \internal
  */
 class QDjangoMetaModel
 {
@@ -86,14 +86,18 @@ private:
     friend class QDjangoQueryBase;
 };
 
-/** \internal
+/** \brief The QDjangoDatabase class represents a set of connections to a
+ *  database.
+ *
+ * \internal
  */
-class QDjangoWatcher : public QObject
+class QDjangoDatabase : public QObject
 {
     Q_OBJECT
 
 public:
-    QDjangoWatcher(QObject *parent = 0);
+    QDjangoDatabase(QObject *parent = 0);
+
     QSqlDatabase reference;
     QMap<QThread*, QSqlDatabase> copies;
     qint64 connectionId;
