@@ -67,8 +67,8 @@ public:
     bool remove(QObject *model) const;
     bool save(QObject *model) const;
 
-    QObject *foreignKey(const QObject *model, const QByteArray &name) const;
-    void setForeignKey(QObject *model, const QByteArray &name, QObject *foreign) const;
+    QObject *foreignKey(const QObject *model, const char *name) const;
+    void setForeignKey(QObject *model, const char *name, QObject *foreign) const;
 
     QByteArray primaryKey() const;
 
