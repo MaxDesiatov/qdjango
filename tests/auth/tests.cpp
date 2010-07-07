@@ -494,48 +494,12 @@ void TestRelated::initTestCase()
     QCOMPARE(UserGroups().createTable(), true);
 }
 
+/** Set and get foreign key on a Message object.
+ */
 void TestRelated::testRelated()
 {
     const QDjangoQuerySet<Message> messages;
-
-    {
-        User *user = new User;
-        user->setUsername("foouser");
-        user->setPassword("foopass");
-        QCOMPARE(user->save(), true);
-
-        Message message;
-        message.setUser(user);
-        message.setText("test message");
-        QCOMPARE(message.save(), true);
-    }
-
-    // uncached
-    Message *uncached = messages.get(
-        QDjangoWhere("id", QDjangoWhere::Equals, "1"));
-    QVERIFY(uncached != 0);
-
-    User *uncachedUser = uncached->user();
-    QVERIFY(uncachedUser != 0);
-    QCOMPARE(uncachedUser->username(), QLatin1String("foouser"));
-    QCOMPARE(uncachedUser->password(), QLatin1String("foopass"));
-    delete uncached;
-
-    // cached
-    Message *cached = messages.selectRelated().get(
-        QDjangoWhere("id", QDjangoWhere::Equals, 1));
-    QVERIFY(cached != 0);
-
-    User *cachedUser = cached->user();
-    QVERIFY(cachedUser != 0);
-    QCOMPARE(cachedUser->username(), QLatin1String("foouser"));
-    QCOMPARE(cachedUser->password(), QLatin1String("foopass"));
-    delete cached;
-}
-
-void TestRelated::filterRelated()
-{
-    const QDjangoQuerySet<Message> messages;
+    // load fixtures
     QVariant userPk;
     {
         User *user = new User;
@@ -550,6 +514,56 @@ void TestRelated::filterRelated()
         QCOMPARE(message.save(), true);
     }
 
+    // retrieve message, then user (2 SQL queries)
+    Message *uncached = messages.get(
+        QDjangoWhere("id", QDjangoWhere::Equals, 1));
+    QVERIFY(uncached != 0);
+    QCOMPARE(uncached->property("user_id"), userPk);
+
+    // check related user
+    User *uncachedUser = uncached->user();
+    QVERIFY(uncachedUser != 0);
+    QCOMPARE(uncachedUser->pk(), userPk);
+    QCOMPARE(uncachedUser->username(), QLatin1String("foouser"));
+    QCOMPARE(uncachedUser->password(), QLatin1String("foopass"));
+    delete uncached;
+
+    // retrieve message and user (1 SQL query)
+    Message *cached = messages.selectRelated().get(
+        QDjangoWhere("id", QDjangoWhere::Equals, 1));
+    QVERIFY(cached != 0);
+    QCOMPARE(cached->property("user_id"), userPk);
+
+    // check related user
+    User *cachedUser = cached->user();
+    QVERIFY(cachedUser != 0);
+    QCOMPARE(cachedUser->pk(), userPk);
+    QCOMPARE(cachedUser->username(), QLatin1String("foouser"));
+    QCOMPARE(cachedUser->password(), QLatin1String("foopass"));
+    delete cached;
+}
+
+/** Perform filtering on a foreign field.
+ */
+void TestRelated::filterRelated()
+{
+    const QDjangoQuerySet<Message> messages;
+    // load fixtures
+    QVariant userPk;
+    {
+        User *user = new User;
+        user->setUsername("foouser");
+        user->setPassword("foopass");
+        QCOMPARE(user->save(), true);
+        userPk = user->pk();
+
+        Message message;
+        message.setUser(user);
+        message.setText("test message");
+        QCOMPARE(message.save(), true);
+    }
+
+    // perform filtering
     QDjangoQuerySet<Message> qs = messages.filter(
         QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
     QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ?"));
@@ -562,6 +576,8 @@ void TestRelated::filterRelated()
     delete msg;
 }
 
+/** Test many-to-many relationships using an intermediate table.
+ */
 void TestRelated::testGroups()
 {
     const QDjangoQuerySet<UserGroups> userGroups;
@@ -583,6 +599,8 @@ void TestRelated::testGroups()
     UserGroups *ug = userGroups.selectRelated().get(
         QDjangoWhere("id", QDjangoWhere::Equals, 1));
     QVERIFY(ug != 0);
+    QCOMPARE(ug->property("user_id"), user->pk());
+    QCOMPARE(ug->property("group_id"), group->pk());
     delete ug;
 }
 
