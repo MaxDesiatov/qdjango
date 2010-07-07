@@ -61,6 +61,15 @@ void TestModel::initTestCase()
     QCOMPARE(metaModel.createTable(), true);
 }
 
+void TestModel::save()
+{
+    Object obj;
+    obj.setFoo("some string");
+    obj.setBar(1234);
+    QCOMPARE(metaModel.save(&obj), true);
+    QCOMPARE(obj.property("id"), QVariant(1));
+}
+
 void TestModel::cleanupTestCase()
 {
     metaModel.dropTable();
