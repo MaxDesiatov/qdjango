@@ -158,7 +158,7 @@ bool QDjango::dropTables()
 
 /** Returns the QDjangoMetaModel with the given name.
  *
- * @param name
+ * \param name
  */
 QDjangoMetaModel QDjango::metaModel(const QString &name)
 {
@@ -214,6 +214,10 @@ QDjangoMetaField::QDjangoMetaField()
 {
 }
 
+/** Constructs a new QDjangoMetaModel by inspecting the given model instance.
+ *
+ * \param model
+ */
 QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
 {
     if (!model)
@@ -383,8 +387,8 @@ bool QDjangoMetaModel::createTable() const
  *
  *  The "pk" field will be resolved to the actual primary key name.
  *
- * @param name
- * @param needsJoin
+ * \param name
+ * \param needsJoin
  */
 QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) const
 {
@@ -417,7 +421,7 @@ bool QDjangoMetaModel::dropTable() const
 
 /** Returns the name of the model for the given foreign key.
  *
- * @param name
+ * \param name
  */
 QString QDjangoMetaModel::foreignModel(const QByteArray &name) const
 {
@@ -433,8 +437,8 @@ bool QDjangoMetaModel::isValid() const
 
 /** Loads the given properties into a model instance.
  *
- * @param model
- * @param properties
+ * \param model
+ * \param properties
  */
 void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &properties) const
 {
@@ -466,7 +470,7 @@ QByteArray QDjangoMetaModel::primaryKey() const
 
 /** Removes the given QObject from the database.
  *
- * @param model
+ * \param model
  */
 bool QDjangoMetaModel::remove(QObject *model) const
 {
@@ -479,7 +483,7 @@ bool QDjangoMetaModel::remove(QObject *model) const
 
 /** Saves the given QObject to the database.
  *
- * @param model
+ * \param model
  *
  * \return true if saving succeeded, false otherwise
  */
