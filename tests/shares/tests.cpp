@@ -28,7 +28,7 @@
  */
 void TestShares::initTestCase()
 {
-    QCOMPARE(File().createTable(), true);
+    QCOMPARE(QDjango::registerModel<File>().createTable(), true);
 }
 
 void TestShares::testFile()
@@ -64,6 +64,6 @@ void TestShares::cleanup()
  */
 void TestShares::cleanupTestCase()
 {
-    QCOMPARE(File().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<File>().dropTable(), true);
 }
 
