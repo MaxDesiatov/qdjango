@@ -34,6 +34,38 @@
 #include "shares/models.h"
 #include "shares/tests.h"
 
+QString Object::foo() const
+{
+    return m_foo;
+}
+
+void Object::setFoo(const QString &foo)
+{
+    m_foo = foo;
+}
+
+int Object::bar() const
+{
+    return m_bar;
+}
+
+void Object::setBar(int bar)
+{
+    m_bar = bar;
+}
+
+void TestModel::initTestCase()
+{
+    metaModel = QDjango::registerModel<Object>();
+    QCOMPARE(metaModel.isValid(), true);
+    QCOMPARE(metaModel.createTable(), true);
+}
+
+void TestModel::cleanupTestCase()
+{
+    metaModel.dropTable();
+}
+
 /** Test empty where clause.
  */
 void TestWhere::emptyWhere()
@@ -325,8 +357,11 @@ int main(int argc, char *argv[])
         TestWhere testWhere;
         errors += QTest::qExec(&testWhere);
 
-        TestUser testModel;
+        TestModel testModel;
         errors += QTest::qExec(&testModel);
+
+        TestUser testUser;
+        errors += QTest::qExec(&testUser);
 
         TestRelated testRelated;
         errors += QTest::qExec(&testRelated);
