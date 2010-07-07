@@ -27,7 +27,9 @@
 
 #include "QDjango.h"
 
-/** \internal
+/** \brief The QDjangoMetaField class holds the database schema for a field.
+ *
+ *  \internal
  */
 class QDjangoMetaField
 {
@@ -43,7 +45,12 @@ public:
     QString foreignModel;
 };
 
-/** \internal
+/** \brief The QDjangoMetaModel class holds the database schema for a model.
+ *
+ *  It manages table creation and deletion operations as well as row
+ *  serialisation, deserialisation and deletion operations.
+ *
+ *  \internal
  */
 class QDjangoMetaModel
 {
