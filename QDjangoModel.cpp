@@ -74,12 +74,15 @@ bool QDjangoModel::dropTable() const
  */
 QObject *QDjangoModel::foreignKey(const QString &name) const
 {
+    // if the foreign object was not loaded yet, do it now
+    QObject *foreign = property(name.toLatin1() + "_ptr").value<QObject*>();
+    if (!foreign)
+        return 0;
+
+    // if the foreign object was not loaded yet, do it now
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
     const QString foreignClass = metaModel.foreignModel(name.toLatin1());
     const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
-
-    // if the foreign object was not loaded yet, do it now
-    QObject *foreign = property(name.toLatin1() + "_ptr").value<QObject*>();
     const QVariant foreignPk = property(name.toLatin1() + "_id");
     if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
     {
@@ -99,17 +102,22 @@ QObject *QDjangoModel::foreignKey(const QString &name) const
  */
 void QDjangoModel::setForeignKey(const QString &name, QObject *model)
 {
-    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    const QString foreignClass = metaModel.foreignModel(name.toLatin1());
-    const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
-
     QObject *old = property(name.toLatin1() + "_ptr").value<QObject*>();
+    if (old == model)
+        return;
     if (old)
         delete old;
 
-    setProperty(name.toLatin1() + "_id", model->property(foreignMeta.primaryKey()));
-    model->setParent(this);
+    // store the new pointer and update the foreign key
     setProperty(name.toLatin1() + "_ptr", qVariantFromValue(model));
+    if (model)
+    {
+        const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+        const QString foreignClass = metaModel.foreignModel(name.toLatin1());
+        const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
+        setProperty(name.toLatin1() + "_id", model->property(foreignMeta.primaryKey()));
+        model->setParent(this);
+    }
 }
 
 /** Deletes the QDjangoModel from the database.
