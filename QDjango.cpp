@@ -434,16 +434,16 @@ QString QDjangoMetaModel::foreignModel(const QByteArray &name) const
  * \param model
  * \param name
  */
-QObject *QDjangoMetaModel::foreignKey(const QObject *model, const QString &name) const
+QObject *QDjangoMetaModel::foreignKey(const QObject *model, const QByteArray &name) const
 {
-    QObject *foreign = model->property(name.toLatin1() + "_ptr").value<QObject*>();
+    QObject *foreign = model->property(name + "_ptr").value<QObject*>();
     if (!foreign)
         return 0;
 
     // if the foreign object was not loaded yet, do it now
-    const QString foreignClass = foreignModel(name.toLatin1());
+    const QString foreignClass = foreignModel(name);
     const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
-    const QVariant foreignPk = model->property(name.toLatin1() + "_id");
+    const QVariant foreignPk = model->property(name + "_id");
     if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
     {
         QDjangoQueryBase qs(foreignClass);
@@ -461,21 +461,21 @@ QObject *QDjangoMetaModel::foreignKey(const QObject *model, const QString &name)
  * \param name
  * \param foreign
  */
-void QDjangoMetaModel::setForeignKey(QObject *model, const QString &name, QObject *foreign) const
+void QDjangoMetaModel::setForeignKey(QObject *model, const QByteArray &name, QObject *foreign) const
 {
-    QObject *old = model->property(name.toLatin1() + "_ptr").value<QObject*>();
+    QObject *old = model->property(name + "_ptr").value<QObject*>();
     if (old == foreign)
         return;
     if (old)
         delete old;
 
     // store the new pointer and update the foreign key
-    model->setProperty(name.toLatin1() + "_ptr", qVariantFromValue(foreign));
+    model->setProperty(name + "_ptr", qVariantFromValue(foreign));
     if (foreign)
     {
-        const QString foreignClass = foreignModel(name.toLatin1());
+        const QString foreignClass = foreignModel(name);
         const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
-        model->setProperty(name.toLatin1() + "_id", foreign->property(foreignMeta.primaryKey()));
+        model->setProperty(name + "_id", foreign->property(foreignMeta.primaryKey()));
         foreign->setParent(model);
     }
 }
