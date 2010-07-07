@@ -20,6 +20,8 @@
 #ifndef QDJANGO_H
 #define QDJANGO_H
 
+#include "QDjango_p.h"
+
 class QObject;
 class QSqlDatabase;
 class QSqlQuery;
@@ -43,7 +45,7 @@ public:
     static void setDatabase(QSqlDatabase database);
 
     template <class T>
-    static void registerModel();
+    static QDjangoMetaModel registerModel();
 
 private:
     // backend specific
@@ -51,7 +53,7 @@ private:
     static QString noLimitSql();
     static QString quote(const QString &name);
 
-    static void registerModel(const QObject *model);
+    static QDjangoMetaModel registerModel(const QObject *model);
     static QDjangoMetaModel metaModel(const QString &name);
 
     friend class QDjangoModel;
@@ -62,10 +64,10 @@ private:
 /** Register a QDjangoModel class with QDjango.
  */
 template <class T>
-void QDjango::registerModel()
+QDjangoMetaModel QDjango::registerModel()
 {
     T model;
-    registerModel(&model);
+    return registerModel(&model);
 }
 
 #endif

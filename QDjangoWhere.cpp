@@ -20,7 +20,7 @@
 #include <QSqlQuery>
 #include <QStringList>
 
-#include "QDjango_p.h"
+#include "QDjango.h"
 #include "QDjangoWhere.h"
 
 

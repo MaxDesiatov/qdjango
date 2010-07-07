@@ -21,7 +21,6 @@
 #include <QStringList>
 
 #include "QDjango.h"
-#include "QDjango_p.h"
 #include "QDjangoModel.h"
 #include "QDjangoQuerySet.h"
 

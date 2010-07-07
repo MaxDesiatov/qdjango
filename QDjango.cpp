@@ -26,7 +26,6 @@
 #include <QThread>
 
 #include "QDjango.h"
-#include "QDjango_p.h"
 #include "QDjangoQuerySet_p.h"
 #include "QDjangoModel.h"
 
@@ -166,7 +165,7 @@ QDjangoMetaModel QDjango::metaModel(const QString &name)
     return globalMetaModels.value(name);
 }
 
-void QDjango::registerModel(const QObject *model)
+QDjangoMetaModel QDjango::registerModel(const QObject *model)
 {
     const QString name = model->metaObject()->className();
     if (!globalMetaModels.contains(name))
