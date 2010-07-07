@@ -432,16 +432,17 @@ bool QDjangoMetaModel::dropTable() const
  * \param model
  * \param name
  */
-QObject *QDjangoMetaModel::foreignKey(const QObject *model, const QByteArray &name) const
+QObject *QDjangoMetaModel::foreignKey(const QObject *model, const char *name) const
 {
-    QObject *foreign = model->property(name + "_ptr").value<QObject*>();
+    const QByteArray prop(name);
+    QObject *foreign = model->property(prop + "_ptr").value<QObject*>();
     if (!foreign)
         return 0;
 
     // if the foreign object was not loaded yet, do it now
-    const QString foreignClass = m_foreignFields[name];
+    const QString foreignClass = m_foreignFields[prop];
     const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
-    const QVariant foreignPk = model->property(name + "_id");
+    const QVariant foreignPk = model->property(prop + "_id");
     if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
     {
         QDjangoQueryBase qs(foreignClass);
@@ -459,20 +460,21 @@ QObject *QDjangoMetaModel::foreignKey(const QObject *model, const QByteArray &na
  * \param name
  * \param foreign
  */
-void QDjangoMetaModel::setForeignKey(QObject *model, const QByteArray &name, QObject *foreign) const
+void QDjangoMetaModel::setForeignKey(QObject *model, const char *name, QObject *foreign) const
 {
-    QObject *old = model->property(name + "_ptr").value<QObject*>();
+    const QByteArray prop(name);
+    QObject *old = model->property(prop + "_ptr").value<QObject*>();
     if (old == foreign)
         return;
     if (old)
         delete old;
 
     // store the new pointer and update the foreign key
-    model->setProperty(name + "_ptr", qVariantFromValue(foreign));
+    model->setProperty(prop + "_ptr", qVariantFromValue(foreign));
     if (foreign)
     {
-        const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[name]);
-        model->setProperty(name + "_id", foreign->property(foreignMeta.primaryKey()));
+        const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[prop]);
+        model->setProperty(prop + "_id", foreign->property(foreignMeta.primaryKey()));
         foreign->setParent(model);
     }
 }
