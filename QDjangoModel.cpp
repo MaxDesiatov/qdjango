@@ -74,7 +74,6 @@ bool QDjangoModel::dropTable() const
  */
 QObject *QDjangoModel::foreignKey(const QString &name) const
 {
-    // if the foreign object was not loaded yet, do it now
     QObject *foreign = property(name.toLatin1() + "_ptr").value<QObject*>();
     if (!foreign)
         return 0;
