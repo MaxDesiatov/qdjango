@@ -17,7 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "QDjango.h"
+
 #include <QObject>
+
+class Object : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString foo READ foo WRITE setFoo)
+    Q_PROPERTY(int bar READ bar WRITE setBar)
+
+public:
+    QString foo() const;
+    void setFoo(const QString &foo);
+
+    int bar() const;
+    void setBar(int bar);
+
+private:
+    QString m_foo;
+    int m_bar;
+};
+
+class TestModel : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+private:
+    QDjangoMetaModel metaModel;
+};
 
 /** Test QDjangoWhere class.
  */
