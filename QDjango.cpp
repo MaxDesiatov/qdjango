@@ -411,6 +411,13 @@ QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) c
     return QDjango::quote(m_table) + "." + QDjango::quote(realName);
 }
 
+/** Returns the quoted database table name.
+ */
+QString QDjangoMetaModel::databaseTable() const
+{
+    return QDjango::quote(m_table);
+}
+
 /** Drops the database table for this QDjangoMetaModel.
  */
 bool QDjangoMetaModel::dropTable() const
