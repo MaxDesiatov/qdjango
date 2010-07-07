@@ -379,7 +379,9 @@ bool QDjangoMetaModel::createTable() const
     return true;
 }
 
-/** Returns the database column for the given field of this QDjangoMetaModel.
+/** Returns the quoted database column name for the given field.
+ *
+ *  The "pk" field will be resolved to the actual primary key name.
  *
  * @param name
  * @param needsJoin
@@ -413,6 +415,22 @@ bool QDjangoMetaModel::dropTable() const
     return sqlExec(query);
 }
 
+/** Returns the name of the model for the given foreign key.
+ *
+ * @param name
+ */
+QString QDjangoMetaModel::foreignModel(const QByteArray &name) const
+{
+    return m_foreignFields.value(name);
+}
+
+/** Returns true if the current QDjangoMetaModel is valid, false otherwise.
+ */
+bool QDjangoMetaModel::isValid() const
+{
+    return !m_table.isEmpty() && !m_primaryKey.isEmpty();
+}
+
 void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props) const
 {
     // process local fields
@@ -431,11 +449,8 @@ void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props
     }
 }
 
-QString QDjangoMetaModel::foreignModel(const QByteArray &name) const
-{
-    return m_foreignFields.value(name);
-}
-
+/** Returns the name of the primary key for the current QDjangoMetaModel.
+ */
 QByteArray QDjangoMetaModel::primaryKey() const
 {
     return m_primaryKey;

@@ -50,10 +50,15 @@ class QDjangoMetaModel
 public:
     QDjangoMetaModel(const QObject *model = 0);
     QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
+
+    /** Returns the quoted database table name.
+     */
     QString databaseTable() const
     {
         return QDjango::quote(m_table);
     };
+
+    bool isValid() const;
 
     bool createTable() const;
     bool dropTable() const;
