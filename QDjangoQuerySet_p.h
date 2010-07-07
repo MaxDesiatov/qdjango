@@ -58,7 +58,7 @@ private:
 
     QString m_modelName;
 
-    friend class QDjangoModel;
+    friend class QDjangoMetaModel;
 };
 
 #endif

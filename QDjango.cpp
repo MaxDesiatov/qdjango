@@ -27,6 +27,7 @@
 
 #include "QDjango.h"
 #include "QDjango_p.h"
+#include "QDjangoQuerySet_p.h"
 #include "QDjangoModel.h"
 
 QMap<QString, QDjangoMetaModel> globalMetaModels = QMap<QString, QDjangoMetaModel>();
@@ -427,6 +428,58 @@ QString QDjangoMetaModel::foreignModel(const QByteArray &name) const
 {
     return m_foreignFields.value(name);
 }
+
+/** Retrieves the QDjangoModel pointed to by the given foreign-key.
+ *
+ * \param model
+ * \param name
+ */
+QObject *QDjangoMetaModel::foreignKey(const QObject *model, const QString &name) const
+{
+    QObject *foreign = model->property(name.toLatin1() + "_ptr").value<QObject*>();
+    if (!foreign)
+        return 0;
+
+    // if the foreign object was not loaded yet, do it now
+    const QString foreignClass = foreignModel(name.toLatin1());
+    const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
+    const QVariant foreignPk = model->property(name.toLatin1() + "_id");
+    if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
+    {
+        QDjangoQueryBase qs(foreignClass);
+        qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));
+        qs.sqlFetch();
+        if (qs.m_properties.size() != 1 || !qs.sqlLoad(foreign, 0))
+            return 0;
+    }
+    return foreign;
+}
+
+/** Sets the QDjangoModel pointed to by the given foreign-key.
+ *
+ * \param model
+ * \param name
+ * \param foreign
+ */
+void QDjangoMetaModel::setForeignKey(QObject *model, const QString &name, QObject *foreign) const
+{
+    QObject *old = model->property(name.toLatin1() + "_ptr").value<QObject*>();
+    if (old == foreign)
+        return;
+    if (old)
+        delete old;
+
+    // store the new pointer and update the foreign key
+    model->setProperty(name.toLatin1() + "_ptr", qVariantFromValue(foreign));
+    if (foreign)
+    {
+        const QString foreignClass = foreignModel(name.toLatin1());
+        const QDjangoMetaModel foreignMeta = QDjango::metaModel(foreignClass);
+        model->setProperty(name.toLatin1() + "_id", foreign->property(foreignMeta.primaryKey()));
+        foreign->setParent(model);
+    }
+}
+
 
 /** Returns true if the current QDjangoMetaModel is valid, false otherwise.
  */
