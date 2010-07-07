@@ -29,7 +29,7 @@
  */
 void TestUser::initTestCase()
 {
-    QCOMPARE(User().createTable(), true);
+    QCOMPARE(QDjango::registerModel<User>().createTable(), true);
 }
 
 /** Load fixtures consisting of 3 users.
@@ -481,17 +481,17 @@ void TestUser::cleanup()
  */
 void TestUser::cleanupTestCase()
 {
-    QCOMPARE(User().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<User>().dropTable(), true);
 }
 
 /** Create database tables before running tests.
  */
 void TestRelated::initTestCase()
 {
-    QCOMPARE(User().createTable(), true);
-    QCOMPARE(Group().createTable(), true);
-    QCOMPARE(Message().createTable(), true);
-    QCOMPARE(UserGroups().createTable(), true);
+    QCOMPARE(QDjango::registerModel<User>().createTable(), true);
+    QCOMPARE(QDjango::registerModel<Group>().createTable(), true);
+    QCOMPARE(QDjango::registerModel<Message>().createTable(), true);
+    QCOMPARE(QDjango::registerModel<UserGroups>().createTable(), true);
 }
 
 /** Set and get foreign key on a Message object.
@@ -618,9 +618,9 @@ void TestRelated::cleanup()
  */
 void TestRelated::cleanupTestCase()
 {
-    QCOMPARE(User().dropTable(), true);
-    QCOMPARE(Group().dropTable(), true);
-    QCOMPARE(Message().dropTable(), true);
-    QCOMPARE(UserGroups().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<User>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<Group>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<Message>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<UserGroups>().dropTable(), true);
 }
 
