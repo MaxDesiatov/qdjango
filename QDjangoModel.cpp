@@ -75,7 +75,7 @@ bool QDjangoModel::dropTable() const
 QObject *QDjangoModel::foreignKey(const QString &name) const
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    return metaModel.foreignKey(this, name);
+    return metaModel.foreignKey(this, name.toLatin1());
 }
 
 /** Sets the QDjangoModel pointed to by the given foreign-key.
@@ -86,7 +86,7 @@ QObject *QDjangoModel::foreignKey(const QString &name) const
 void QDjangoModel::setForeignKey(const QString &name, QObject *model)
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    metaModel.setForeignKey(this, name, model);
+    metaModel.setForeignKey(this, name.toLatin1(), model);
 }
 
 /** Deletes the QDjangoModel from the database.
