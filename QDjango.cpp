@@ -431,21 +431,29 @@ bool QDjangoMetaModel::isValid() const
     return !m_table.isEmpty() && !m_primaryKey.isEmpty();
 }
 
-void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &props) const
+/** Loads the given properties into a model instance.
+ *
+ * @param model
+ * @param properties
+ */
+void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &properties) const
 {
     // process local fields
     foreach (const QDjangoMetaField &field, m_localFields)
     {
         const QString key = databaseColumn(field.name);
-        model->setProperty(field.name, props.value(key));
+        model->setProperty(field.name, properties.value(key));
     }
 
     // process foreign fields
     foreach (const QByteArray &fkName, m_foreignFields.keys())
     {
-        const QDjangoMetaModel metaForeign = QDjango::metaModel(m_foreignFields[fkName]);
         QObject *object = model->property(fkName + "_ptr").value<QObject*>();
-        metaForeign.load(object, props);
+        if (object)
+        {
+            const QDjangoMetaModel metaForeign = QDjango::metaModel(m_foreignFields[fkName]);
+            metaForeign.load(object, properties);
+        }
     }
 }
 
