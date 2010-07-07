@@ -63,8 +63,8 @@ public slots:
     bool save();
 
 protected:
-    QObject *foreignKey(const QString &name) const;
-    void setForeignKey(const QString &name, QObject *model);
+    QObject *foreignKey(const char *name) const;
+    void setForeignKey(const char *name, QObject *value);
 };
 
 #endif

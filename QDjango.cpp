@@ -458,24 +458,26 @@ QObject *QDjangoMetaModel::foreignKey(const QObject *model, const char *name) co
  *
  * \param model
  * \param name
- * \param foreign
+ * \param value
  */
-void QDjangoMetaModel::setForeignKey(QObject *model, const char *name, QObject *foreign) const
+void QDjangoMetaModel::setForeignKey(QObject *model, const char *name, QObject *value) const
 {
     const QByteArray prop(name);
     QObject *old = model->property(prop + "_ptr").value<QObject*>();
-    if (old == foreign)
+    if (old == value)
         return;
     if (old)
         delete old;
 
     // store the new pointer and update the foreign key
-    model->setProperty(prop + "_ptr", qVariantFromValue(foreign));
-    if (foreign)
+    model->setProperty(prop + "_ptr", qVariantFromValue(value));
+    if (value)
     {
         const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[prop]);
-        model->setProperty(prop + "_id", foreign->property(foreignMeta.primaryKey()));
-        foreign->setParent(model);
+        model->setProperty(prop + "_id", value->property(foreignMeta.primaryKey()));
+        value->setParent(model);
+    } else {
+        model->setProperty(prop + "_id", QVariant());
     }
 }
 

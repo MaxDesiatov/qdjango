@@ -55,21 +55,21 @@ void QDjangoModel::setPk(const QVariant &pk)
  *
  * \param name
  */
-QObject *QDjangoModel::foreignKey(const QString &name) const
+QObject *QDjangoModel::foreignKey(const char *name) const
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    return metaModel.foreignKey(this, name.toLatin1());
+    return metaModel.foreignKey(this, name);
 }
 
 /** Sets the QDjangoModel pointed to by the given foreign-key.
  *
  * \param name
- * \param model
+ * \param value
  */
-void QDjangoModel::setForeignKey(const QString &name, QObject *model)
+void QDjangoModel::setForeignKey(const char *name, QObject *value)
 {
     const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
-    metaModel.setForeignKey(this, name.toLatin1(), model);
+    metaModel.setForeignKey(this, name, value);
 }
 
 /** Deletes the QDjangoModel from the database.
