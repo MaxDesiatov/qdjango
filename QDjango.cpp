@@ -170,6 +170,7 @@ QDjangoMetaModel QDjango::registerModel(const QObject *model)
     const QString name = model->metaObject()->className();
     if (!globalMetaModels.contains(name))
         globalMetaModels.insert(name, QDjangoMetaModel(model));
+    return globalMetaModels[name];
 }
 
 /** Returns the SQL used to declare a field as auto-increment.
