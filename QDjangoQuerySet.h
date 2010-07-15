@@ -82,10 +82,11 @@ QDjangoQuerySet<T>::QDjangoQuerySet()
 template <class T>
 T *QDjangoQuerySet<T>::at(int index, T *target)
 {
-    T *entry = new T;
+    T *entry = target ? target : new T;
     if (!sqlLoad(entry, index))
     {
-        delete entry;
+        if (!target)
+            delete entry;
         return 0;
     }
     return entry;
