@@ -459,6 +459,8 @@ QObject *QDjangoMetaModel::foreignKey(const QObject *model, const char *name) co
  * \param model
  * \param name
  * \param value
+ *
+ * \note The \c model will take ownership of the given \c value.
  */
 void QDjangoMetaModel::setForeignKey(QObject *model, const char *name, QObject *value) const
 {
