@@ -219,6 +219,9 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::none() const
 
 /** Returns a QDjangoQuerySet whose elements are ordered using the given keys.
  *
+ *  By default the elements will by in ascending order. You can prefix the key
+ *  names with a "-" (minus sign) to use descending order.
+ *
  * \param keys
  */
 template <class T>
