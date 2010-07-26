@@ -40,7 +40,13 @@ QDjangoDatabase::QDjangoDatabase(QObject *parent)
 void QDjangoDatabase::threadFinished()
 {
     QThread *thread = qobject_cast<QThread*>(sender());
+    Q_ASSERT(copies.contains(thread));
+
+    // cleanup database connection for the thread
+    disconnect(thread, SIGNAL(finished()), this, SLOT(threadFinished()));
+    const QString connectionName = copies.value(thread).connectionName();
     copies.remove(thread);
+    QSqlDatabase::removeDatabase(connectionName);
 }
 
 static void closeDatabase()
