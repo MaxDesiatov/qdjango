@@ -47,6 +47,7 @@ void TestShares::testFile()
     QCOMPARE(other->hash(), QByteArray("\0\1\2\3\4", 5));
     QCOMPARE(other->path(), QLatin1String("foo/bar.txt"));
     QCOMPARE(other->size(), qint64(1234));
+    delete other;
 
     // update the file
     file.setSize(5678);
