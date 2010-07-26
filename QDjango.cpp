@@ -29,6 +29,8 @@
 #include "QDjangoQuerySet_p.h"
 #include "QDjangoModel.h"
 
+static const char *connectionPrefix = "_qdjango_";
+
 QMap<QString, QDjangoMetaModel> globalMetaModels = QMap<QString, QDjangoMetaModel>();
 static QDjangoDatabase *globalDatabase = 0;
 
@@ -40,13 +42,15 @@ QDjangoDatabase::QDjangoDatabase(QObject *parent)
 void QDjangoDatabase::threadFinished()
 {
     QThread *thread = qobject_cast<QThread*>(sender());
-    Q_ASSERT(copies.contains(thread));
+    if (!thread)
+        return;
 
     // cleanup database connection for the thread
     disconnect(thread, SIGNAL(finished()), this, SLOT(threadFinished()));
     const QString connectionName = copies.value(thread).connectionName();
     copies.remove(thread);
-    QSqlDatabase::removeDatabase(connectionName);
+    if (connectionName.startsWith(QLatin1String(connectionPrefix)))
+        QSqlDatabase::removeDatabase(connectionName);
 }
 
 static void closeDatabase()
@@ -112,7 +116,7 @@ QSqlDatabase QDjango::database()
     // create a new connection for this thread
     QObject::connect(thread, SIGNAL(finished()), globalDatabase, SLOT(threadFinished()));
     QSqlDatabase db = QSqlDatabase::cloneDatabase(globalDatabase->reference,
-        QString("_qdjango_%1").arg(globalDatabase->connectionId++));
+        QLatin1String(connectionPrefix) + QString::number(globalDatabase->connectionId++));
     Q_ASSERT(db.open());
     globalDatabase->copies.insert(thread, db);
     return db;
