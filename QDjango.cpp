@@ -46,6 +46,7 @@ void QDjangoDatabase::threadFinished()
         return;
 
     // cleanup database connection for the thread
+    QMutexLocker locker(&mutex);
     disconnect(thread, SIGNAL(finished()), this, SLOT(threadFinished()));
     const QString connectionName = copies.value(thread).connectionName();
     copies.remove(thread);
@@ -110,6 +111,7 @@ QSqlDatabase QDjango::database()
         return globalDatabase->reference;
 
     // if we have a connection for this thread, return it
+    QMutexLocker locker(&globalDatabase->mutex);
     if (globalDatabase->copies.contains(thread))
         return globalDatabase->copies[thread];
 

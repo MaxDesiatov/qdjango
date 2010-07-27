@@ -21,6 +21,7 @@
 #define QDJANGO_P_H
 
 #include <QMap>
+#include <QMutex>
 #include <QObject>
 #include <QSqlDatabase>
 #include <QVariant>
@@ -94,6 +95,7 @@ public:
     QDjangoDatabase(QObject *parent = 0);
 
     QSqlDatabase reference;
+    QMutex mutex;
     QMap<QThread*, QSqlDatabase> copies;
     qint64 connectionId;
 
