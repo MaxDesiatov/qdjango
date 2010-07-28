@@ -41,9 +41,10 @@
  *
  *  \li \c max_length the maximum length of the field (used when creating
  *  the database table)
- *  \li \c primary_key if set to '1', this field will be used as the primary
+ *  \li \c primary_key if set to 'true', this field will be used as the primary
  *  key. If no primary key is explicitly defined, an auto-increment integer
  *  field will be added.
+ *  \li \c qdjango_ignore if set to 'true', this field will be ignored
  *
  *  You must then register the class with QDjango using QDjango::registerModel().
  */

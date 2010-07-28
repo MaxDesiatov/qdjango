@@ -244,6 +244,36 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
     {
         QString typeName = meta->property(i).typeName();
 
+        // parse options
+        bool ignoreOption = false;
+        int maxLengthOption = 0;
+        bool primaryKeyOption = false;
+        const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
+        if (infoIndex >= 0)
+        {
+            QMetaClassInfo classInfo = meta->classInfo(infoIndex);
+            QStringList items = QString(classInfo.value()).split(' ');
+            foreach (const QString &item, items)
+            {
+                QStringList assign = item.split('=');
+                if (assign.length() == 2)
+                {
+                    const QString key = assign[0].toLower();
+                    const QString value = assign[1];
+                    if (key == "max_length")
+                        maxLengthOption = value.toInt();
+                    else if (key == "primary_key")
+                        primaryKeyOption = (value.toLower() == "true" || value == "1");
+                    else if (key == "qdjango_ignore")
+                        ignoreOption = (value.toLower() == "true" || value == "1");
+                }
+            }
+        }
+
+        // ignore field
+        if (ignoreOption)
+            continue;
+
         // foreign field
         if (typeName.endsWith("*"))
         {
@@ -267,31 +297,12 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
         QDjangoMetaField field;
         field.name = meta->property(i).name();
         field.type = meta->property(i).type();
-
-        // parse options
-        const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
-        if (infoIndex >= 0)
+        field.maxLength = maxLengthOption;
+        if (primaryKeyOption)
         {
-            QMetaClassInfo classInfo = meta->classInfo(infoIndex);
-            QStringList items = QString(classInfo.value()).split(' ');
-            foreach (const QString &item, items)
-            {
-                QStringList assign = item.split('=');
-                if (assign.length() == 2)
-                {
-                    const QString key = assign[0].toLower();
-                    const QString value = assign[1];
-                    if (key == "max_length")
-                        field.maxLength = value.toInt();
-                    else if (key == "primary_key" && value.toInt() == 1)
-                    {
-                        field.index = true;
-                        field.primaryKey = true;
-
-                        m_primaryKey = field.name;
-                    }
-                }
-            }
+            field.index = true;
+            field.primaryKey = true;
+            m_primaryKey = field.name;
         }
 
         m_localFields << field;
