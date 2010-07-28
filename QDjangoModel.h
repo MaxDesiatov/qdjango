@@ -52,6 +52,7 @@ class QDjangoModel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant pk READ pk WRITE setPk)
+    Q_CLASSINFO("pk", "ignore_field=true")
 
 public:
     QDjangoModel(QObject *parent = 0);
