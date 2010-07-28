@@ -105,6 +105,7 @@ class Group : public QDjangoModel
     Q_PROPERTY(QString name READ name WRITE setName)
 
 public:
+    Group(QObject *parent = 0);
     QString name() const;
     void setName(const QString &name);
 

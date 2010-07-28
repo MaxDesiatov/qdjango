@@ -132,6 +132,11 @@ void User::setLastLogin(const QDateTime &lastLogin)
     m_lastLogin = lastLogin;
 }
 
+Group::Group(QObject *parent)
+    : QDjangoModel(parent)
+{
+}
+
 QString Group::name() const
 {
     return m_name;
@@ -145,8 +150,8 @@ void Group::setName(const QString &name)
 UserGroups::UserGroups(QObject *parent)
     : QDjangoModel(parent)
 {
-    setForeignKey("user", new User);
-    setForeignKey("group", new Group);
+    setForeignKey("user", new User(this));
+    setForeignKey("group", new Group(this));
 }
 
 User *UserGroups::user() const
@@ -172,7 +177,7 @@ void UserGroups::setGroup(Group *group)
 Message::Message(QObject *parent)
     : QDjangoModel(parent)
 {
-    setForeignKey("user", new User);
+    setForeignKey("user", new User(this));
 }
 
 /** Returns the User associated with this Message.
