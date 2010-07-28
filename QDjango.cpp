@@ -240,7 +240,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
     m_table = QString(meta->className()).toLower().toLatin1();
 
     const int count = meta->propertyCount();
-    for(int i = meta->propertyOffset(); i < count; ++i)
+    for(int i = QObject::staticMetaObject.propertyCount(); i < count; ++i)
     {
         QString typeName = meta->property(i).typeName();
 
