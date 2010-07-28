@@ -245,7 +245,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
         QString typeName = meta->property(i).typeName();
 
         // parse options
-        bool ignoreOption = false;
+        bool ignoreFieldOption = false;
         int maxLengthOption = 0;
         bool primaryKeyOption = false;
         const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
@@ -260,18 +260,18 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
                 {
                     const QString key = assign[0].toLower();
                     const QString value = assign[1];
-                    if (key == "max_length")
+                    if (key == "ignore_field")
+                        ignoreFieldOption = (value.toLower() == "true" || value == "1");
+                    else if (key == "max_length")
                         maxLengthOption = value.toInt();
                     else if (key == "primary_key")
                         primaryKeyOption = (value.toLower() == "true" || value == "1");
-                    else if (key == "qdjango_ignore")
-                        ignoreOption = (value.toLower() == "true" || value == "1");
                 }
             }
         }
 
         // ignore field
-        if (ignoreOption)
+        if (ignoreFieldOption)
             continue;
 
         // foreign field
