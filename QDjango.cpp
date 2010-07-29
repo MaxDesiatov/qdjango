@@ -245,6 +245,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
         QString typeName = meta->property(i).typeName();
 
         // parse options
+        bool autoIncrementOption = false;
         bool ignoreFieldOption = false;
         int maxLengthOption = 0;
         bool primaryKeyOption = false;
@@ -260,7 +261,9 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
                 {
                     const QString key = assign[0].toLower();
                     const QString value = assign[1];
-                    if (key == "ignore_field")
+                    if (key == "auto_increment")
+                        autoIncrementOption = (value.toLower() == "true" || value == "1");
+                    else if (key == "ignore_field")
                         ignoreFieldOption = (value.toLower() == "true" || value == "1");
                     else if (key == "max_length")
                         maxLengthOption = value.toInt();
@@ -300,6 +303,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
         field.maxLength = maxLengthOption;
         if (primaryKeyOption)
         {
+            field.autoIncrement = autoIncrementOption;
             field.index = true;
             field.primaryKey = true;
             m_primaryKey = field.name;
