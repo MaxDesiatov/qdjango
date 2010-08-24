@@ -59,7 +59,7 @@ public:
     QList< QList<QVariant> > valuesList(const QStringList &fields = QStringList());
     QDjangoWhere where() const;
 
-    T *get(const QDjangoWhere &where) const;
+    T *get(const QDjangoWhere &where, T *target = 0) const;
     T *at(int index, T *target = 0);
 };
 
@@ -165,15 +165,17 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
  *
  *  Returns 0 if the number of matching object is not exactly one.
  *
- *  You must free the newly allocated object yourself.
+ *  If target is 0, a new object instance will be allocated which
+ *  you must free yourself.
  *
  * \param where QDjangoWhere expressing the lookup condition
+ * \param target optional existing model instance.
  */
 template <class T>
-T *QDjangoQuerySet<T>::get(const QDjangoWhere &where) const
+T *QDjangoQuerySet<T>::get(const QDjangoWhere &where, T *target) const
 {
     QDjangoQuerySet<T> qs = filter(where);
-    return qs.size() == 1 ? qs.at(0) : 0;
+    return qs.size() == 1 ? qs.at(0, target) : 0;
 }
 
 /** Returns a new QDjangoQuerySet containing limiting the number of
