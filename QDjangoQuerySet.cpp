@@ -46,12 +46,12 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QStr
     foreach (const QByteArray &fkName, metaModel.m_foreignFields.keys())
     {
         QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel.m_foreignFields[fkName]);
-        if (m_selectRelated)
-            fields += fieldNames(metaForeign, from);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(metaForeign.databaseTable())
             .arg(metaForeign.databaseColumn("pk"))
             .arg(metaModel.databaseColumn(fkName + "_id"));
+        if (m_selectRelated)
+            fields += fieldNames(metaForeign, from);
     }
     return fields;
 }
