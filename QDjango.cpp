@@ -257,7 +257,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
             foreach (const QString &item, items)
             {
                 QStringList assign = item.split('=');
-                if (assign.length() == 2)
+                if (assign.size() == 2)
                 {
                     const QString key = assign[0].toLower();
                     const QString value = assign[1];
