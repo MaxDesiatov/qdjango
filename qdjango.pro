@@ -2,8 +2,6 @@ include(qdjango.pri)
 
 TEMPLATE = lib
 
-QT -= gui
-QT += sql
 CONFIG += staticlib
 
 # Target definition
