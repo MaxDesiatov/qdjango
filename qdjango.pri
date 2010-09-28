@@ -4,8 +4,6 @@ QDJANGO_INCLUDE_DIR = $$PWD
 QDJANGO_LIBRARY_DIR = $$PWD
 QDJANGO_LIBRARY_NAME = qdjango
 
-QT += sql
-
 # Libraries for apps which use QDjango
 symbian {
     # Symbian needs a .lib extension to recognise the library as static
