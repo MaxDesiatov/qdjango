@@ -10,6 +10,8 @@ isEmpty(QDJANGO_LIBRARY_TYPE) {
     }
 }
 
+QT += sql
+
 # Libraries for apps which use QDjango
 QDJANGO_INCLUDEPATH = $$PWD/src/db $$PWD/src/http $$PWD/src/script
 QDJANGO_DB_LIBS = -lqdjango-db
