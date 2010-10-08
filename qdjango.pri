@@ -1,5 +1,7 @@
 # Common definitions
 
+QT += sql
+
 QDJANGO_INCLUDE_DIR = $$PWD
 QDJANGO_LIBRARY_DIR = $$PWD
 QDJANGO_LIBRARY_NAME = qdjango
