@@ -21,7 +21,6 @@
 
 #include <QCoreApplication>
 #include <QSqlDatabase>
-#include <QSqlQuery>
 #include <QVariant>
 #include <QtTest/QtTest>
 
@@ -184,7 +183,7 @@ void TestWhere::isIn()
  */
 void TestWhere::startsWith()
 {
-    QSqlQuery query;
+    QDjangoQuery query(QDjango::database());
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::StartsWith, "abc");
     testQuery.bindValues(query);
     QCOMPARE(testQuery.sql(), QLatin1String("name LIKE ? ESCAPE '\\'"));
@@ -195,7 +194,7 @@ void TestWhere::startsWith()
  */
 void TestWhere::endsWith()
 {
-    QSqlQuery query;
+    QDjangoQuery query(QDjango::database());
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::EndsWith, "abc");
     testQuery.bindValues(query);
     QCOMPARE(testQuery.sql(), QLatin1String("name LIKE ? ESCAPE '\\'"));
@@ -206,7 +205,7 @@ void TestWhere::endsWith()
  */
 void TestWhere::contains()
 {
-    QSqlQuery query;
+    QDjangoQuery query(QDjango::database());
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::Contains, "abc");
     testQuery.bindValues(query);
     QCOMPARE(testQuery.sql(), QLatin1String("name LIKE ? ESCAPE '\\'"));
