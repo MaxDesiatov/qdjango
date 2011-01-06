@@ -21,6 +21,7 @@
 #define QDJANGO_P_H
 
 #include <QDebug>
+#include <QDateTime>
 #include <QMap>
 #include <QMutex>
 #include <QObject>
@@ -111,7 +112,19 @@ class QDjangoQuery : public QSqlQuery
 public:
     QDjangoQuery(QSqlDatabase db) : QSqlQuery(db)
     {
-    };
+        isSqlite = db.driverName() == "QSQLITE";
+    }
+
+    void addBindValue(const QVariant &val, QSql::ParamType paramType = QSql::In)
+    {
+        // this hack is required because SQLite has no actual concept
+        // of times, so if we are not careful we will store a mix of
+        // local and UTC times
+        if (isSqlite && val.type() == QVariant::DateTime)
+            QSqlQuery::addBindValue(val.toDateTime().toLocalTime(), paramType);
+        else
+            QSqlQuery::addBindValue(val, paramType);
+    }
 
 #ifdef QDJANGO_DEBUG_SQL
     bool exec()
@@ -131,6 +144,9 @@ public:
         return true;
     }
 #endif
+
+private:
+    bool isSqlite;
 };
 
 #endif
