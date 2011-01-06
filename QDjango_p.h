@@ -20,10 +20,12 @@
 #ifndef QDJANGO_P_H
 #define QDJANGO_P_H
 
+#include <QDebug>
 #include <QMap>
 #include <QMutex>
 #include <QObject>
 #include <QSqlDatabase>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
 
@@ -112,7 +114,7 @@ public:
     };
 
 #ifdef QDJANGO_DEBUG_SQL
-    bool exec(QDjangoQuery &query)
+    bool exec()
     {
         qDebug() << "SQL query" << lastQuery();
         QMapIterator<QString, QVariant> i(boundValues());
