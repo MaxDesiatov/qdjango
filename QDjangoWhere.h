@@ -23,7 +23,7 @@
 #include <QVariant>
 
 class QDjangoMetaModel;
-class QSqlQuery;
+class QDjangoQuery;
 
 /** \brief The QDjangoWhere class expresses an SQL constraint.
  *
@@ -70,7 +70,7 @@ public:
     QDjangoWhere operator&&(const QDjangoWhere &other) const;
     QDjangoWhere operator||(const QDjangoWhere &other) const;
 
-    void bindValues(QSqlQuery &query) const;
+    void bindValues(QDjangoQuery &query) const;
     bool isAll() const;
     bool isNone() const;
     bool resolve(const QDjangoMetaModel &model, bool *needsJoin);

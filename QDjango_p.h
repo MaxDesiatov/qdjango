@@ -24,6 +24,7 @@
 #include <QMutex>
 #include <QObject>
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QVariant>
 
 /** \brief The QDjangoMetaField class holds the database schema for a field.
@@ -101,6 +102,33 @@ public:
 
 private slots:
     void threadFinished();
+};
+
+class QDjangoQuery : public QSqlQuery
+{
+public:
+    QDjangoQuery(QSqlDatabase db) : QSqlQuery(db)
+    {
+    };
+
+#ifdef QDJANGO_DEBUG_SQL
+    bool exec(QDjangoQuery &query)
+    {
+        qDebug() << "SQL query" << lastQuery();
+        QMapIterator<QString, QVariant> i(boundValues());
+        while (i.hasNext()) {
+            i.next();
+            qDebug() << "   " << i.key().toAscii().data() << "="
+                     << i.value().toString().toAscii().data();
+        }
+        if (!QSqlQuery::exec())
+        {
+            qWarning() << "SQL error" << lastError();
+            return false;
+        }
+        return true;
+    }
+#endif
 };
 
 #endif
