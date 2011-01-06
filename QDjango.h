@@ -29,8 +29,6 @@ class QString;
 
 class QDjangoMetaModel;
 
-bool sqlExec(QSqlQuery &query);
-
 /** \brief The QDjango class provides a set of static functions.
  *
  *  It is used to access registered QDjangoModel classes.

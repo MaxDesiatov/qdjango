@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QSqlQuery>
-
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
 
@@ -76,12 +74,12 @@ int QDjangoQueryBase::sqlCount() const
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QSqlQuery query(QDjango::database());
+    QDjangoQuery query(QDjango::database());
     query.prepare(sql);
     m_where.bindValues(query);
 
     // execute query
-    if (!sqlExec(query) || !query.next())
+    if (!query.exec() || !query.next())
         return -1;
     return query.value(0).toInt();
 }
@@ -106,10 +104,10 @@ bool QDjangoQueryBase::sqlDelete()
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QSqlQuery query(QDjango::database());
+    QDjangoQuery query(QDjango::database());
     query.prepare(sql);
     m_where.bindValues(query);
-    if (!sqlExec(query))
+    if (!query.exec())
         return false;
 
     // invalidate cache
@@ -135,12 +133,12 @@ bool QDjangoQueryBase::sqlFetch()
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QSqlQuery query(QDjango::database());
+    QDjangoQuery query(QDjango::database());
     query.prepare(sql);
     m_where.bindValues(query);
 
     // execute query
-    if (!sqlExec(query))
+    if (!query.exec())
         return false;
 
     // store results

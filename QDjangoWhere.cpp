@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QSqlQuery>
 #include <QStringList>
 
 #include "QDjango.h"
@@ -141,7 +140,7 @@ QDjangoWhere QDjangoWhere::operator||(const QDjangoWhere &other) const
  *
  * \param query
  */
-void QDjangoWhere::bindValues(QSqlQuery &query) const
+void QDjangoWhere::bindValues(QDjangoQuery &query) const
 {
     if (m_operation == QDjangoWhere::IsIn)
     {
