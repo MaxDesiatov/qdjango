@@ -225,6 +225,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
 
         // parse options
         bool autoIncrementOption = false;
+        bool dbIndexOption = false;
         bool ignoreFieldOption = false;
         int maxLengthOption = 0;
         bool primaryKeyOption = false;
@@ -242,6 +243,8 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
                     const QString value = assign[1];
                     if (key == "auto_increment")
                         autoIncrementOption = (value.toLower() == "true" || value == "1");
+                    else if (key == "db_index")
+                        dbIndexOption = (value.toLower() == "true" || value == "1");
                     else if (key == "ignore_field")
                         ignoreFieldOption = (value.toLower() == "true" || value == "1");
                     else if (key == "max_length")
@@ -277,6 +280,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
 
         // local field
         QDjangoMetaField field;
+        field.index = dbIndexOption;
         field.name = meta->property(i).name();
         field.type = meta->property(i).type();
         field.maxLength = maxLengthOption;

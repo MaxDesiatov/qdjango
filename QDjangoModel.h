@@ -41,6 +41,7 @@
  *
  *  \li \c auto_increment if set to 'true', and if this field is the primary
  *  key, it will be marked as auto-increment.
+ *  \li \c db_index if set to 'true', an index will be created on this field.
  *  \li \c ignore_field if set to 'true', this field will be ignored
  *  \li \c max_length the maximum length of the field (used when creating
  *  the database table)
