@@ -222,6 +222,8 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
     for(int i = QObject::staticMetaObject.propertyCount(); i < count; ++i)
     {
         QString typeName = meta->property(i).typeName();
+        if (!qstrcmp(meta->property(i).name(), "pk"))
+            continue;
 
         // parse options
         bool autoIncrementOption = false;
