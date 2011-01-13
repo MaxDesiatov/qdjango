@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
             usage();
             return EXIT_SUCCESS;
         } else if (!strcmp(argv[i], "-d")) {
-            if (i == argc - 1 || !strlen(argv[i]) || argv[i][0] == '-')
+            if (i == argc - 1 || !strlen(argv[i+1]) || argv[i+1][0] == '-')
             {
                 fprintf(stderr, "Option -d requires an argument\n");
                 usage();
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
             }
             databaseName = QString::fromLocal8Bit(argv[++i]);
         } else if (!strcmp(argv[i], "-p")) {
-            if (i == argc - 1 || !strlen(argv[i]) || argv[i][0] == '-')
+            if (i == argc - 1 || !strlen(argv[i+1]) || argv[i+1][0] == '-')
             {
                 fprintf(stderr, "Option -p requires an argument\n");
                 usage();
