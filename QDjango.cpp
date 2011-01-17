@@ -111,9 +111,9 @@ QSqlDatabase QDjango::database()
  */
 void QDjango::setDatabase(QSqlDatabase database)
 {
-    if (database.driverName() != "QSQLITE" &&
-        database.driverName() != "QSQLITE2" &&
-        database.driverName() != "QMYSQL")
+    if (database.driverName() != QLatin1String("QSQLITE") &&
+        database.driverName() != QLatin1String("QSQLITE2") &&
+        database.driverName() != QLatin1String("QMYSQL"))
     {
         qWarning() << "Unsupported database driver" << database.driverName();
     }
@@ -169,9 +169,10 @@ QDjangoMetaModel QDjango::registerModel(const QObject *model)
 QString QDjango::autoIncrementSql()
 {
     const QString driverName = QDjango::database().driverName();
-    if (driverName == "QSQLITE" || driverName == "QSQLITE2")
+    if (driverName == QLatin1String("QSQLITE") ||
+        driverName == QLatin1String("QSQLITE2"))
         return QLatin1String(" AUTOINCREMENT");
-    else if (driverName == "QMYSQL")
+    else if (driverName == QLatin1String("QMYSQL"))
         return QLatin1String(" AUTO_INCREMENT");
     else
         return QString();
@@ -182,9 +183,10 @@ QString QDjango::autoIncrementSql()
 QString QDjango::noLimitSql()
 {
     const QString driverName = QDjango::database().driverName();
-    if (driverName == "QSQLITE" || driverName == "QSQLITE2")
+    if (driverName == QLatin1String("QSQLITE") ||
+        driverName == QLatin1String("QSQLITE2"))
         return QLatin1String(" LIMIT -1");
-    else if (driverName == "QMYSQL")
+    else if (driverName == QLatin1String("QMYSQL"))
         // 2^64 - 1, as recommended by the MySQL documentation
         return QLatin1String(" LIMIT 18446744073709551615");
     else
@@ -195,7 +197,7 @@ QString QDjango::noLimitSql()
  */
 QString QDjango::quote(const QString &name)
 {
-    return "`" + name + "`";
+    return QLatin1String("`") + name + QLatin1String("`");
 }
 
 QDjangoMetaField::QDjangoMetaField()
