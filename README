@@ -44,7 +44,8 @@ See platform specific notes for applicable cmake options.
 On Mac OS X
 -----------
 
-If you want to build specifically for i386 on an x86_64 machine:
+If you are running MacOS/X and want to build specifically for i386 on an
+x86_64 machine, invoke cmake as:
 
 $ cmake .. -DCMAKE_CXX_FLAGS="-arch i386" -DLINK_FLAGS="-arch i386"
 
