@@ -1,6 +1,6 @@
 /*
  * QDjango
- * Copyright (C) 2010 Bolloré telecom
+ * Copyright (C) 2010-2011 Bolloré telecom
  * See AUTHORS file for a full list of contributors.
  * 
  * This program is free software: you can redistribute it and/or modify
