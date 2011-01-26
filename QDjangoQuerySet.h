@@ -248,7 +248,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::none() const
 {
     QDjangoQuerySet<T> other;
-    other.m_where = !QDjangoWhere();
+    other.d->whereClause = !QDjangoWhere();
     return other;
 }
 
