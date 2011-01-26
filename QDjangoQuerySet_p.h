@@ -20,6 +20,13 @@
 #ifndef QDJANGO_QUERYSET_P_H
 #define QDJANGO_QUERYSET_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the QDjango API.
+//
+
 #include <QMap>
 #include <QStringList>
 
@@ -34,7 +41,6 @@ class QDjangoQueryBase
 public:
     QDjangoQueryBase(const QString &modelName);
 
-protected:
     void addFilter(const QDjangoWhere &where);
     int sqlCount() const;
     bool sqlDelete();
@@ -44,14 +50,14 @@ protected:
     QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
     QList< QList<QVariant> > sqlValuesList(const QStringList &fields);
 
-    bool m_haveResults;
-    int m_lowMark;
-    int m_highMark;
-    QDjangoWhere m_where;
-    bool m_needsJoin;
-    QStringList m_orderBy;
-    QList< QMap<QString, QVariant> > m_properties;
-    bool m_selectRelated;
+    bool hasResults;
+    int lowMark;
+    int highMark;
+    QDjangoWhere whereClause;
+    bool needsJoin;
+    QStringList orderBy;
+    QList< QMap<QString, QVariant> > properties;
+    bool selectRelated;
 
 private:
     QStringList fieldNames(const QDjangoMetaModel &model, QString &from);

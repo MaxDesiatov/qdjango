@@ -462,7 +462,7 @@ QObject *QDjangoMetaModel::foreignKey(const QObject *model, const char *name) co
         QDjangoQueryBase qs(foreignClass);
         qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));
         qs.sqlFetch();
-        if (qs.m_properties.size() != 1 || !qs.sqlLoad(foreign, 0))
+        if (qs.properties.size() != 1 || !qs.sqlLoad(foreign, 0))
             return 0;
     }
     return foreign;

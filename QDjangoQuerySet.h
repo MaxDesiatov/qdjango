@@ -39,10 +39,12 @@
  *  You can also delete sets of objects using the remove() method.
  */
 template <class T>
-    class QDjangoQuerySet : private QDjangoQueryBase
+    class QDjangoQuerySet
 {
 public:
     QDjangoQuerySet();
+    QDjangoQuerySet(const QDjangoQuerySet<T> &other);
+    ~QDjangoQuerySet();
 
     QDjangoQuerySet all() const;
     QDjangoQuerySet exclude(const QDjangoWhere &where) const;
@@ -61,12 +63,38 @@ public:
 
     T *get(const QDjangoWhere &where, T *target = 0) const;
     T *at(int index, T *target = 0);
+
+    QDjangoQuerySet<T> &operator=(const QDjangoQuerySet<T> &other);
+
+private:
+    QDjangoQueryBase *d;
 };
 
+/** Constructs a new queryset.
+ */
 template <class T>
 QDjangoQuerySet<T>::QDjangoQuerySet()
-    : QDjangoQueryBase(T::staticMetaObject.className())
 {
+    d = new QDjangoQueryBase(T::staticMetaObject.className());
+}
+
+/** Constructs a copy of \a other.
+ *
+ * \param other
+ */
+template <class T>
+QDjangoQuerySet<T>::QDjangoQuerySet(const QDjangoQuerySet<T> &other)
+{
+    d = new QDjangoQueryBase(T::staticMetaObject.className());
+    *d = *other.d;
+}
+
+/** Destroys the queryset.
+ */
+template <class T>
+QDjangoQuerySet<T>::~QDjangoQuerySet()
+{
+    delete d;
 }
 
 /** Returns the object in the QDjangoQuerySet at the given index.
@@ -83,7 +111,7 @@ template <class T>
 T *QDjangoQuerySet<T>::at(int index, T *target)
 {
     T *entry = target ? target : new T;
-    if (!sqlLoad(entry, index))
+    if (!d->sqlLoad(entry, index))
     {
         if (!target)
             delete entry;
@@ -98,12 +126,12 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 {
     QDjangoQuerySet<T> other;
-    other.m_lowMark = m_lowMark;
-    other.m_highMark = m_highMark;
-    other.m_needsJoin = m_needsJoin;
-    other.m_orderBy = m_orderBy;
-    other.m_selectRelated = m_selectRelated;
-    other.m_where = m_where;
+    other.d->lowMark = d->lowMark;
+    other.d->highMark = d->highMark;
+    other.d->needsJoin = d->needsJoin;
+    other.d->orderBy = d->orderBy;
+    other.d->selectRelated = d->selectRelated;
+    other.d->whereClause = d->whereClause;
     return other;
 }
 
@@ -119,9 +147,9 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
 template <class T>
 int QDjangoQuerySet<T>::count() const
 {
-    if (m_haveResults)
-        return m_properties.size();
-    return sqlCount();
+    if (d->hasResults)
+        return d->properties.size();
+    return d->sqlCount();
 }
 
 /** Returns a new QDjangoQuerySet containing objects for which the given key
@@ -138,7 +166,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::exclude(const QDjangoWhere &where) const
 {
     QDjangoQuerySet<T> other = all();
-    other.addFilter(!where);
+    other.d->addFilter(!where);
     return other;
 }
 
@@ -156,7 +184,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::filter(const QDjangoWhere &where) const
 {
     QDjangoQuerySet<T> other = all();
-    other.addFilter(where);
+    other.d->addFilter(where);
     return other;
 }
 
@@ -197,14 +225,14 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::limit(int pos, int length) const
     Q_ASSERT(length >= -1);
 
     QDjangoQuerySet<T> other = all();
-    other.m_lowMark += pos;
+    other.d->lowMark += pos;
     if (length > 0)
     {
         // calculate new high mark
-        other.m_highMark = other.m_lowMark + length;
+        other.d->highMark = other.d->lowMark + length;
         // never exceed the current high mark
-        if (m_highMark > 0 && other.m_highMark > m_highMark)
-            other.m_highMark = m_highMark;
+        if (d->highMark > 0 && other.d->highMark > d->highMark)
+            other.d->highMark = d->highMark;
     }
     return other;
 }
@@ -230,10 +258,10 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::orderBy(const QStringList &keys) const
 {
     // it is not possible to change ordering once a limit has been set
-    Q_ASSERT(!m_lowMark && !m_highMark);
+    Q_ASSERT(!d->lowMark && !d->highMark);
 
     QDjangoQuerySet<T> other = all();
-    other.m_orderBy << keys;
+    other.d->orderBy << keys;
     return other;
 }
 
@@ -244,7 +272,7 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::orderBy(const QStringList &keys) const
 template <class T>
 bool QDjangoQuerySet<T>::remove()
 {
-    return sqlDelete();
+    return d->sqlDelete();
 }
 
 /** Returns a QDjangoQuerySet that will automatically "follow" foreign-key
@@ -255,7 +283,7 @@ template <class T>
 QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
 {
     QDjangoQuerySet<T> other = all();
-    other.m_selectRelated = true;
+    other.d->selectRelated = true;
     return other;
 }
 
@@ -268,9 +296,9 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::selectRelated() const
 template <class T>
 int QDjangoQuerySet<T>::size()
 {
-    if (!sqlFetch())
+    if (!d->sqlFetch())
         return -1;
-    return m_properties.size();
+    return d->properties.size();
 }
 
 /** Returns a list of property hashes for the current QDjangoQuerySet.
@@ -281,7 +309,7 @@ int QDjangoQuerySet<T>::size()
 template <class T>
 QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &fields)
 {
-    return sqlValues(fields);
+    return d->sqlValues(fields);
 }
 
 /** Returns a list of property lists for the current QDjangoQuerySet.
@@ -293,7 +321,7 @@ QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &f
 template <class T>
 QList< QList<QVariant> > QDjangoQuerySet<T>::valuesList(const QStringList &fields)
 {
-    return sqlValuesList(fields);
+    return d->sqlValuesList(fields);
 }
 
 /** Return the QDjangoWhere expressing the WHERE clause of the
@@ -302,7 +330,14 @@ QList< QList<QVariant> > QDjangoQuerySet<T>::valuesList(const QStringList &field
 template <class T>
 QDjangoWhere QDjangoQuerySet<T>::where() const
 {
-    return m_where;
+    return d->whereClause;
+}
+
+template <class T>
+QDjangoQuerySet<T> &QDjangoQuerySet<T>::operator=(const QDjangoQuerySet<T> &other)
+{
+    *d = *other.d;
+    return *this;
 }
 
 #endif
