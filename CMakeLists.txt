@@ -43,7 +43,7 @@ if(QDJANGO_USE_NETWORK)
       QDjangoHttpServer.cpp)
   list(APPEND qdjango_MOC_HEADERS
       QDjangoHttpResponse.h
-      QDjangoHttpServer.h)
+      QDjangoHttpServer_p.h)
 endif()
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})

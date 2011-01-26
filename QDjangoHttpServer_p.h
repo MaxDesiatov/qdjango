@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QDJANGO_HTTP_REQUEST_P_H
-#define QDJANGO_HTTP_REQUEST_P_H
+#ifndef QDJANGO_HTTP_SERVER_P_H
+#define QDJANGO_HTTP_SERVER_P_H
 
 //
 //  W A R N I N G
@@ -27,20 +27,32 @@
 // This file is not part of the QDjango API.
 //
 
-#include <QHttpRequestHeader>
+#include <QObject>
+
+class QDjangoHttpConnectionPrivate;
+class QDjangoHttpServer;
 
 /** \internal
  */
-class QDjangoHttpRequestPrivate
+class QDjangoHttpConnection : public QObject
 {
-public:
-    void readFromSocket(QIODevice *socket);
+    Q_OBJECT
 
-    QByteArray buffer;
-    qint64 bytesRemaining;
-    QHttpRequestHeader header;
-    bool headerReceived;
-    bool valid;
+public:
+    QDjangoHttpConnection(int socketDescriptor, QDjangoHttpServer *server);
+    ~QDjangoHttpConnection();
+
+signals:
+    void closed();
+
+private slots:
+    void bytesWritten(qint64 bytes);
+    void handleData();
+    void writeResponse();
+
+private:
+    Q_DISABLE_COPY(QDjangoHttpConnection)
+    QDjangoHttpConnectionPrivate* const d;
 };
 
 #endif
