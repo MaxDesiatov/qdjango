@@ -66,6 +66,7 @@ public:
 public slots:
     bool remove();
     bool save();
+    QString toString() const;
 
 protected:
     QObject *foreignKey(const char *name) const;
