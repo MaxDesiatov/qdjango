@@ -24,7 +24,7 @@
 //  W A R N I N G
 //  -------------
 //
-// This file is not part of the Qjango API.
+// This file is not part of the QDjango API.
 //
 
 #include <QHttpRequestHeader>
