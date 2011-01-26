@@ -23,11 +23,11 @@
 typedef QMap<QString, QVariant> PropertyMap;
 
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
-    : m_haveResults(false),
-    m_lowMark(0),
-    m_highMark(0),
-    m_needsJoin(false),
-    m_selectRelated(false),
+    : hasResults(false),
+    lowMark(0),
+    highMark(0),
+    needsJoin(false),
+    selectRelated(false),
     m_modelName(modelName)
 {
 }
@@ -37,7 +37,7 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QStr
     QStringList fields;
     foreach (const QDjangoMetaField &field, metaModel.m_localFields)
         fields.append(metaModel.databaseColumn(field.name));
-    if (!m_selectRelated && !m_needsJoin)
+    if (!selectRelated && !needsJoin)
         return fields;
 
     // recurse for foreign keys
@@ -48,7 +48,7 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QStr
             .arg(metaForeign.databaseTable())
             .arg(metaForeign.databaseColumn("pk"))
             .arg(metaModel.databaseColumn(fkName + "_id"));
-        if (m_selectRelated)
+        if (selectRelated)
             fields += fieldNames(metaForeign, from);
     }
     return fields;
@@ -57,12 +57,12 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QStr
 void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
 {
     // it is not possible to add filters once a limit has been set
-    Q_ASSERT(!m_lowMark && !m_highMark);
+    Q_ASSERT(!lowMark && !highMark);
 
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QDjangoWhere q(where);
-    q.resolve(metaModel, &m_needsJoin);
-    m_where = m_where && q;
+    q.resolve(metaModel, &needsJoin);
+    whereClause = whereClause && q;
 }
 
 int QDjangoQueryBase::sqlCount() const
@@ -70,13 +70,13 @@ int QDjangoQueryBase::sqlCount() const
     // prepare query
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QString sql = "SELECT COUNT(*) FROM " + metaModel.databaseTable();
-    QString where = m_where.sql();
+    QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
     QDjangoQuery query(QDjango::database());
     query.prepare(sql);
-    m_where.bindValues(query);
+    whereClause.bindValues(query);
 
     // execute query
     if (!query.exec() || !query.next())
@@ -87,41 +87,41 @@ int QDjangoQueryBase::sqlCount() const
 bool QDjangoQueryBase::sqlDelete()
 {
     // DELETE on an empty queryset doesn't need a query
-    if (m_where.isNone())
+    if (whereClause.isNone())
         return true;
 
     // FIXME : it is not possible to remove entries once a limit has been set
     // because SQLite does not support limits on DELETE unless compiled with the
     // SQLITE_ENABLE_UPDATE_DELETE_LIMIT option
-    if (m_lowMark || m_highMark)
+    if (lowMark || highMark)
         return false;
 
     // delete entries
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QString from = metaModel.databaseTable();
     QString sql = "DELETE FROM " + from;
-    QString where = m_where.sql();
+    QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
     QDjangoQuery query(QDjango::database());
     query.prepare(sql);
-    m_where.bindValues(query);
+    whereClause.bindValues(query);
     if (!query.exec())
         return false;
 
     // invalidate cache
-    if (m_haveResults)
+    if (hasResults)
     {
-        m_properties.clear();
-        m_haveResults = false;
+        properties.clear();
+        hasResults = false;
     }
     return true;
 }
 
 bool QDjangoQueryBase::sqlFetch()
 {
-    if (m_haveResults || m_where.isNone())
+    if (hasResults || whereClause.isNone())
         return true;
 
     // build query
@@ -129,13 +129,13 @@ bool QDjangoQueryBase::sqlFetch()
     QString from = metaModel.databaseTable();
     QStringList fields = fieldNames(metaModel, from);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
-    QString where = m_where.sql();
+    QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
     QDjangoQuery query(QDjango::database());
     query.prepare(sql);
-    m_where.bindValues(query);
+    whereClause.bindValues(query);
 
     // execute query
     if (!query.exec())
@@ -147,9 +147,9 @@ bool QDjangoQueryBase::sqlFetch()
         QMap<QString, QVariant> props;
         for (int i = 0; i < fields.size(); ++i)
             props.insert(fields[i], query.value(i));
-        m_properties.append(props);
+        properties.append(props);
     }
-    m_haveResults = true;
+    hasResults = true;
     return true;
 }
 
@@ -161,7 +161,7 @@ QString QDjangoQueryBase::sqlLimit() const
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QStringList bits;
     QString field;
-    foreach (field, m_orderBy)
+    foreach (field, orderBy)
     {
         QString order = "ASC";
         if (field.startsWith("-"))
@@ -177,14 +177,14 @@ QString QDjangoQueryBase::sqlLimit() const
         limit += " ORDER BY " + bits.join(", ");
 
     // limits
-    if (m_highMark > 0)
-        limit += QString(" LIMIT %1").arg(m_highMark - m_lowMark);
-    if (m_lowMark > 0)
+    if (highMark > 0)
+        limit += QString(" LIMIT %1").arg(highMark - lowMark);
+    if (lowMark > 0)
     {
         // no-limit is backend specific
-        if (m_highMark <= 0)
+        if (highMark <= 0)
             limit += QDjango::noLimitSql();
-        limit += QString(" OFFSET %1").arg(m_lowMark);
+        limit += QString(" OFFSET %1").arg(lowMark);
     }
     return limit;
 }
@@ -194,14 +194,14 @@ bool QDjangoQueryBase::sqlLoad(QObject *model, int index)
     if (!sqlFetch())
         return false;
 
-    if (index < 0 || index >= m_properties.size())
+    if (index < 0 || index >= properties.size())
     {
         qWarning("QDjangoQuerySet out of bounds");
         return false;
     }
 
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    metaModel.load(model, m_properties.at(index));
+    metaModel.load(model, properties.at(index));
     return true;
 }
 
@@ -221,7 +221,7 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
     else
         fieldNames = fields;
 
-    foreach (const PropertyMap &props, m_properties)
+    foreach (const PropertyMap &props, properties)
     {
         QMap<QString, QVariant> map;
         foreach (const QString &field, fieldNames)
@@ -249,7 +249,7 @@ QList< QList<QVariant> > QDjangoQueryBase::sqlValuesList(const QStringList &fiel
     else
         fieldNames = fields;
 
-    foreach (const PropertyMap &props, m_properties)
+    foreach (const PropertyMap &props, properties)
     {
         QList<QVariant> list;
         foreach (const QString &field, fieldNames)
