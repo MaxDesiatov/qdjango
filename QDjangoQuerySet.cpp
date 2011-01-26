@@ -23,7 +23,8 @@
 typedef QMap<QString, QVariant> PropertyMap;
 
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
-    : hasResults(false),
+    : counter(1),
+    hasResults(false),
     lowMark(0),
     highMark(0),
     needsJoin(false),
