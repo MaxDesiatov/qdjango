@@ -22,33 +22,43 @@ endif(UNIX)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+set(qdjango_LIBRARIES ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
 set(qdjango_SOURCES
     QDjango.cpp
-    QDjangoHttpController.cpp
-    QDjangoHttpRequest.cpp
-    QDjangoHttpResponse.cpp
-    QDjangoHttpServer.cpp
     QDjangoModel.cpp
     QDjangoQuerySet.cpp
     QDjangoWhere.cpp)
 set(qdjango_MOC_HEADERS
     QDjango_p.h
-    QDjangoHttpResponse.h
-    QDjangoHttpServer.h
     QDjangoModel.h)
+
+# Optional network support
+if(QDJANGO_USE_NETWORK)
+  add_definitions(-DQDJANGO_USE_NETWORK=1)
+  list(APPEND qdjango_LIBRARIES ${QT_QTNETWORK_LIBRARY})
+  list(APPEND qdjango_SOURCES
+      QDjangoHttpController.cpp
+      QDjangoHttpRequest.cpp
+      QDjangoHttpResponse.cpp
+      QDjangoHttpServer.cpp)
+  list(APPEND qdjango_MOC_HEADERS
+      QDjangoHttpResponse.h
+      QDjangoHttpServer.h)
+endif()
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
 set(QDJANGO_STATIC 1)
 if(QDJANGO_STATIC)
   add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
-  target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
+  target_link_libraries(qdjango ${qdjango_LIBRARIES})
 else(QDJANGO_STATIC)
   add_library(qdjango SHARED ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
   set_target_properties(qdjango PROPERTIES SOVERSION 0)
-  target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
+  target_link_libraries(qdjango ${qdjango_LIBRARIES})
 
+  # Optional scripting support
   add_executable(qdjango-console console.cpp)
-  target_link_libraries(qdjango-console qdjango ${QT_LIBRARIES})
+  target_link_libraries(qdjango-console qdjango ${QT_QTSCRIPT_LIBRARY})
 
   add_subdirectory(script)
 endif(QDJANGO_STATIC)
