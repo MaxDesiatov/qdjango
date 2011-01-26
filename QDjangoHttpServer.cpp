@@ -28,12 +28,15 @@
 #include "QDjangoHttpResponse.h"
 #include "QDjangoHttpResponse_p.h"
 #include "QDjangoHttpServer.h"
+#include "QDjangoHttpServer_p.h"
 
 //#define DEBUG_HTTP
 
 // maximum request body size is 10 MB
 #define MAX_BODY_SIZE (10 * 1024 * 1024)
 
+/** \internal
+ */
 class QDjangoHttpConnectionPrivate
 {
 public:
@@ -169,6 +172,8 @@ void QDjangoHttpConnection::writeResponse()
     }
 }
 
+/** \internal
+ */
 class QDjangoHttpServerPrivate
 {
 public:
@@ -207,12 +212,18 @@ void QDjangoHttpServer::incomingConnection(int socketDescriptor)
     Q_ASSERT(check);
 }
 
+/** Returns the controller which serves requests received by the server.
+ */
 QDjangoHttpController *QDjangoHttpServer::controller() const
 {
     return d->requestHandler;
 }
 
-void QDjangoHttpServer::setController(QDjangoHttpController *handler)
+/** Sets the controller which serves requests received by the server.
+ *
+ * \param controller
+ */
+void QDjangoHttpServer::setController(QDjangoHttpController *controller)
 {
-    d->requestHandler = handler;
+    d->requestHandler = controller;
 }

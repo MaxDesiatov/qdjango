@@ -29,6 +29,8 @@
 
 #include <QHttpResponseHeader>
 
+/** \internal
+ */
 class QDjangoHttpResponsePrivate
 {
 public:    

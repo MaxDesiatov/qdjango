@@ -22,33 +22,9 @@
 
 #include <QTcpServer>
 
-class QDjangoHttpConnectionPrivate;
 class QDjangoHttpController;
 class QDjangoHttpServer;
 class QDjangoHttpServerPrivate;
-
-/** The HttpConnection class represents an HTTP connection.
- */
-class QDjangoHttpConnection : public QObject
-{
-    Q_OBJECT
-
-public:
-    QDjangoHttpConnection(int socketDescriptor, QDjangoHttpServer *server);
-    ~QDjangoHttpConnection();
-
-signals:
-    void closed();
-
-private slots:
-    void bytesWritten(qint64 bytes);
-    void handleData();
-    void writeResponse();
-
-private:
-    Q_DISABLE_COPY(QDjangoHttpConnection)
-    QDjangoHttpConnectionPrivate* const d;
-};
 
 /** The QDjangoHttpServer class represents an HTTP server.
  */
@@ -59,7 +35,7 @@ public:
     ~QDjangoHttpServer();
 
     QDjangoHttpController *controller() const;
-    void setController(QDjangoHttpController *handler);
+    void setController(QDjangoHttpController *controller);
 
 protected:
     void incomingConnection(int socketDescriptor);
