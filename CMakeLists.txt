@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 find_package(Qt4 REQUIRED)
 
 set(QT_DONT_USE_QTGUI 1)
+set(QT_USE_QTNETWORK 1)
 set(QT_USE_QTSCRIPT 1)
 set(QT_USE_QTSQL 1)
 include(${QT_USE_FILE})
@@ -23,11 +24,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(qdjango_SOURCES
     QDjango.cpp
+    QDjangoHttpRequest.cpp
+    QDjangoHttpResponse.cpp
     QDjangoModel.cpp
     QDjangoQuerySet.cpp
     QDjangoWhere.cpp)
 set(qdjango_MOC_HEADERS
     QDjango_p.h
+    QDjangoHttpResponse.h
     QDjangoModel.h)
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
