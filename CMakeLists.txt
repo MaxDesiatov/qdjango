@@ -7,11 +7,6 @@ set(QT_USE_QTSCRIPT 1)
 set(QT_USE_QTSQL 1)
 include(${QT_USE_FILE})
 
-# Enable debugging
-if(QDJANGO_DEBUG_SQL)
-    add_definitions(-DQDJANGO_DEBUG_SQL=1)
-endif(QDJANGO_DEBUG_SQL)
-
 # Needed for plugin support
 if(UNIX)
   if(NOT APPLE)
@@ -32,9 +27,14 @@ set(qdjango_MOC_HEADERS
     QDjango_p.h
     QDjangoModel.h)
 
+# Optional debugging
+if(QDJANGO_DEBUG_SQL)
+    add_definitions(-DQDJANGO_DEBUG_SQL=1)
+endif(QDJANGO_DEBUG_SQL)
+
 # Optional network support
+#set(QDJANGO_USE_NETWORK 1)
 if(QDJANGO_USE_NETWORK)
-  add_definitions(-DQDJANGO_USE_NETWORK=1)
   list(APPEND qdjango_LIBRARIES ${QT_QTNETWORK_LIBRARY})
   list(APPEND qdjango_SOURCES
       QDjangoHttpController.cpp
@@ -46,6 +46,14 @@ if(QDJANGO_USE_NETWORK)
       QDjangoHttpServer_p.h)
 endif()
 
+# Optional script support
+#set(QDJANGO_USE_SCRIPT 1)
+if(QDJANGO_USE_SCRIPT)
+  list(APPEND qdjango_LIBRARIES ${QT_QTSCRIPT_LIBRARY})
+  list(APPEND qdjango_SOURCES QDjangoScript.cpp)
+endif()
+
+# QDjango library
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
 set(QDJANGO_STATIC 1)
 if(QDJANGO_STATIC)
@@ -56,11 +64,12 @@ else(QDJANGO_STATIC)
   set_target_properties(qdjango PROPERTIES SOVERSION 0)
   target_link_libraries(qdjango ${qdjango_LIBRARIES})
 
-  # Optional scripting support
-  add_executable(qdjango-console console.cpp)
-  target_link_libraries(qdjango-console qdjango ${QT_QTSCRIPT_LIBRARY})
-
-  add_subdirectory(script)
+  # Scripting console
+  if (QDJANGO_USE_SCRIPT)
+    add_executable(qdjango-console console.cpp)
+    target_link_libraries(qdjango-console qdjango)
+    add_subdirectory(script)
+  endif()
 endif(QDJANGO_STATIC)
 
 add_subdirectory(tests)
