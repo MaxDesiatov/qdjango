@@ -94,3 +94,12 @@ bool QDjangoModel::save()
     return metaModel.save(this);
 }
 
+/** Returns a string representation of the model instance.
+ */
+QString QDjangoModel::toString() const
+{
+    const QDjangoMetaModel metaModel = QDjango::metaModel(metaObject()->className());
+    const QByteArray pkName = metaModel.primaryKey();
+    return QString("%1(%2=%3)").arg(metaObject()->className(), QString::fromLatin1(pkName), property(pkName).toString());
+}
+
