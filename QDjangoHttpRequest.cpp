@@ -17,26 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QDateTime>
-#include <QHttpRequestHeader>
 #include <QIODevice>
 
 #include "QDjangoHttpRequest.h"
+#include "QDjangoHttpRequest_p.h"
 
 // maximum request body size is 10 MB
 #define MAX_BODY_SIZE (10 * 1024 * 1024)
-
-class QDjangoHttpRequestPrivate
-{
-public:
-    void readFromSocket(QIODevice *socket);
-
-    QByteArray buffer;
-    qint64 bytesRemaining;
-    QHttpRequestHeader header;
-    bool headerReceived;
-    bool valid;
-};
 
 void QDjangoHttpRequestPrivate::readFromSocket(QIODevice *socket)
 {

@@ -17,24 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QDateTime>
-#include <QHttpResponseHeader>
-#include <QTcpSocket>
-
 #include "QDjangoHttpResponse.h"
-
-//#define DEBUG_HTTP
-
-// maximum request body size is 10 MB
-#define MAX_BODY_SIZE (10 * 1024 * 1024)
-
-class QDjangoHttpResponsePrivate
-{
-public:    
-    QHttpResponseHeader header;
-    QByteArray body;
-    bool ready;
-};
+#include "QDjangoHttpResponse_p.h"
 
 /** Constructs a new HTTP response.
  */
