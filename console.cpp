@@ -31,6 +31,7 @@
 #include <QtPlugin>
 
 #include "QDjango.h"
+#include "QDjangoScript.h"
 
 static bool wantsToQuit;
 
@@ -180,6 +181,7 @@ int main(int argc, char *argv[])
 
     /* Run interactive shell */ 
     QScriptEngine *eng = new QScriptEngine();
+    qScriptRegisterWhere(eng);
     qDebug() << "Available extensions: " << eng->availableExtensions();
     interactive(eng);
 

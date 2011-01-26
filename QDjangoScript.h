@@ -26,6 +26,8 @@
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
 
+Q_DECLARE_METATYPE(QDjangoWhere)
+
 template <class T>
 static QScriptValue querySetAll(QScriptContext *context, QScriptEngine *engine)
 {
@@ -53,33 +55,24 @@ template <class T>
 static QScriptValue querySetExclude(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QString key = context->argument(0).toString();
-    QVariant val = context->argument(1).toVariant();
-    // FIXME : support other operations
-    QDjangoWhere::Operation op = QDjangoWhere::Equals;
-    return engine->toScriptValue(qs.exclude(QDjangoWhere(key, op, val)));
+    QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    return engine->toScriptValue(qs.exclude(where));
 }
 
 template <class T>
 static QScriptValue querySetFilter(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QString key = context->argument(0).toString();
-    QVariant val = context->argument(1).toVariant();
-    // FIXME : support other operations
-    QDjangoWhere::Operation op = QDjangoWhere::Equals;
-    return engine->toScriptValue(qs.filter(QDjangoWhere(key, op, val)));
+    QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    return engine->toScriptValue(qs.filter(where));
 }
 
 template <class T>
 static QScriptValue querySetGet(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QString key = context->argument(0).toString();
-    QVariant val = context->argument(1).toVariant();
-    // FIXME : support other operations
-    QDjangoWhere::Operation op = QDjangoWhere::Equals;
-    return engine->newQObject(qs.get(QDjangoWhere(key, op, val)), QScriptEngine::ScriptOwnership);
+    QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    return engine->newQObject(qs.get(where), QScriptEngine::ScriptOwnership);
 }
 
 template <class T>
@@ -127,5 +120,11 @@ void qScriptRegisterModel(QScriptEngine *engine)
     value.setProperty("objects", engine->toScriptValue(qs));
     engine->globalObject().setProperty(T::staticMetaObject.className(), value);
 }
+
+/** Make the QDjangoWhere class available to the given QScriptEngine.
+ *
+ * \param engine
+ */
+void qScriptRegisterWhere(QScriptEngine *engine);
 
 #endif
