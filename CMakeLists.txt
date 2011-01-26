@@ -27,12 +27,14 @@ set(qdjango_SOURCES
     QDjangoHttpController.cpp
     QDjangoHttpRequest.cpp
     QDjangoHttpResponse.cpp
+    QDjangoHttpServer.cpp
     QDjangoModel.cpp
     QDjangoQuerySet.cpp
     QDjangoWhere.cpp)
 set(qdjango_MOC_HEADERS
     QDjango_p.h
     QDjangoHttpResponse.h
+    QDjangoHttpServer.h
     QDjangoModel.h)
 
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
