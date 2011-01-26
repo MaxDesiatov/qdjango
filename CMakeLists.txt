@@ -24,6 +24,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(qdjango_SOURCES
     QDjango.cpp
+    QDjangoHttpController.cpp
     QDjangoHttpRequest.cpp
     QDjangoHttpResponse.cpp
     QDjangoModel.cpp
