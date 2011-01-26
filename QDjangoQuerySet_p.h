@@ -50,6 +50,9 @@ public:
     QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
     QList< QList<QVariant> > sqlValuesList(const QStringList &fields);
 
+    // reference counter
+    QAtomicInt counter;
+
     bool hasResults;
     int lowMark;
     int highMark;
@@ -60,6 +63,7 @@ public:
     bool selectRelated;
 
 private:
+    Q_DISABLE_COPY(QDjangoQueryBase)
     QStringList fieldNames(const QDjangoMetaModel &model, QString &from);
 
     QString m_modelName;

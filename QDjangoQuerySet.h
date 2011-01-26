@@ -37,6 +37,9 @@
  *  methods or retrieve model instances using the get() and at() methods.
  *
  *  You can also delete sets of objects using the remove() method.
+ *
+ *  Behinds the scenes, the QDjangoQuerySet class uses implicit sharing to
+ *  reduce memory usage and avoid needless copying of data.
  */
 template <class T>
     class QDjangoQuerySet
@@ -55,11 +58,12 @@ public:
     QDjangoQuerySet selectRelated() const;
 
     int count() const;
+    QDjangoWhere where() const;
+
     bool remove();
     int size();
     QList< QMap<QString, QVariant> > values(const QStringList &fields = QStringList());
     QList< QList<QVariant> > valuesList(const QStringList &fields = QStringList());
-    QDjangoWhere where() const;
 
     T *get(const QDjangoWhere &where, T *target = 0) const;
     T *at(int index, T *target = 0);
@@ -85,8 +89,8 @@ QDjangoQuerySet<T>::QDjangoQuerySet()
 template <class T>
 QDjangoQuerySet<T>::QDjangoQuerySet(const QDjangoQuerySet<T> &other)
 {
-    d = new QDjangoQueryBase(T::staticMetaObject.className());
-    *d = *other.d;
+    other.d->counter.ref();
+    d = other.d;
 }
 
 /** Destroys the queryset.
@@ -94,7 +98,8 @@ QDjangoQuerySet<T>::QDjangoQuerySet(const QDjangoQuerySet<T> &other)
 template <class T>
 QDjangoQuerySet<T>::~QDjangoQuerySet()
 {
-    delete d;
+    if (!d->counter.deref())
+        delete d;
 }
 
 /** Returns the object in the QDjangoQuerySet at the given index.
@@ -336,7 +341,10 @@ QDjangoWhere QDjangoQuerySet<T>::where() const
 template <class T>
 QDjangoQuerySet<T> &QDjangoQuerySet<T>::operator=(const QDjangoQuerySet<T> &other)
 {
-    *d = *other.d;
+    other.d->counter.ref();
+    if (!d->counter.deref())
+        delete d;
+    d = other.d;
     return *this;
 }
 
