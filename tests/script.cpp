@@ -49,6 +49,14 @@ void TestScript::testWhere()
     QScriptValue result = engine->evaluate("where = Q('username', Q.Equals, 'foobar')");
     QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(result);
     QCOMPARE(where.sql(), QLatin1String("username = ?"));
+
+    result = engine->evaluate("where.and(Q('password', Q.Equals, 'foopass'))");
+    QDjangoWhere andWhere = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(andWhere.sql(), QLatin1String("username = ? AND password = ?"));
+
+    result = engine->evaluate("where.or(Q('password', Q.Equals, 'foopass'))");
+    QDjangoWhere orWhere = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(orWhere.sql(), QLatin1String("username = ? OR password = ?"));
 }
 
 void TestScript::testModel()

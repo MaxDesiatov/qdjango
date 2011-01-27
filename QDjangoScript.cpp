@@ -35,6 +35,20 @@ static QScriptValue newWhere(QScriptContext *context, QScriptEngine *engine)
     return engine->toScriptValue(QDjangoWhere());
 }
 
+static QScriptValue whereAnd(QScriptContext *context, QScriptEngine *engine)
+{
+    QDjangoWhere q = engine->fromScriptValue<QDjangoWhere>(context->thisObject());
+    QDjangoWhere other = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    return engine->toScriptValue(q && other);
+}
+
+static QScriptValue whereOr(QScriptContext *context, QScriptEngine *engine)
+{
+    QDjangoWhere q = engine->fromScriptValue<QDjangoWhere>(context->thisObject());
+    QDjangoWhere other = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    return engine->toScriptValue(q || other);
+}
+
 static QScriptValue whereToString(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoWhere q = engine->fromScriptValue<QDjangoWhere>(context->thisObject());
@@ -44,6 +58,8 @@ static QScriptValue whereToString(QScriptContext *context, QScriptEngine *engine
 void qScriptRegisterWhere(QScriptEngine *engine)
 {
     QScriptValue whereProto = engine->newObject();
+    whereProto.setProperty("and", engine->newFunction(whereAnd));
+    whereProto.setProperty("or", engine->newFunction(whereOr));
     whereProto.setProperty("toString", engine->newFunction(whereToString));
     engine->setDefaultPrototype(qMetaTypeId<QDjangoWhere>(), whereProto);
 
