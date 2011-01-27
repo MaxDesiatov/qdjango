@@ -25,7 +25,6 @@
 QDjangoHttpResponse::QDjangoHttpResponse()
     : d(new QDjangoHttpResponsePrivate)
 {
-    d->ready = true;
     setHeader("Content-Length", "0");
     setStatusCode(QDjangoHttpResponse::OK);
 }
@@ -75,19 +74,16 @@ void QDjangoHttpResponse::setHeader(const QString &key, const QString &value)
     d->header.setValue(key, value);
 }
 
+/** Returns true if the response is ready to be sent.
+ *
+ * The default implementation always returns true. If you subclass
+ * QDjangoHttpResponse to support responses which should only be sent
+ * to the client at a later point, you need to reimplement this method
+ * and emit the ready() signal once the response is ready.
+ */
 bool QDjangoHttpResponse::isReady() const
 {
-    return d->ready;
-}
-
-void QDjangoHttpResponse::setReady(bool ready)
-{
-    if (ready == d->ready)
-        return;
-
-    d->ready = ready;
-    if (d->ready)
-        emit readyRead();
+    return true;
 }
 
 /** Returns the code for the HTTP response status line.

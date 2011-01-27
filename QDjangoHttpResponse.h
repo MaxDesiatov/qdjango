@@ -56,14 +56,18 @@ public:
     QString header(const QString &key) const;
     void setHeader(const QString &key, const QString &value);
 
-    bool isReady() const;
-    void setReady(bool ready);
+    virtual bool isReady() const;
 
     int statusCode() const;
     void setStatusCode(int code);
 
 signals:
-    void readyRead();
+    /** Emit this signal from your QDjangoHttpResponse subclasses once
+     *  the response is ready to be sent to the client.
+     *
+     * \sa isReady()
+     */
+    void ready();
 
 private:
     Q_DISABLE_COPY(QDjangoHttpResponse)

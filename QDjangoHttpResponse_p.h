@@ -36,7 +36,6 @@ class QDjangoHttpResponsePrivate
 public:    
     QHttpResponseHeader header;
     QByteArray body;
-    bool ready;
 };
 
 #endif
