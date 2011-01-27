@@ -144,7 +144,7 @@ void QDjangoHttpConnection::handleData()
     if (!keepAlive)
         d->closeAfterResponse = true;
 
-    connect(response, SIGNAL(readyRead()), this, SLOT(writeResponse()));
+    connect(response, SIGNAL(ready()), this, SLOT(writeResponse()));
     writeResponse();
 }
 
