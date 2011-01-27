@@ -47,7 +47,6 @@ void QDjangoScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
 {
     if (key == QLatin1String("qdjango.test"))
     {
-        QScriptValue extensionObject = engine->globalObject();
         qScriptRegisterModel<User>(engine);
         qScriptRegisterModel<Group>(engine);
         qScriptRegisterModel<Message>(engine);
