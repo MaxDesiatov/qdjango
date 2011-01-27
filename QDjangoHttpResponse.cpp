@@ -37,22 +37,39 @@ QDjangoHttpResponse::~QDjangoHttpResponse()
     delete d;
 }
 
+/** Returns the raw body of the HTTP response.
+ */
 QByteArray QDjangoHttpResponse::body() const
 {
     return d->body;
 }
 
+/** Sets the raw body of the HTTP response.
+ *
+ * The Content-Length header will be updated to reflect the body size.
+ *
+ * \param body
+ */
 void QDjangoHttpResponse::setBody(const QByteArray &body)
 {
     d->body = body;
     setHeader("Content-Length", QString::number(d->body.size()));
 }
 
+/** Returns the specified HTTP response header.
+ *
+ * \param key
+ */
 QString QDjangoHttpResponse::header(const QString &key) const
 {
     return d->header.value(key);
 }
 
+/** Sets the specified HTTP response header.
+ *
+ * \param key
+ * \param value
+ */
 void QDjangoHttpResponse::setHeader(const QString &key, const QString &value)
 {
     d->header.setValue(key, value);
@@ -73,11 +90,17 @@ void QDjangoHttpResponse::setReady(bool ready)
         emit readyRead();
 }
 
+/** Returns the code for the HTTP response status line.
+ */
 int QDjangoHttpResponse::statusCode() const
 {
     return d->header.statusCode();
 }
 
+/** Sets the code for the HTTP response status line.
+ *
+ * \param code
+ */
 void QDjangoHttpResponse::setStatusCode(int code)
 {
     switch(code)

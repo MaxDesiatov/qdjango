@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QUrl>
 
 #include "QDjangoHttpController.h"
 #include "QDjangoHttpRequest.h"
@@ -52,30 +53,55 @@ QDjangoHttpResponse *QDjangoHttpController::serveError(const QDjangoHttpRequest 
     return response;
 }
 
+/** Respond to a malformed HTTP request.
+ *
+ * \param request
+ */
 QDjangoHttpResponse *QDjangoHttpController::serveBadRequest(const QDjangoHttpRequest &request)
 {
     return serveError(request, QDjangoHttpResponse::BadRequest, "Your browser sent a malformed request.");
 }
 
+/** Respond to an HTTP \a request with an internal server error.
+ *
+ * \param request
+ */
 QDjangoHttpResponse *QDjangoHttpController::serveInternalServerError(const QDjangoHttpRequest &request)
 {
     return serveError(request, QDjangoHttpResponse::InternalServerError, "An internal server error was encountered.");
 }
 
+/** Respond to an HTTP \a request with a not found error.
+ *
+ * \param request
+ */
 QDjangoHttpResponse *QDjangoHttpController::serveNotFound(const QDjangoHttpRequest &request)
 {
     return serveError(request, QDjangoHttpResponse::NotFound, "The document you requested was not found.");
 }
 
-QDjangoHttpResponse *QDjangoHttpController::serveRedirect(const QDjangoHttpRequest &request, const QString &url) const
+/** Respond to an HTTP \a request with a redirect.
+ *
+ * \param request
+ * \param url The URL to which the user is redirected.
+ * \param permanent Whether the redirect is permanent.
+ */
+QDjangoHttpResponse *QDjangoHttpController::serveRedirect(const QDjangoHttpRequest &request, const QUrl &url, bool permanent)
 {
-    QDjangoHttpResponse *response = serveError(request, QDjangoHttpResponse::MovedPermanently,
-        QString("You are being redirect to <a href=\"") + url + "\">" + url + "</a>");
-    response->setHeader("Location", url);
+    const QString urlString = url.toString();
+    QDjangoHttpResponse *response = serveError(request, permanent ? QDjangoHttpResponse::MovedPermanently : QDjangoHttpResponse::Found,
+        QString("You are being redirect to <a href=\"%1\">%2</a>").arg(urlString, urlString));
+    response->setHeader("Location", urlString.toUtf8());
     return response;
 }
 
-QDjangoHttpResponse *QDjangoHttpController::serveStatic(const QDjangoHttpRequest &request, const QString &docPath, const QDateTime &expires) const
+/** Respond to an HTTP \a request for a static file.
+ *
+ * \param request
+ * \param docPath The path to the document, such that it can be opened using a QFile.
+ * \param expires An optional expiry date.
+ */
+QDjangoHttpResponse *QDjangoHttpController::serveStatic(const QDjangoHttpRequest &request, const QString &docPath, const QDateTime &expires)
 {
     QFileInfo info(docPath);
     if (!info.isFile())

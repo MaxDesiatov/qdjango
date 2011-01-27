@@ -23,7 +23,7 @@
 class QDjangoHttpRequest;
 class QDjangoHttpRequestPrivate;
 
-/** The QDjangoHttpRequest class represents an HTTP request.
+/** \brief The QDjangoHttpRequest class represents an HTTP request.
  */
 class QDjangoHttpRequest
 {

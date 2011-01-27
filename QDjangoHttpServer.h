@@ -26,7 +26,7 @@ class QDjangoHttpController;
 class QDjangoHttpServer;
 class QDjangoHttpServerPrivate;
 
-/** The QDjangoHttpServer class represents an HTTP server.
+/** \brief The QDjangoHttpServer class represents an HTTP server.
  */
 class QDjangoHttpServer : public QTcpServer
 {
