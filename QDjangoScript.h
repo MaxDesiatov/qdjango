@@ -61,6 +61,7 @@ void QDjangoScript::registerModel(QScriptEngine *engine)
     querysetProto.setProperty("filter", engine->newFunction(QDjangoQuerySet_filter<T>));
     querysetProto.setProperty("get", engine->newFunction(QDjangoQuerySet_get<T>));
     querysetProto.setProperty("limit", engine->newFunction(QDjangoQuerySet_limit<T>));
+    querysetProto.setProperty("remove", engine->newFunction(QDjangoQuerySet_remove<T>));
     querysetProto.setProperty("size", engine->newFunction(QDjangoQuerySet_size<T>));
     querysetProto.setProperty("toString", engine->newFunction(QDjangoQuerySet_toString<T>));
     engine->setDefaultPrototype(qMetaTypeId< QDjangoQuerySet<T> >(), querysetProto);

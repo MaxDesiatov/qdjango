@@ -86,6 +86,13 @@ static QScriptValue QDjangoQuerySet_limit(QScriptContext *context, QScriptEngine
 }
 
 template <class T>
+static QScriptValue QDjangoQuerySet_remove(QScriptContext *context, QScriptEngine *engine)
+{
+    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
+    return QScriptValue(engine, qs.remove());
+}
+
+template <class T>
 static QScriptValue QDjangoQuerySet_size(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
