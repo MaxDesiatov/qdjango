@@ -29,9 +29,13 @@ class QString;
 
 class QDjangoMetaModel;
 
+/** \defgroup Database */
+
 /** \brief The QDjango class provides a set of static functions.
  *
  *  It is used to access registered QDjangoModel classes.
+ *
+ * \ingroup Database
  */
 class QDjango
 {

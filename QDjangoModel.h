@@ -50,6 +50,8 @@
  *  field will be added.
  *
  *  You must then register the class with QDjango using QDjango::registerModel().
+ *
+ * \ingroup Database
  */
 class QDjangoModel : public QObject
 {
