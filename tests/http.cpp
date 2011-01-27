@@ -23,25 +23,70 @@
 #include <QtTest>
 #include <QUrl>
 
+#include "QDjangoHttpController.h"
+#include "QDjangoHttpRequest.h"
+#include "QDjangoHttpResponse.h"
 #include "QDjangoHttpServer.h"
 
 #include "http.h"
 
+class TestController : public QDjangoHttpController
+{
+    QDjangoHttpResponse *respondToRequest(const QDjangoHttpRequest &request);
+};
+
+QDjangoHttpResponse *TestController::respondToRequest(const QDjangoHttpRequest &request)
+{
+    if (request.path() == "/") {
+        QDjangoHttpResponse *response = new QDjangoHttpResponse;
+        response->setHeader("Content-Type", "text/plain");
+        response->setBody("hello");
+        return response;
+    } else if (request.path() == "/internal-server-error") {
+        return serveInternalServerError(request);
+    }
+    return serveNotFound(request);
+}
+
 void TestHttp::initTestCase()
 {
+    httpController = new TestController;
     httpServer = new QDjangoHttpServer(this);
+    httpServer->setController(httpController);
     QCOMPARE(httpServer->listen(QHostAddress::LocalHost, 8123), true);
+}
+
+void TestHttp::testGet_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<int>("err");
+    QTest::addColumn<QByteArray>("body");
+
+    const QString errorTemplate(
+        "<html>"
+        "<head><title>Error</title></head>"
+        "<body><p>%1</p></body>"
+        "</html>");
+
+    QTest::newRow("root") << "/" << int(QNetworkReply::NoError) << QByteArray("hello");
+    QTest::newRow("not-found") << "/not-found" << int(QNetworkReply::ContentNotFoundError) << errorTemplate.arg("The document you requested was not found.").toUtf8();
+    QTest::newRow("internal-server-error") << "/internal-server-error" << int(QNetworkReply::UnknownContentError) << errorTemplate.arg("An internal server error was encountered.").toUtf8();
 }
 
 void TestHttp::testGet()
 {
+    QFETCH(QString, path);
+    QFETCH(int, err);
+    QFETCH(QByteArray, body);
+
     QNetworkAccessManager network;
-    QNetworkReply *reply = network.get(QNetworkRequest(QUrl("http://127.0.0.1:8123/")));
+    QNetworkReply *reply = network.get(QNetworkRequest(QUrl("http://127.0.0.1:8123" + path)));
 
     QEventLoop loop;
     QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
 
-    QCOMPARE(reply->error(), QNetworkReply::ContentNotFoundError);
+    QCOMPARE(int(reply->error()), err);
+    QCOMPARE(reply->readAll(), body);
 }
 
