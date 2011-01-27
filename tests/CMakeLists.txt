@@ -14,6 +14,11 @@ target_link_libraries(qdjango-models qdjango)
 # test program
 set(qdjango-tests_SOURCES main.cpp auth/tests.cpp shares/tests.cpp)
 set(qdjango-tests_MOC_HEADERS main.h auth/tests.h shares/tests.h)
+if(QDJANGO_USE_SCRIPT)
+    add_definitions(-DUSE_SCRIPT)
+    list(APPEND qdjango-tests_SOURCES script.cpp)
+    list(APPEND qdjango-tests_MOC_HEADERS script.h)
+endif()
 
 qt4_wrap_cpp(qdjango-tests_MOC_SOURCES ${qdjango-tests_MOC_HEADERS})
 add_executable(qdjango-tests ${qdjango-tests_SOURCES} ${qdjango-tests_MOC_SOURCES})
