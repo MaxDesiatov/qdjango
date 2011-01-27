@@ -44,19 +44,71 @@ void TestScript::initTestCase()
     qScriptRegisterModel<User>(engine);
 }
 
-void TestScript::testWhere()
+void TestScript::testWhereConstructor()
 {
-    QScriptValue result = engine->evaluate("where = Q('username', Q.Equals, 'foobar')");
-    QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(result);
+    QScriptValue result;
+    QDjangoWhere where;
+
+    // equals
+    result = engine->evaluate("Q({'username': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
     QCOMPARE(where.sql(), QLatin1String("username = ?"));
 
-    result = engine->evaluate("where.and(Q('password', Q.Equals, 'foopass'))");
-    QDjangoWhere andWhere = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(andWhere.sql(), QLatin1String("username = ? AND password = ?"));
+    // less than
+    result = engine->evaluate("Q({'username__lt': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username < ?"));
 
-    result = engine->evaluate("where.or(Q('password', Q.Equals, 'foopass'))");
-    QDjangoWhere orWhere = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(orWhere.sql(), QLatin1String("username = ? OR password = ?"));
+    // less than or equal to
+    result = engine->evaluate("Q({'username__lte': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username <= ?"));
+
+    // greater than
+    result = engine->evaluate("Q({'username__gt': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username > ?"));
+
+    // greater than or equal to
+    result = engine->evaluate("Q({'username__gte': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username >= ?"));
+
+    // starts with
+    result = engine->evaluate("Q({'username__startswith': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username LIKE ? ESCAPE '\\'"));
+
+    // ends with
+    result = engine->evaluate("Q({'username__endswith': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username LIKE ? ESCAPE '\\'"));
+
+    // contains
+    result = engine->evaluate("Q({'username__contains': 'foobar'})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username LIKE ? ESCAPE '\\'"));
+
+    // in
+    result = engine->evaluate("Q({'username__in': ['foobar', 'wiz']})");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username IN (?, ?)"));
+}
+
+void TestScript::testWhereOperators()
+{
+    QScriptValue result;
+    QDjangoWhere where;
+
+    // AND operator
+    result = engine->evaluate("Q({'username': 'foobar'}).and(Q({'password': 'foopass'}))");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username = ? AND password = ?"));
+
+    // OR operator
+    result = engine->evaluate("Q({'username': 'foobar'}).or(Q({'password': 'foopass'}))");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username = ? OR password = ?"));
 }
 
 void TestScript::testModel()

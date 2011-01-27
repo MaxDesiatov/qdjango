@@ -20,19 +20,62 @@
 #include <QDebug>
 #include <QScriptEngine>
 #include <QScriptValue>
+#include <QScriptValueIterator>
 
 #include "QDjangoScript.h"
 #include "QDjangoWhere.h"
 
+
 static QScriptValue newWhere(QScriptContext *context, QScriptEngine *engine)
 {
-    if (context->argumentCount() == 3) {
-        return engine->toScriptValue(QDjangoWhere(
-                       context->argument(0).toString(),
-                       static_cast<QDjangoWhere::Operation>(context->argument(1).toInteger()),
-                       context->argument(2).toVariant()));
+    QDjangoWhere where;
+    if (context->argumentCount() == 1 && context->argument(0).isObject()) {
+        QScriptValueIterator it(context->argument(0));
+        while (it.hasNext()) {
+            it.next();
+            QString key = it.name();
+            QDjangoWhere::Operation op = QDjangoWhere::Equals;
+            if (key.endsWith("__lt")) {
+                key.chop(4);
+                op = QDjangoWhere::LessThan;
+            }
+            else if (key.endsWith("__lte")) {
+                key.chop(5);
+                op = QDjangoWhere::LessOrEquals;
+            }
+            else if (key.endsWith("__gt")) {
+                key.chop(4);
+                op = QDjangoWhere::GreaterThan;
+            }
+            else if (key.endsWith("__gte")) {
+                key.chop(5);
+                op = QDjangoWhere::GreaterOrEquals;
+            }
+            else if (key.endsWith("__startswith")) {
+                key.chop(12);
+                op = QDjangoWhere::StartsWith;
+            }
+            else if (key.endsWith("__endswith")) {
+                key.chop(10);
+                op = QDjangoWhere::EndsWith;
+            }
+            else if (key.endsWith("__contains")) {
+                key.chop(10);
+                op = QDjangoWhere::Contains;
+            }
+            else if (key.endsWith("__in")) {
+                key.chop(4);
+                op = QDjangoWhere::IsIn;
+            }
+            where = where && QDjangoWhere(key, op, it.value().toVariant());
+        }
+    } else if (context->argumentCount() == 3) {
+        where = QDjangoWhere(
+                   context->argument(0).toString(),
+                   static_cast<QDjangoWhere::Operation>(context->argument(1).toInteger()),
+                   context->argument(2).toVariant());
     }
-    return engine->toScriptValue(QDjangoWhere());
+    return engine->toScriptValue(where);
 }
 
 static QScriptValue whereAnd(QScriptContext *context, QScriptEngine *engine)
@@ -64,15 +107,6 @@ void qScriptRegisterWhere(QScriptEngine *engine)
     engine->setDefaultPrototype(qMetaTypeId<QDjangoWhere>(), whereProto);
 
     QScriptValue ctor = engine->newFunction(newWhere);
-    ctor.setProperty("Equals", QScriptValue(engine, QDjangoWhere::Equals), QScriptValue::ReadOnly);
-    ctor.setProperty("NotEquals", QScriptValue(engine, QDjangoWhere::NotEquals), QScriptValue::ReadOnly);
-    ctor.setProperty("GreaterThan", QScriptValue(engine, QDjangoWhere::GreaterThan), QScriptValue::ReadOnly);
-    ctor.setProperty("LessThan", QScriptValue(engine, QDjangoWhere::LessThan), QScriptValue::ReadOnly);
-    ctor.setProperty("GreaterOrEquals", QScriptValue(engine, QDjangoWhere::GreaterOrEquals), QScriptValue::ReadOnly);
-    ctor.setProperty("LessOrEquals", QScriptValue(engine, QDjangoWhere::LessOrEquals), QScriptValue::ReadOnly);
-    ctor.setProperty("StartsWith", QScriptValue(engine, QDjangoWhere::StartsWith), QScriptValue::ReadOnly);
-    ctor.setProperty("EndsWith", QScriptValue(engine, QDjangoWhere::EndsWith), QScriptValue::ReadOnly);
-    ctor.setProperty("IsIn", QScriptValue(engine, QDjangoWhere::IsIn), QScriptValue::ReadOnly);
     engine->globalObject().setProperty("Q", ctor, QScriptValue::ReadOnly);
 }
 
