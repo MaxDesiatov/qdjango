@@ -25,55 +25,60 @@
 #include "QDjangoScript.h"
 #include "QDjangoWhere.h"
 
+QDjangoWhere QDjangoWhereFromScriptValue(QScriptEngine *engine, const QScriptValue &obj)
+{
+    if (obj.prototype().equals(engine->defaultPrototype(qMetaTypeId<QDjangoWhere>()))) {
+        return engine->fromScriptValue<QDjangoWhere>(obj);
+    }
+
+    QDjangoWhere where;
+    QScriptValueIterator it(obj);
+    while (it.hasNext()) {
+        it.next();
+        QString key = it.name();
+        QDjangoWhere::Operation op = QDjangoWhere::Equals;
+        if (key.endsWith("__lt")) {
+            key.chop(4);
+            op = QDjangoWhere::LessThan;
+        }
+        else if (key.endsWith("__lte")) {
+            key.chop(5);
+            op = QDjangoWhere::LessOrEquals;
+        }
+        else if (key.endsWith("__gt")) {
+            key.chop(4);
+            op = QDjangoWhere::GreaterThan;
+        }
+        else if (key.endsWith("__gte")) {
+            key.chop(5);
+            op = QDjangoWhere::GreaterOrEquals;
+        }
+        else if (key.endsWith("__startswith")) {
+            key.chop(12);
+            op = QDjangoWhere::StartsWith;
+        }
+        else if (key.endsWith("__endswith")) {
+            key.chop(10);
+            op = QDjangoWhere::EndsWith;
+        }
+        else if (key.endsWith("__contains")) {
+            key.chop(10);
+            op = QDjangoWhere::Contains;
+        }
+        else if (key.endsWith("__in")) {
+            key.chop(4);
+            op = QDjangoWhere::IsIn;
+        }
+        where = where && QDjangoWhere(key, op, it.value().toVariant());
+    }
+    return where;
+} 
 
 static QScriptValue newWhere(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoWhere where;
     if (context->argumentCount() == 1 && context->argument(0).isObject()) {
-        QScriptValueIterator it(context->argument(0));
-        while (it.hasNext()) {
-            it.next();
-            QString key = it.name();
-            QDjangoWhere::Operation op = QDjangoWhere::Equals;
-            if (key.endsWith("__lt")) {
-                key.chop(4);
-                op = QDjangoWhere::LessThan;
-            }
-            else if (key.endsWith("__lte")) {
-                key.chop(5);
-                op = QDjangoWhere::LessOrEquals;
-            }
-            else if (key.endsWith("__gt")) {
-                key.chop(4);
-                op = QDjangoWhere::GreaterThan;
-            }
-            else if (key.endsWith("__gte")) {
-                key.chop(5);
-                op = QDjangoWhere::GreaterOrEquals;
-            }
-            else if (key.endsWith("__startswith")) {
-                key.chop(12);
-                op = QDjangoWhere::StartsWith;
-            }
-            else if (key.endsWith("__endswith")) {
-                key.chop(10);
-                op = QDjangoWhere::EndsWith;
-            }
-            else if (key.endsWith("__contains")) {
-                key.chop(10);
-                op = QDjangoWhere::Contains;
-            }
-            else if (key.endsWith("__in")) {
-                key.chop(4);
-                op = QDjangoWhere::IsIn;
-            }
-            where = where && QDjangoWhere(key, op, it.value().toVariant());
-        }
-    } else if (context->argumentCount() == 3) {
-        where = QDjangoWhere(
-                   context->argument(0).toString(),
-                   static_cast<QDjangoWhere::Operation>(context->argument(1).toInteger()),
-                   context->argument(2).toVariant());
+        where = QDjangoWhereFromScriptValue(engine, context->argument(0));
     }
     return engine->toScriptValue(where);
 }
@@ -81,14 +86,14 @@ static QScriptValue newWhere(QScriptContext *context, QScriptEngine *engine)
 static QScriptValue whereAnd(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoWhere q = engine->fromScriptValue<QDjangoWhere>(context->thisObject());
-    QDjangoWhere other = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    QDjangoWhere other = QDjangoWhereFromScriptValue(engine, context->argument(0));
     return engine->toScriptValue(q && other);
 }
 
 static QScriptValue whereOr(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoWhere q = engine->fromScriptValue<QDjangoWhere>(context->thisObject());
-    QDjangoWhere other = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    QDjangoWhere other = QDjangoWhereFromScriptValue(engine, context->argument(0));
     return engine->toScriptValue(q || other);
 }
 

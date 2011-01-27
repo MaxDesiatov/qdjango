@@ -28,6 +28,8 @@
 
 Q_DECLARE_METATYPE(QDjangoWhere)
 
+QDjangoWhere QDjangoWhereFromScriptValue(QScriptEngine *engine, const QScriptValue &obj);
+
 template <class T>
 static QScriptValue querySetAll(QScriptContext *context, QScriptEngine *engine)
 {
@@ -55,7 +57,7 @@ template <class T>
 static QScriptValue querySetExclude(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    QDjangoWhere where = QDjangoWhereFromScriptValue(engine, context->argument(0));
     return engine->toScriptValue(qs.exclude(where));
 }
 
@@ -63,7 +65,7 @@ template <class T>
 static QScriptValue querySetFilter(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    QDjangoWhere where = QDjangoWhereFromScriptValue(engine, context->argument(0));
     return engine->toScriptValue(qs.filter(where));
 }
 
@@ -71,7 +73,7 @@ template <class T>
 static QScriptValue querySetGet(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QDjangoWhere where = engine->fromScriptValue<QDjangoWhere>(context->argument(0));
+    QDjangoWhere where = QDjangoWhereFromScriptValue(engine, context->argument(0));
     return engine->newQObject(qs.get(where), QScriptEngine::ScriptOwnership);
 }
 
