@@ -40,6 +40,8 @@
  *
  *  Behinds the scenes, the QDjangoQuerySet class uses implicit sharing to
  *  reduce memory usage and avoid needless copying of data.
+ *
+ * \ingroup Database
  */
 template <class T>
     class QDjangoQuerySet
@@ -329,7 +331,7 @@ QList< QList<QVariant> > QDjangoQuerySet<T>::valuesList(const QStringList &field
     return d->sqlValuesList(fields);
 }
 
-/** Return the QDjangoWhere expressing the WHERE clause of the
+/** Returns the QDjangoWhere expressing the WHERE clause of the
  * QDjangoQuerySet.
  */
 template <class T>
@@ -338,6 +340,10 @@ QDjangoWhere QDjangoQuerySet<T>::where() const
     return d->whereClause;
 }
 
+/** Assigns the specified queryset to this object.
+ *
+ * \param other
+ */
 template <class T>
 QDjangoQuerySet<T> &QDjangoQuerySet<T>::operator=(const QDjangoQuerySet<T> &other)
 {

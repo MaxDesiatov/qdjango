@@ -32,6 +32,8 @@ class QDjangoQuery;
  *
  * QDjangoWhere instances can be negated using the "!" unary operator
  * or combined using the "&&" and "||" boolean operators.
+ *
+ * \ingroup Database
  */
 class QDjangoWhere
 {
