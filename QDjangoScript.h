@@ -78,6 +78,15 @@ static QScriptValue querySetGet(QScriptContext *context, QScriptEngine *engine)
 }
 
 template <class T>
+static QScriptValue querySetLimit(QScriptContext *context, QScriptEngine *engine)
+{
+    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
+    const int pos = context->argument(0).toInteger();
+    const int limit = (context->argumentCount() > 1) ? context->argument(1).toInteger() : 1;
+    return engine->toScriptValue(qs.limit(pos, limit));
+}
+
+template <class T>
 static QScriptValue querySetSize(QScriptContext *context, QScriptEngine *engine)
 {
     QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
@@ -113,6 +122,7 @@ void qScriptRegisterModel(QScriptEngine *engine)
     querysetProto.setProperty("exclude", engine->newFunction(querySetExclude<T>));
     querysetProto.setProperty("filter", engine->newFunction(querySetFilter<T>));
     querysetProto.setProperty("get", engine->newFunction(querySetGet<T>));
+    querysetProto.setProperty("limit", engine->newFunction(querySetLimit<T>));
     querysetProto.setProperty("size", engine->newFunction(querySetSize<T>));
     querysetProto.setProperty("toString", engine->newFunction(querySetToString<T>));
     engine->setDefaultPrototype(qMetaTypeId< QDjangoQuerySet<T> >(), querysetProto);
