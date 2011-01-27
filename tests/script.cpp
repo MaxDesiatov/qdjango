@@ -40,8 +40,8 @@ void TestScript::initTestCase()
     QCOMPARE(metaModel.createTable(), true);
 
     engine = new QScriptEngine(this);
-    qScriptRegisterWhere(engine);
-    qScriptRegisterModel<User>(engine);
+    QDjangoScript::registerWhere(engine);
+    QDjangoScript::registerModel<User>(engine);
 }
 
 void TestScript::testWhereConstructor()

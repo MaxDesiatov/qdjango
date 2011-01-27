@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 
     /* Run interactive shell */ 
     QScriptEngine *eng = new QScriptEngine();
-    qScriptRegisterWhere(eng);
+    QDjangoScript::registerWhere(eng);
     qDebug() << "Available extensions: " << eng->availableExtensions();
     interactive(eng);
 

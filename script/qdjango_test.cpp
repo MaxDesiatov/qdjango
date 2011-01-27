@@ -47,9 +47,9 @@ void QDjangoScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
 {
     if (key == QLatin1String("qdjango.test"))
     {
-        qScriptRegisterModel<User>(engine);
-        qScriptRegisterModel<Group>(engine);
-        qScriptRegisterModel<Message>(engine);
+        QDjangoScript::registerModel<User>(engine);
+        QDjangoScript::registerModel<Group>(engine);
+        QDjangoScript::registerModel<Message>(engine);
     }
 }
 
