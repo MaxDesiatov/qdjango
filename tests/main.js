@@ -39,7 +39,7 @@ m.user_id = u.pk;
 m.save();
 
 /* find message */
-qs = Message.objects.filter(Q({"pk": 1}));
+qs = Message.objects.filter({"pk": 1});
 if (qs.size() != 1) fail("Wrong number of messages");
 m2 = qs.at(0)
 if (m2.text != "some message") fail("Wrong message text");

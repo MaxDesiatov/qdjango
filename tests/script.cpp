@@ -93,6 +93,11 @@ void TestScript::testWhereConstructor()
     result = engine->evaluate("Q({'username__in': ['foobar', 'wiz']})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
     QCOMPARE(where.sql(), QLatin1String("username IN (?, ?)"));
+
+    // double constructor
+    result = engine->evaluate("Q(Q({'username': 'foobar'}))");
+    where = engine->fromScriptValue<QDjangoWhere>(result);
+    QCOMPARE(where.sql(), QLatin1String("username = ?"));
 }
 
 void TestScript::testWhereOperators()
