@@ -31,7 +31,8 @@ class TestScript : public QObject
 
 private slots:
     void initTestCase();
-    void testWhere();
+    void testWhereConstructor();
+    void testWhereOperators();
     void testModel();
     void cleanupTestCase();
 
