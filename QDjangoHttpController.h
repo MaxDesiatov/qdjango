@@ -31,6 +31,8 @@ QString httpDateTime(const QDateTime &dt);
 QDateTime httpDateTime(const QString &str);
 
 /** \brief The QDjangoHttpController class is the base class for HTTP request handlers.
+ *
+ * \ingroup Http
  */
 class QDjangoHttpController
 {

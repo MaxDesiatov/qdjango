@@ -24,6 +24,8 @@ class QDjangoHttpRequest;
 class QDjangoHttpRequestPrivate;
 
 /** \brief The QDjangoHttpRequest class represents an HTTP request.
+ *
+ * \ingroup Http
  */
 class QDjangoHttpRequest
 {
