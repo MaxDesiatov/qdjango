@@ -19,6 +19,7 @@
 
 #include <QObject>
 
+class QDjangoHttpController;
 class QDjangoHttpServer;
 
 /** Test QDjangoServer class.
@@ -29,9 +30,11 @@ class TestHttp : public QObject
 
 private slots:
     void initTestCase();
+    void testGet_data();
     void testGet();
 
 private:
+    QDjangoHttpController *httpController;
     QDjangoHttpServer *httpServer;
 };
 
