@@ -25,26 +25,31 @@
 
 class QDjangoHttpRequest;
 class QDjangoHttpResponse;
+class QUrl;
 
 QString httpDateTime(const QDateTime &dt);
 QDateTime httpDateTime(const QString &str);
 
-/** The QDjangoHttpController class is the base class for HTTP request handlers.
+/** \brief The QDjangoHttpController class is the base class for HTTP request handlers.
  */
 class QDjangoHttpController
 {
 public:
+    /** \brief Responds to an HTTP request.
+     *
+     * Reimplement this method when creating a subclass of QDjangoHttpController.
+     */
     virtual QDjangoHttpResponse *respondToRequest(const QDjangoHttpRequest &request) = 0;
 
-    // common error responses
+    // common responses
     static QDjangoHttpResponse *serveBadRequest(const QDjangoHttpRequest &request);
     static QDjangoHttpResponse *serveInternalServerError(const QDjangoHttpRequest &request);
     static QDjangoHttpResponse *serveNotFound(const QDjangoHttpRequest &request);
+    static QDjangoHttpResponse *serveRedirect(const QDjangoHttpRequest &request, const QUrl &url, bool permanent = false);
+    static QDjangoHttpResponse *serveStatic(const QDjangoHttpRequest &request, const QString &filePath, const QDateTime &expires = QDateTime());
 
-protected:
+private:
     static QDjangoHttpResponse *serveError(const QDjangoHttpRequest &request, int code, const QString &text);
-    QDjangoHttpResponse *serveRedirect(const QDjangoHttpRequest &request, const QString &url) const;
-    QDjangoHttpResponse *serveStatic(const QDjangoHttpRequest &request, const QString &filePath, const QDateTime &expires = QDateTime()) const;
 };
 
 #endif

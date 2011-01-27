@@ -24,13 +24,15 @@
 
 class QDjangoHttpResponsePrivate;
 
-/** The QDjangoHttpResponse class represents an HTTP response.
+/** \brief The QDjangoHttpResponse class represents an HTTP response.
  */
 class QDjangoHttpResponse : public QObject
 {
     Q_OBJECT
 
 public:
+    /** \brief Enum representing well-known HTTP status codes.
+     */
     enum HttpStatus {
         OK                      = 200,
         MovedPermanently        = 301,

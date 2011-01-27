@@ -76,31 +76,45 @@ QDjangoHttpRequest::~QDjangoHttpRequest()
     delete d;
 }
 
+/** Returns the raw body of the HTTP request.
+ */
 QByteArray QDjangoHttpRequest::body() const
 {
     return d->buffer;
 }
 
+/** Returns the specified HTTP request header.
+ *
+ * \param key
+ */
 QString QDjangoHttpRequest::header(const QString &key) const
 {
     return d->header.value(key);
 }
 
+/** Returns the HTTP request's method (e.g. GET, POST).
+ */
 QString QDjangoHttpRequest::method() const
 {
     return d->header.method();
 }
 
+/** Returns the HTTP request's path.
+ */
 QString QDjangoHttpRequest::path() const
 {
     return d->header.path();
 }
 
+/** Returns true if the HTTP request is fully received, false otherwise.
+ */
 bool QDjangoHttpRequest::isFinished() const
 {
     return d->headerReceived && !d->bytesRemaining;
 }
 
+/** Returns true if the HTTP request is valid, false otherwise.
+ */
 bool QDjangoHttpRequest::isValid() const
 {
     return d->valid;
