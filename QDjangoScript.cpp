@@ -103,7 +103,11 @@ static QScriptValue whereToString(QScriptContext *context, QScriptEngine *engine
     return engine->toScriptValue("Q(" + q.sql() + ")");
 }
 
-void qScriptRegisterWhere(QScriptEngine *engine)
+/** Makes the QDjangoWhere class available to the given QScriptEngine.
+ *
+ * \param engine
+ */
+void QDjangoScript::registerWhere(QScriptEngine *engine)
 {
     QScriptValue whereProto = engine->newObject();
     whereProto.setProperty("and", engine->newFunction(whereAnd));

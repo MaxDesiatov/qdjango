@@ -25,118 +25,50 @@
 
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
+#include "QDjangoScript_p.h"
 
 Q_DECLARE_METATYPE(QDjangoWhere)
 
-QDjangoWhere QDjangoWhereFromScriptValue(QScriptEngine *engine, const QScriptValue &obj);
+/** \defgroup Script */
 
-template <class T>
-static QScriptValue querySetAll(QScriptContext *context, QScriptEngine *engine)
+/** \brief The QDjangoScript class provides static methods for making models
+ *  scriptable.
+ *
+ * \ingroup Script
+ */
+class QDjangoScript
 {
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    return engine->toScriptValue(qs.all());
-}
+public:
+    template <class T>
+    static void registerModel(QScriptEngine *engine);
+    static void registerWhere(QScriptEngine *engine);
+};
 
-template <class T>
-static QScriptValue querySetCount(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    return QScriptValue(engine, qs.count());
-}
-
-template <class T>
-static QScriptValue querySetAt(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    //QDjangoQuerySet<T> qs = context->thisObject().toVariant().value< QDjangoQuerySet<T> >();
-    int index = context->argument(0).toInteger();
-    return engine->newQObject(qs.at(index), QScriptEngine::ScriptOwnership);
-}
-
-template <class T>
-static QScriptValue querySetExclude(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QDjangoWhere where = QDjangoWhereFromScriptValue(engine, context->argument(0));
-    return engine->toScriptValue(qs.exclude(where));
-}
-
-template <class T>
-static QScriptValue querySetFilter(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QDjangoWhere where = QDjangoWhereFromScriptValue(engine, context->argument(0));
-    return engine->toScriptValue(qs.filter(where));
-}
-
-template <class T>
-static QScriptValue querySetGet(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    QDjangoWhere where = QDjangoWhereFromScriptValue(engine, context->argument(0));
-    return engine->newQObject(qs.get(where), QScriptEngine::ScriptOwnership);
-}
-
-template <class T>
-static QScriptValue querySetLimit(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    const int pos = context->argument(0).toInteger();
-    const int limit = (context->argumentCount() > 1) ? context->argument(1).toInteger() : 1;
-    return engine->toScriptValue(qs.limit(pos, limit));
-}
-
-template <class T>
-static QScriptValue querySetSize(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    return QScriptValue(engine, qs.size());
-}
-
-template <class T>
-static QScriptValue querySetToString(QScriptContext *context, QScriptEngine *engine)
-{
-    QDjangoQuerySet<T> qs = engine->fromScriptValue< QDjangoQuerySet<T> >(context->thisObject());
-    return QScriptValue(engine, QString("QuerySet<%1>(%2)").arg(T::staticMetaObject.className(), qs.where().sql()));
-}
-
-template <class T>
-static QScriptValue newModel(QScriptContext *context, QScriptEngine *engine)
-{
-    return engine->newQObject(new T, QScriptEngine::ScriptOwnership);
-}
-
-/** Make a QDjangoModel class available to the given QScriptEngine.
+/** Makes a QDjangoModel class available to the given QScriptEngine.
  *
  * \param engine
  */
 template <class T>
-void qScriptRegisterModel(QScriptEngine *engine)
+void QDjangoScript::registerModel(QScriptEngine *engine)
 {
     QDjango::registerModel<T>();
 
     QScriptValue querysetProto = engine->newObject();
-    querysetProto.setProperty("all", engine->newFunction(querySetAll<T>));
-    querysetProto.setProperty("at", engine->newFunction(querySetAt<T>));
-    querysetProto.setProperty("count", engine->newFunction(querySetCount<T>));
-    querysetProto.setProperty("exclude", engine->newFunction(querySetExclude<T>));
-    querysetProto.setProperty("filter", engine->newFunction(querySetFilter<T>));
-    querysetProto.setProperty("get", engine->newFunction(querySetGet<T>));
-    querysetProto.setProperty("limit", engine->newFunction(querySetLimit<T>));
-    querysetProto.setProperty("size", engine->newFunction(querySetSize<T>));
-    querysetProto.setProperty("toString", engine->newFunction(querySetToString<T>));
+    querysetProto.setProperty("all", engine->newFunction(QDjangoQuerySet_all<T>));
+    querysetProto.setProperty("at", engine->newFunction(QDjangoQuerySet_at<T>));
+    querysetProto.setProperty("count", engine->newFunction(QDjangoQuerySet_count<T>));
+    querysetProto.setProperty("exclude", engine->newFunction(QDjangoQuerySet_exclude<T>));
+    querysetProto.setProperty("filter", engine->newFunction(QDjangoQuerySet_filter<T>));
+    querysetProto.setProperty("get", engine->newFunction(QDjangoQuerySet_get<T>));
+    querysetProto.setProperty("limit", engine->newFunction(QDjangoQuerySet_limit<T>));
+    querysetProto.setProperty("size", engine->newFunction(QDjangoQuerySet_size<T>));
+    querysetProto.setProperty("toString", engine->newFunction(QDjangoQuerySet_toString<T>));
     engine->setDefaultPrototype(qMetaTypeId< QDjangoQuerySet<T> >(), querysetProto);
 
     QDjangoQuerySet<T> qs;
-    QScriptValue value = engine->newQMetaObject(&T::staticMetaObject, engine->newFunction(newModel<T>));
+    QScriptValue value = engine->newQMetaObject(&T::staticMetaObject, engine->newFunction(QDjangoModel_new<T>));
     value.setProperty("objects", engine->toScriptValue(qs));
     engine->globalObject().setProperty(T::staticMetaObject.className(), value);
 }
-
-/** Make the QDjangoWhere class available to the given QScriptEngine.
- *
- * \param engine
- */
-void qScriptRegisterWhere(QScriptEngine *engine);
 
 #endif
