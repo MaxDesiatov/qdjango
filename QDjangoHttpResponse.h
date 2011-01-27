@@ -25,6 +25,8 @@
 class QDjangoHttpResponsePrivate;
 
 /** \brief The QDjangoHttpResponse class represents an HTTP response.
+ *
+ * \ingroup Http
  */
 class QDjangoHttpResponse : public QObject
 {

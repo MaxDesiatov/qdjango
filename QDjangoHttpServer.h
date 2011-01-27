@@ -26,7 +26,11 @@ class QDjangoHttpController;
 class QDjangoHttpServer;
 class QDjangoHttpServerPrivate;
 
+/** \defgroup Http */
+
 /** \brief The QDjangoHttpServer class represents an HTTP server.
+ *
+ * \ingroup Http
  */
 class QDjangoHttpServer : public QTcpServer
 {
