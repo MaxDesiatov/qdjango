@@ -12,19 +12,18 @@ add_library(qdjango-models STATIC ${qdjango-models_SOURCES} ${qdjango-models_MOC
 target_link_libraries(qdjango-models qdjango)
 
 # test program
-set(qdjango-tests_SOURCES main.cpp auth/tests.cpp shares/tests.cpp)
-set(qdjango-tests_MOC_HEADERS main.h auth/tests.h shares/tests.h)
-if(QDJANGO_USE_NETWORK)
-    add_definitions(-DUSE_NETWORK)
-    list(APPEND qdjango-tests_SOURCES http.cpp)
-    list(APPEND qdjango-tests_MOC_HEADERS http.h)
-endif()
-if(QDJANGO_USE_SCRIPT)
-    add_definitions(-DUSE_SCRIPT)
-    list(APPEND qdjango-tests_SOURCES script.cpp)
-    list(APPEND qdjango-tests_MOC_HEADERS script.h)
-endif()
-
+set(qdjango-tests_SOURCES
+    http.cpp
+    main.cpp
+    script.cpp
+    auth/tests.cpp
+    shares/tests.cpp)
+set(qdjango-tests_MOC_HEADERS
+    http.h
+    main.h
+    script.h
+    auth/tests.h
+    shares/tests.h)
 qt4_wrap_cpp(qdjango-tests_MOC_SOURCES ${qdjango-tests_MOC_HEADERS})
 add_executable(qdjango-tests ${qdjango-tests_SOURCES} ${qdjango-tests_MOC_SOURCES})
 target_link_libraries(qdjango-tests qdjango qdjango-http qdjango-models qdjango-script ${QT_LIBRARIES})
