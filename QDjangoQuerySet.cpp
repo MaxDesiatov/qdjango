@@ -20,8 +20,6 @@
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
 
-typedef QMap<QString, QVariant> PropertyMap;
-
 QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
     : counter(1),
     hasResults(false),
@@ -145,7 +143,7 @@ bool QDjangoQueryBase::sqlFetch()
     // store results
     while (query.next())
     {
-        QMap<QString, QVariant> props;
+        QVariantMap props;
         for (int i = 0; i < fields.size(); ++i)
             props.insert(fields[i], query.value(i));
         properties.append(props);
@@ -222,7 +220,7 @@ QList<QVariantMap> QDjangoQueryBase::sqlValues(const QStringList &fields)
     else
         fieldNames = fields;
 
-    foreach (const PropertyMap &props, properties)
+    foreach (const QVariantMap &props, properties)
     {
         QVariantMap map;
         foreach (const QString &field, fieldNames)
@@ -250,7 +248,7 @@ QList<QVariantList> QDjangoQueryBase::sqlValuesList(const QStringList &fields)
     else
         fieldNames = fields;
 
-    foreach (const PropertyMap &props, properties)
+    foreach (const QVariantMap &props, properties)
     {
         QVariantList list;
         foreach (const QString &field, fieldNames)

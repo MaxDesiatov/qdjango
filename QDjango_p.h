@@ -68,7 +68,7 @@ public:
     bool createTable() const;
     bool dropTable() const;
 
-    void load(QObject *model, const QMap<QString, QVariant> &props) const;
+    void load(QObject *model, const QVariantMap &props) const;
     bool remove(QObject *model) const;
     bool save(QObject *model) const;
 
