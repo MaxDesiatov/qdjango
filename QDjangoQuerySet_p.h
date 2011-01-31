@@ -47,8 +47,8 @@ public:
     bool sqlFetch();
     QString sqlLimit() const;
     bool sqlLoad(QObject *model, int index);
-    QList< QMap<QString, QVariant> > sqlValues(const QStringList &fields);
-    QList< QList<QVariant> > sqlValuesList(const QStringList &fields);
+    QList<QVariantMap> sqlValues(const QStringList &fields);
+    QList<QVariantList> sqlValuesList(const QStringList &fields);
 
     // reference counter
     QAtomicInt counter;
