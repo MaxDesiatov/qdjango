@@ -459,7 +459,7 @@ QObject *QDjangoMetaModel::foreignKey(const QObject *model, const char *name) co
     const QVariant foreignPk = model->property(prop + "_id");
     if (foreign->property(foreignMeta.primaryKey()) != foreignPk)
     {
-        QDjangoQueryBase qs(foreignClass);
+        QDjangoQuerySetPrivate qs(foreignClass);
         qs.addFilter(QDjangoWhere("pk", QDjangoWhere::Equals, foreignPk));
         qs.sqlFetch();
         if (qs.properties.size() != 1 || !qs.sqlLoad(foreign, 0))

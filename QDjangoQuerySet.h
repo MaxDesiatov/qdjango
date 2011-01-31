@@ -73,7 +73,7 @@ public:
     QDjangoQuerySet<T> &operator=(const QDjangoQuerySet<T> &other);
 
 private:
-    QDjangoQueryBase *d;
+    QDjangoQuerySetPrivate *d;
 };
 
 /** Constructs a new queryset.
@@ -81,7 +81,7 @@ private:
 template <class T>
 QDjangoQuerySet<T>::QDjangoQuerySet()
 {
-    d = new QDjangoQueryBase(T::staticMetaObject.className());
+    d = new QDjangoQuerySetPrivate(T::staticMetaObject.className());
 }
 
 /** Constructs a copy of \a other.

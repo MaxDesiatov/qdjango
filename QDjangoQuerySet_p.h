@@ -35,10 +35,10 @@ class QDjangoMetaModel;
 
 /** \internal
  */
-class QDjangoQueryBase
+class QDjangoQuerySetPrivate
 {
 public:
-    QDjangoQueryBase(const QString &modelName);
+    QDjangoQuerySetPrivate(const QString &modelName);
 
     void addFilter(const QDjangoWhere &where);
     int sqlCount() const;
@@ -62,7 +62,7 @@ public:
     bool selectRelated;
 
 private:
-    Q_DISABLE_COPY(QDjangoQueryBase)
+    Q_DISABLE_COPY(QDjangoQuerySetPrivate)
     QStringList fieldNames(const QDjangoMetaModel &model, QString &from);
 
     QString m_modelName;

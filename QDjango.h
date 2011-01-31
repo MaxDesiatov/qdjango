@@ -60,7 +60,7 @@ private:
 
     friend class QDjangoModel;
     friend class QDjangoMetaModel;
-    friend class QDjangoQueryBase;
+    friend class QDjangoQuerySetPrivate;
 };
 
 /** Register a QDjangoModel class with QDjango.

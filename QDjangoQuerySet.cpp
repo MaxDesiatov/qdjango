@@ -20,7 +20,7 @@
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
 
-QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
+QDjangoQuerySetPrivate::QDjangoQuerySetPrivate(const QString &modelName)
     : counter(1),
     hasResults(false),
     lowMark(0),
@@ -31,7 +31,7 @@ QDjangoQueryBase::QDjangoQueryBase(const QString &modelName)
 {
 }
 
-QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QString &from)
+QStringList QDjangoQuerySetPrivate::fieldNames(const QDjangoMetaModel &metaModel, QString &from)
 {
     QStringList fields;
     foreach (const QDjangoMetaField &field, metaModel.m_localFields)
@@ -53,7 +53,7 @@ QStringList QDjangoQueryBase::fieldNames(const QDjangoMetaModel &metaModel, QStr
     return fields;
 }
 
-void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
+void QDjangoQuerySetPrivate::addFilter(const QDjangoWhere &where)
 {
     // it is not possible to add filters once a limit has been set
     Q_ASSERT(!lowMark && !highMark);
@@ -64,7 +64,7 @@ void QDjangoQueryBase::addFilter(const QDjangoWhere &where)
     whereClause = whereClause && q;
 }
 
-int QDjangoQueryBase::sqlCount() const
+int QDjangoQuerySetPrivate::sqlCount() const
 {
     // prepare query
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
@@ -83,7 +83,7 @@ int QDjangoQueryBase::sqlCount() const
     return query.value(0).toInt();
 }
 
-bool QDjangoQueryBase::sqlDelete()
+bool QDjangoQuerySetPrivate::sqlDelete()
 {
     // DELETE on an empty queryset doesn't need a query
     if (whereClause.isNone())
@@ -118,7 +118,7 @@ bool QDjangoQueryBase::sqlDelete()
     return true;
 }
 
-bool QDjangoQueryBase::sqlFetch()
+bool QDjangoQuerySetPrivate::sqlFetch()
 {
     if (hasResults || whereClause.isNone())
         return true;
@@ -152,7 +152,7 @@ bool QDjangoQueryBase::sqlFetch()
     return true;
 }
 
-QString QDjangoQueryBase::sqlLimit() const
+QString QDjangoQuerySetPrivate::sqlLimit() const
 {
     QString limit;
 
@@ -188,7 +188,7 @@ QString QDjangoQueryBase::sqlLimit() const
     return limit;
 }
 
-bool QDjangoQueryBase::sqlLoad(QObject *model, int index)
+bool QDjangoQuerySetPrivate::sqlLoad(QObject *model, int index)
 {
     if (!sqlFetch())
         return false;
@@ -204,7 +204,7 @@ bool QDjangoQueryBase::sqlLoad(QObject *model, int index)
     return true;
 }
 
-QList<QVariantMap> QDjangoQueryBase::sqlValues(const QStringList &fields)
+QList<QVariantMap> QDjangoQuerySetPrivate::sqlValues(const QStringList &fields)
 {
     QList<QVariantMap> values;
     if (!sqlFetch())
@@ -233,7 +233,7 @@ QList<QVariantMap> QDjangoQueryBase::sqlValues(const QStringList &fields)
     return values;
 }
 
-QList<QVariantList> QDjangoQueryBase::sqlValuesList(const QStringList &fields)
+QList<QVariantList> QDjangoQuerySetPrivate::sqlValuesList(const QStringList &fields)
 {
     QList<QVariantList> values;
     if (!sqlFetch())

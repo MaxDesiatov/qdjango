@@ -83,7 +83,7 @@ private:
     QByteArray m_primaryKey;
     QByteArray m_table;
 
-    friend class QDjangoQueryBase;
+    friend class QDjangoQuerySetPrivate;
 };
 
 /** \brief The QDjangoDatabase class represents a set of connections to a
