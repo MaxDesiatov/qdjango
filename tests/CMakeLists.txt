@@ -27,5 +27,5 @@ endif()
 
 qt4_wrap_cpp(qdjango-tests_MOC_SOURCES ${qdjango-tests_MOC_HEADERS})
 add_executable(qdjango-tests ${qdjango-tests_SOURCES} ${qdjango-tests_MOC_SOURCES})
-target_link_libraries(qdjango-tests qdjango qdjango-models ${QT_LIBRARIES})
+target_link_libraries(qdjango-tests qdjango qdjango-http qdjango-models qdjango-script ${QT_LIBRARIES})
 

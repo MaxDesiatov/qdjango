@@ -32,12 +32,8 @@
 #include "auth/tests.h"
 #include "shares/models.h"
 #include "shares/tests.h"
-#ifdef USE_NETWORK
 #include "http.h"
-#endif
-#ifdef USE_SCRIPT
 #include "script.h"
-#endif
 
 QString Object::foo() const
 {
@@ -383,15 +379,11 @@ int main(int argc, char *argv[])
         TestShares testShares;
         errors += QTest::qExec(&testShares);
 
-#ifdef USE_NETWORK
         TestHttp testHttp;
         errors += QTest::qExec(&testHttp);
-#endif
 
-#ifdef USE_SCRIPT
         TestScript testScript;
         errors += QTest::qExec(&testScript);
-#endif
     }
 
     if (errors)
