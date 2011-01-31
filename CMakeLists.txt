@@ -17,7 +17,20 @@ endif(UNIX)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-set(qdjango_LIBRARIES ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
+# Until binary stability is reached, build static libraries
+set(QDJANGO_STATIC 1)
+if(QDJANGO_STATIC)
+  set(LIBRARY_TYPE STATIC)
+else()
+  set(LIBRARY_TYPE SHARED)
+endif()
+
+# Optional debugging
+if(QDJANGO_DEBUG_SQL)
+  add_definitions(-DQDJANGO_DEBUG_SQL=1)
+endif(QDJANGO_DEBUG_SQL)
+
+# QDjango core library
 set(qdjango_SOURCES
     QDjango.cpp
     QDjangoModel.cpp
@@ -26,50 +39,35 @@ set(qdjango_SOURCES
 set(qdjango_MOC_HEADERS
     QDjango_p.h
     QDjangoModel.h)
-
-# Optional debugging
-if(QDJANGO_DEBUG_SQL)
-    add_definitions(-DQDJANGO_DEBUG_SQL=1)
-endif(QDJANGO_DEBUG_SQL)
-
-# Optional network support
-#set(QDJANGO_USE_NETWORK 1)
-if(QDJANGO_USE_NETWORK)
-  list(APPEND qdjango_LIBRARIES ${QT_QTNETWORK_LIBRARY})
-  list(APPEND qdjango_SOURCES
-      QDjangoHttpController.cpp
-      QDjangoHttpRequest.cpp
-      QDjangoHttpResponse.cpp
-      QDjangoHttpServer.cpp)
-  list(APPEND qdjango_MOC_HEADERS
-      QDjangoHttpResponse.h
-      QDjangoHttpServer_p.h)
-endif()
-
-# Optional script support
-#set(QDJANGO_USE_SCRIPT 1)
-if(QDJANGO_USE_SCRIPT)
-  list(APPEND qdjango_LIBRARIES ${QT_QTSCRIPT_LIBRARY})
-  list(APPEND qdjango_SOURCES QDjangoScript.cpp)
-endif()
-
-# QDjango library
 qt4_wrap_cpp(qdjango_MOC_SOURCES ${qdjango_MOC_HEADERS})
-set(QDJANGO_STATIC 1)
-if(QDJANGO_STATIC)
-  add_library(qdjango STATIC ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
-  target_link_libraries(qdjango ${qdjango_LIBRARIES})
-else(QDJANGO_STATIC)
-  add_library(qdjango SHARED ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
-  set_target_properties(qdjango PROPERTIES SOVERSION 0)
-  target_link_libraries(qdjango ${qdjango_LIBRARIES})
+add_library(qdjango ${LIBRARY_TYPE} ${qdjango_SOURCES} ${qdjango_MOC_SOURCES})
+set_target_properties(qdjango PROPERTIES SOVERSION 0)
+target_link_libraries(qdjango ${QT_QTSQL_LIBRARY} ${QT_QTCORE_LIBRARY})
 
-  # Scripting console
-  if (QDJANGO_USE_SCRIPT)
-    add_executable(qdjango-console console.cpp)
-    target_link_libraries(qdjango-console qdjango)
-    add_subdirectory(script)
-  endif()
-endif(QDJANGO_STATIC)
+# QDjango http library
+set(qdjango-http_SOURCES
+    QDjangoHttpController.cpp
+    QDjangoHttpRequest.cpp
+    QDjangoHttpResponse.cpp
+    QDjangoHttpServer.cpp)
+set(qdjango-http_MOC_HEADERS
+    QDjangoHttpResponse.h
+    QDjangoHttpServer_p.h)
+qt4_wrap_cpp(qdjango-http_MOC_SOURCES ${qdjango-http_MOC_HEADERS})
+add_library(qdjango-http ${LIBRARY_TYPE} ${qdjango-http_SOURCES} ${qdjango-http_MOC_SOURCES})
+set_target_properties(qdjango-http PROPERTIES SOVERSION 0)
+target_link_libraries(qdjango-http ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 
+# QDjango script library
+add_library(qdjango-script ${LIBRARY_TYPE} QDjangoScript.cpp)
+set_target_properties(qdjango-script PROPERTIES SOVERSION 0)
+target_link_libraries(qdjango-script qdjango ${QT_QTSCRIPT_LIBRARY})
+
+if(NOT QDJANGO_STATIC)
+  add_executable(qdjango-console console.cpp)
+  target_link_libraries(qdjango-console qdjango-script)
+  add_subdirectory(script)
+endif()
+
+# Tests
 add_subdirectory(tests)
