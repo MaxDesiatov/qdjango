@@ -22,6 +22,7 @@
 #include "QDjangoScript.h"
 
 #include "auth/models.h"
+#include "main.h"
 #include "script.h"
 
 Q_DECLARE_METATYPE(QDjangoQuerySet<User>)
@@ -52,52 +53,52 @@ void TestScript::testWhereConstructor()
     // equals
     result = engine->evaluate("Q({'username': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username = ?"));
+    CHECKWHERE(where, QLatin1String("username = ?"), QVariantList() << "foobar");
 
     // less than
     result = engine->evaluate("Q({'username__lt': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username < ?"));
+    CHECKWHERE(where, QLatin1String("username < ?"), QVariantList() << "foobar");
 
     // less than or equal to
     result = engine->evaluate("Q({'username__lte': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username <= ?"));
+    CHECKWHERE(where, QLatin1String("username <= ?"), QVariantList() << "foobar");
 
     // greater than
     result = engine->evaluate("Q({'username__gt': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username > ?"));
+    CHECKWHERE(where, QLatin1String("username > ?"), QVariantList() << "foobar");
 
     // greater than or equal to
     result = engine->evaluate("Q({'username__gte': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username >= ?"));
+    CHECKWHERE(where, QLatin1String("username >= ?"), QVariantList() << "foobar");
 
     // starts with
     result = engine->evaluate("Q({'username__startswith': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username LIKE ? ESCAPE '\\'"));
+    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE '\\'"), QVariantList() << "foobar%");
 
     // ends with
     result = engine->evaluate("Q({'username__endswith': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username LIKE ? ESCAPE '\\'"));
+    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE '\\'"), QVariantList() << "%foobar");
 
     // contains
     result = engine->evaluate("Q({'username__contains': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username LIKE ? ESCAPE '\\'"));
+    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE '\\'"), QVariantList() << "%foobar%");
 
     // in
     result = engine->evaluate("Q({'username__in': ['foobar', 'wiz']})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username IN (?, ?)"));
+    CHECKWHERE(where, QLatin1String("username IN (?, ?)"), QVariantList() << "foobar" << "wiz");
 
     // double constructor
     result = engine->evaluate("Q(Q({'username': 'foobar'}))");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username = ?"));
+    CHECKWHERE(where, QLatin1String("username = ?"), QVariantList() << "foobar");
 }
 
 void TestScript::testWhereOperators()
@@ -108,12 +109,12 @@ void TestScript::testWhereOperators()
     // AND operator
     result = engine->evaluate("Q({'username': 'foobar'}).and(Q({'password': 'foopass'}))");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username = ? AND password = ?"));
+    CHECKWHERE(where, QLatin1String("username = ? AND password = ?"), QVariantList() << "foobar" << "foopass");
 
     // OR operator
     result = engine->evaluate("Q({'username': 'foobar'}).or(Q({'password': 'foopass'}))");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    QCOMPARE(where.sql(), QLatin1String("username = ? OR password = ?"));
+    CHECKWHERE(where, QLatin1String("username = ? OR password = ?"), QVariantList() << "foobar" << "foopass");
 }
 
 void TestScript::testModel()
