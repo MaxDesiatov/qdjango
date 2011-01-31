@@ -1,4 +1,5 @@
 set(QT_DONT_USE_QTGUI 1)
+set(QT_USE_QTNETWORK 1)
 set(QT_USE_QTSQL 1)
 set(QT_USE_QTTEST 1)
 include(${QT_USE_FILE})
