@@ -1,6 +1,7 @@
 {
 'directories': [
-    '.',
+    'examples',
+    'src',
     'tests',
     'tests/auth',
     'tests/shares',
