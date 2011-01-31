@@ -35,6 +35,15 @@
 #include "http.h"
 #include "script.h"
 
+#define CHECKWHERE(_where, s, v) { \
+    QDjangoQuery _sql_query(QDjango::database()); \
+    const QVariantList _sql_values = v; \
+    _where.bindValues(_sql_query); \
+    QCOMPARE(_where.sql(), s); \
+    QCOMPARE(_sql_query.boundValues().size(), _sql_values.size()); \
+    for(int _i = 0; _i < _sql_values.size(); ++_i) QCOMPARE(_sql_query.boundValue(_i), _sql_values[_i]); \
+    }
+
 QString Object::foo() const
 {
     return m_foo;
@@ -84,13 +93,13 @@ void TestWhere::emptyWhere()
     QDjangoWhere testQuery;
     QCOMPARE(testQuery.isAll(), true);
     QCOMPARE(testQuery.isNone(), false);
-    QCOMPARE(testQuery.sql(), QString());
+    CHECKWHERE(testQuery, QString(), QVariantList());
 
     // negate the where clause
     testQuery = !QDjangoWhere();
     QCOMPARE(testQuery.isAll(), false);
     QCOMPARE(testQuery.isNone(), true);
-    QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
+    CHECKWHERE(testQuery, QLatin1String("1 != 0"), QVariantList());
 }
 
 /** Test "=" comparison.
@@ -99,11 +108,13 @@ void TestWhere::equalsWhere()
 {
     QDjangoWhere testQuery;
 
+    // construct an "equals" where clause
     testQuery = QDjangoWhere("id", QDjangoWhere::Equals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ?"));
+    CHECKWHERE(testQuery, QLatin1String("id = ?"), QVariantList() << 1);
 
+    // negate the where clause
     testQuery = !QDjangoWhere("id", QDjangoWhere::Equals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id != ?"));
+    CHECKWHERE(testQuery, QLatin1String("id != ?"), QVariantList() << 1);
 }
 
 /** Test "!=" comparison.
@@ -112,11 +123,13 @@ void TestWhere::notEqualsWhere()
 {
     QDjangoWhere testQuery;
 
+    // construct a "not equals" where clause
     testQuery = QDjangoWhere("id", QDjangoWhere::NotEquals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id != ?"));
+    CHECKWHERE(testQuery, QLatin1String("id != ?"), QVariantList() << 1);
 
+    // negate the where clause
     testQuery = !QDjangoWhere("id", QDjangoWhere::NotEquals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ?"));
+    CHECKWHERE(testQuery, QLatin1String("id = ?"), QVariantList() << 1);
 }
 
 /** Test ">" comparison.
@@ -126,10 +139,10 @@ void TestWhere::greaterThan()
     QDjangoWhere testQuery;
 
     testQuery = QDjangoWhere("id", QDjangoWhere::GreaterThan, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id > ?"));
+    CHECKWHERE(testQuery, QLatin1String("id > ?"), QVariantList() << 1);
 
     testQuery = !QDjangoWhere("id", QDjangoWhere::GreaterThan, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id <= ?"));
+    CHECKWHERE(testQuery, QLatin1String("id <= ?"), QVariantList() << 1);
 }
 
 /** Test ">=" comparison.
@@ -139,10 +152,10 @@ void TestWhere::greaterOrEquals()
     QDjangoWhere testQuery;
 
     testQuery = QDjangoWhere("id", QDjangoWhere::GreaterOrEquals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id >= ?"));
+    CHECKWHERE(testQuery, QLatin1String("id >= ?"), QVariantList() << 1);
 
     testQuery = !QDjangoWhere("id", QDjangoWhere::GreaterOrEquals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id < ?"));
+    CHECKWHERE(testQuery, QLatin1String("id < ?"), QVariantList() << 1);
 }
 
 /** Test "<" comparison.
@@ -152,10 +165,10 @@ void TestWhere::lessThan()
     QDjangoWhere testQuery;
 
     testQuery = QDjangoWhere("id", QDjangoWhere::LessThan, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id < ?"));
+    CHECKWHERE(testQuery, QLatin1String("id < ?"), QVariantList() << 1);
 
     testQuery = !QDjangoWhere("id", QDjangoWhere::LessThan, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id >= ?"));
+    CHECKWHERE(testQuery, QLatin1String("id >= ?"), QVariantList() << 1);
 }
 
 /** Test "<=" comparison.
@@ -165,117 +178,75 @@ void TestWhere::lessOrEquals()
     QDjangoWhere testQuery;
 
     testQuery = QDjangoWhere("id", QDjangoWhere::LessOrEquals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id <= ?"));
+    CHECKWHERE(testQuery, QLatin1String("id <= ?"), QVariantList() << 1);
 
     testQuery = !QDjangoWhere("id", QDjangoWhere::LessOrEquals, 1);
-    QCOMPARE(testQuery.sql(), QLatin1String("id > ?"));
+    CHECKWHERE(testQuery, QLatin1String("id > ?"), QVariantList() << 1);
 }
 
 /** Test "in" comparison.
  */
 void TestWhere::isIn()
 {
-    QDjangoQuery query(QDjango::database());
-    QDjangoWhere testQuery = QDjangoWhere("id", QDjangoWhere::IsIn, QList<QVariant>() << 1 << 2);
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("id IN (?, ?)"));
-    QCOMPARE(query.boundValues().size(), 2);
-    QCOMPARE(query.boundValue(0), QVariant(1));
-    QCOMPARE(query.boundValue(1), QVariant(2));
+    QDjangoWhere testQuery = QDjangoWhere("id", QDjangoWhere::IsIn, QVariantList() << 1 << 2);
+    CHECKWHERE(testQuery, QLatin1String("id IN (?, ?)"), QVariantList() << 1 << 2);
 }
 
 /** Test "startswith" comparison.
  */
 void TestWhere::startsWith()
 {
-    QDjangoQuery query(QDjango::database());
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::StartsWith, "abc");
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("name LIKE ? ESCAPE '\\'"));
-    QCOMPARE(query.boundValues().size(), 1);
-    QCOMPARE(query.boundValue(0), QVariant("abc%"));
+    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE '\\'"), QVariantList() << "abc%");
 }
 
 /** Test "endswith" comparison.
  */
 void TestWhere::endsWith()
 {
-    QDjangoQuery query(QDjango::database());
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::EndsWith, "abc");
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("name LIKE ? ESCAPE '\\'"));
-    QCOMPARE(query.boundValues().size(), 1);
-    QCOMPARE(query.boundValue(0), QVariant("%abc"));
+    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE '\\'"), QVariantList() << "%abc");
 }
 
 /** Test "contains" comparison.
  */
 void TestWhere::contains()
 {
-    QDjangoQuery query(QDjango::database());
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::Contains, "abc");
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("name LIKE ? ESCAPE '\\'"));
-    QCOMPARE(query.boundValues().size(), 1);
-    QCOMPARE(query.boundValue(0), QVariant("%abc%"));
+    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE '\\'"), QVariantList() << "%abc%");
 }
 
 /** Test compound where clause, using the AND operator.
  */
 void TestWhere::andWhere()
 {
-    QDjangoQuery query(QDjango::database());
     QDjangoWhere testQuery;
 
-    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
-    QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
+    const QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
+    const QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
-    query.clear();
     testQuery = queryId && queryUsername;
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ? AND username = ?"));
-    QCOMPARE(query.boundValues().size(), 2);
-    QCOMPARE(query.boundValue(0), QVariant(1));
-    QCOMPARE(query.boundValue(1), QVariant("foo"));
+    CHECKWHERE(testQuery, QLatin1String("id = ? AND username = ?"), QVariantList() << 1 << "foo");
 
     // and with "all" queryset
-    query.clear();
     testQuery = QDjangoWhere() && queryId;
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ?"));
-    QCOMPARE(query.boundValues().size(), 1);
-    QCOMPARE(query.boundValue(0), QVariant(1));
+    CHECKWHERE(testQuery, QLatin1String("id = ?"), QVariantList() << 1);
 
-    query.clear();
     testQuery = queryId && QDjangoWhere();
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ?"));
-    QCOMPARE(query.boundValues().size(), 1);
-    QCOMPARE(query.boundValue(0), QVariant(1));
+    CHECKWHERE(testQuery, QLatin1String("id = ?"), QVariantList() << 1);
 
     // and with "none" queryset
-    query.clear();
     testQuery = !QDjangoWhere() && queryId;
-    testQuery.bindValues(query);
     QCOMPARE(testQuery.isNone(), true);
-    QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
-    QCOMPARE(query.boundValues().size(), 0);
+    CHECKWHERE(testQuery, QLatin1String("1 != 0"), QVariantList());
 
-    query.clear();
     testQuery = queryId && !QDjangoWhere();
-    testQuery.bindValues(query);
     QCOMPARE(testQuery.isNone(), true);
-    QCOMPARE(testQuery.sql(), QLatin1String("1 != 0"));
-    QCOMPARE(query.boundValues().size(), 0);
+    CHECKWHERE(testQuery, QLatin1String("1 != 0"), QVariantList());
 
     // negation
-    query.clear();
     testQuery = !(queryId && queryUsername);
-    testQuery.bindValues(query);
-    QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = ? AND username = ?)"));
-    QCOMPARE(query.boundValues().size(), 2);
-    QCOMPARE(query.boundValue(0), QVariant(1));
-    QCOMPARE(query.boundValue(1), QVariant("foo"));
+    CHECKWHERE(testQuery, QLatin1String("NOT (id = ? AND username = ?)"), QVariantList() << 1 << "foo");
 }
 
 /** Test compound where clause, using the OR operator.
@@ -284,31 +255,31 @@ void TestWhere::orWhere()
 {
     QDjangoWhere testQuery;
 
-    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
-    QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
+    const QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
+    const QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foo");
 
     testQuery = queryId || queryUsername;
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ? OR username = ?"));
+    CHECKWHERE(testQuery, QLatin1String("id = ? OR username = ?"), QVariantList() << 1 << "foo");
 
     // or with "all" queryset
     testQuery = QDjangoWhere() || queryId;
     QCOMPARE(testQuery.isAll(), true);
-    QCOMPARE(testQuery.sql(), QString());
+    CHECKWHERE(testQuery, QString(), QVariantList());
 
     testQuery = queryId || QDjangoWhere();
     QCOMPARE(testQuery.isAll(), true);
-    QCOMPARE(testQuery.sql(), QString());
+    CHECKWHERE(testQuery, QString(), QVariantList());
 
     // or with "none" queryset
     testQuery = !QDjangoWhere() || queryId;
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ?"));
+    CHECKWHERE(testQuery, QLatin1String("id = ?"), QVariantList() << 1);
 
     testQuery = queryId || !QDjangoWhere();
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ?"));
+    CHECKWHERE(testQuery, QLatin1String("id = ?"), QVariantList() << 1);
 
     // negation
     testQuery = !(queryId || queryUsername);
-    QCOMPARE(testQuery.sql(), QLatin1String("NOT (id = ? OR username = ?)"));
+    CHECKWHERE(testQuery, QLatin1String("NOT (id = ? OR username = ?)"), QVariantList() << 1 << "foo");
 }
 
 /** Test compound where clause, using both the AND and the OR operators.
@@ -317,15 +288,15 @@ void TestWhere::complexWhere()
 {
     QDjangoWhere testQuery;
 
-    QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
-    QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foouser");
-    QDjangoWhere queryPassword("password", QDjangoWhere::Equals, "foopass");
+    const QDjangoWhere queryId("id", QDjangoWhere::Equals, 1);
+    const QDjangoWhere queryUsername("username", QDjangoWhere::Equals, "foouser");
+    const QDjangoWhere queryPassword("password", QDjangoWhere::Equals, "foopass");
 
     testQuery = (queryId || queryUsername) && queryPassword;
-    QCOMPARE(testQuery.sql(), QLatin1String("(id = ? OR username = ?) AND password = ?"));
+    CHECKWHERE(testQuery, QLatin1String("(id = ? OR username = ?) AND password = ?"), QVariantList() << 1 << "foouser" << "foopass");
 
     testQuery = queryId || (queryUsername && queryPassword);
-    QCOMPARE(testQuery.sql(), QLatin1String("id = ? OR (username = ? AND password = ?)"));
+    CHECKWHERE(testQuery, QLatin1String("id = ? OR (username = ? AND password = ?)"), QVariantList() << 1 << "foouser" << "foopass");
 }
 
 /** Display program usage.
