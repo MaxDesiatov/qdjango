@@ -1,0 +1,5 @@
+if(NOT QDJANGO_STATIC)
+  add_executable(qdjango-console console.cpp)
+  target_link_libraries(qdjango-console qdjango-script)
+  add_subdirectory(script)
+endif()

@@ -63,11 +63,6 @@ add_library(qdjango-script ${LIBRARY_TYPE} QDjangoScript.cpp)
 set_target_properties(qdjango-script PROPERTIES SOVERSION 0)
 target_link_libraries(qdjango-script qdjango ${QT_QTSCRIPT_LIBRARY})
 
-if(NOT QDJANGO_STATIC)
-  add_executable(qdjango-console console.cpp)
-  target_link_libraries(qdjango-console qdjango-script)
-  add_subdirectory(script)
-endif()
-
-# Tests
+# Examples and tests
+add_subdirectory(examples)
 add_subdirectory(tests)
