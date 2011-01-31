@@ -27,7 +27,6 @@
 // This file is not part of the QDjango API.
 //
 
-#include <QMap>
 #include <QStringList>
 
 #include "QDjangoWhere.h"
@@ -59,7 +58,7 @@ public:
     QDjangoWhere whereClause;
     bool needsJoin;
     QStringList orderBy;
-    QList< QMap<QString, QVariant> > properties;
+    QList<QVariantMap> properties;
     bool selectRelated;
 
 private:

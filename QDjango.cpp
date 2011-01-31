@@ -510,7 +510,7 @@ bool QDjangoMetaModel::isValid() const
  * \param model
  * \param properties
  */
-void QDjangoMetaModel::load(QObject *model, const QMap<QString, QVariant> &properties) const
+void QDjangoMetaModel::load(QObject *model, const QVariantMap &properties) const
 {
     // process local fields
     foreach (const QDjangoMetaField &field, m_localFields)

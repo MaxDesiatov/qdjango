@@ -20,7 +20,6 @@
 #ifndef QDJANGO_MODEL_H
 #define QDJANGO_MODEL_H
 
-#include <QMap>
 #include <QObject>
 #include <QVariant>
 
