@@ -206,9 +206,9 @@ bool QDjangoQueryBase::sqlLoad(QObject *model, int index)
     return true;
 }
 
-QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &fields)
+QList<QVariantMap> QDjangoQueryBase::sqlValues(const QStringList &fields)
 {
-    QList< QMap<QString, QVariant> > values;
+    QList<QVariantMap> values;
     if (!sqlFetch())
         return values;
 
@@ -224,7 +224,7 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
 
     foreach (const PropertyMap &props, properties)
     {
-        QMap<QString, QVariant> map;
+        QVariantMap map;
         foreach (const QString &field, fieldNames)
         {
             const QString key = metaModel.databaseColumn(field);
@@ -235,9 +235,9 @@ QList< QMap<QString, QVariant> > QDjangoQueryBase::sqlValues(const QStringList &
     return values;
 }
 
-QList< QList<QVariant> > QDjangoQueryBase::sqlValuesList(const QStringList &fields)
+QList<QVariantList> QDjangoQueryBase::sqlValuesList(const QStringList &fields)
 {
-    QList< QList<QVariant> > values;
+    QList<QVariantList> values;
     if (!sqlFetch())
         return values;
 
@@ -252,7 +252,7 @@ QList< QList<QVariant> > QDjangoQueryBase::sqlValuesList(const QStringList &fiel
 
     foreach (const PropertyMap &props, properties)
     {
-        QList<QVariant> list;
+        QVariantList list;
         foreach (const QString &field, fieldNames)
         {
             const QString key = metaModel.databaseColumn(field);

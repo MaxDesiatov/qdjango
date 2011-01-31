@@ -64,8 +64,8 @@ public:
 
     bool remove();
     int size();
-    QList< QMap<QString, QVariant> > values(const QStringList &fields = QStringList());
-    QList< QList<QVariant> > valuesList(const QStringList &fields = QStringList());
+    QList<QVariantMap> values(const QStringList &fields = QStringList());
+    QList<QVariantList> valuesList(const QStringList &fields = QStringList());
 
     T *get(const QDjangoWhere &where, T *target = 0) const;
     T *at(int index, T *target = 0);
@@ -314,7 +314,7 @@ int QDjangoQuerySet<T>::size()
  * \param fields
  */
 template <class T>
-QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &fields)
+QList<QVariantMap> QDjangoQuerySet<T>::values(const QStringList &fields)
 {
     return d->sqlValues(fields);
 }
@@ -326,7 +326,7 @@ QList< QMap<QString, QVariant> > QDjangoQuerySet<T>::values(const QStringList &f
  * \param fields
  */
 template <class T>
-QList< QList<QVariant> > QDjangoQuerySet<T>::valuesList(const QStringList &fields)
+QList<QVariantList> QDjangoQuerySet<T>::valuesList(const QStringList &fields)
 {
     return d->sqlValuesList(fields);
 }
