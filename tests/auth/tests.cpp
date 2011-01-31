@@ -22,6 +22,7 @@
 #include "QDjangoQuerySet.h"
 #include "QDjangoWhere.h"
 
+#include "main.h"
 #include "models.h"
 #include "tests.h"
 
@@ -205,16 +206,17 @@ void TestUser::filter()
     // all users
     const QDjangoQuerySet<User> users;
     QDjangoQuerySet<User> qs = users.all();
-    QCOMPARE(qs.where().sql(), QLatin1String(""));
+    CHECKWHERE(qs.where(), QString(), QVariantList());
     QCOMPARE(qs.size(), 3);
 
     // invalid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ?"), QVariantList() << "doesnotexist");
     QCOMPARE(qs.size(), 0);
 
     // valid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ?"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ?"), QVariantList() << "foouser");
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QVERIFY(other != 0);
@@ -224,18 +226,18 @@ void TestUser::filter()
 
     // chain filters
     qs = qs.filter(QDjangoWhere("password", QDjangoWhere::Equals, "foopass"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ? AND `user`.`password` = ?"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ? AND `user`.`password` = ?"), QVariantList() << "foouser" << "foopass");
     QCOMPARE(qs.size(), 1);
 
     // username in list
-    qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QList<QVariant>() << "foouser" << "wizuser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` IN (?, ?)"));
+    qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QVariantList() << "foouser" << "wizuser"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` IN (?, ?)"), QVariantList() << "foouser" << "wizuser");
     QCOMPARE(qs.size(), 2);
 
     // two tests on username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser") ||
                       QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ? OR `user`.`username` = ?"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ? OR `user`.`username` = ?"), QVariantList() << "foouser" << "baruser");
     QCOMPARE(qs.size(), 2);
 }
 
@@ -282,15 +284,15 @@ void TestUser::exclude()
     const QDjangoQuerySet<User> users;
 
     QDjangoQuerySet<User> qs = users.all();
-    QCOMPARE(qs.where().sql(), QLatin1String(""));
+    CHECKWHERE(qs.where(), QString(), QVariantList());
     QCOMPARE(users.all().size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != ?"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` != ?"), QVariantList() << "doesnotexist");
     QCOMPARE(qs.size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != ?"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` != ?"), QVariantList() << "baruser");
     QCOMPARE(qs.size(), 2);
     User *other = qs.at(0);
     QVERIFY(other != 0);
@@ -299,7 +301,7 @@ void TestUser::exclude()
     delete other;
 
     qs = qs.exclude(QDjangoWhere("password", QDjangoWhere::Equals, "barpass"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` != ? AND `user`.`password` != ?"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` != ? AND `user`.`password` != ?"), QVariantList() << "baruser" << "barpass");
     QCOMPARE(qs.size(), 2);
 }
 
@@ -444,7 +446,7 @@ void TestUser::valuesList()
     const QDjangoQuerySet<User> users;
 
     // FIXME : test last_login
-    QList< QList<QVariant> > list = users.all().valuesList();
+    QList< QVariantList > list = users.all().valuesList();
     QCOMPARE(list.size(), 3);
     QCOMPARE(list[0].size(), 11);
     QCOMPARE(list[0][1], QVariant("foouser"));
@@ -566,7 +568,7 @@ void TestRelated::filterRelated()
     // perform filtering
     QDjangoQuerySet<Message> qs = messages.filter(
         QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
-    QCOMPARE(qs.where().sql(), QLatin1String("`user`.`username` = ?"));
+    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ?"), QVariantList() << "foouser");
     QCOMPARE(qs.size(), 1);
 
     Message *msg = qs.at(0);

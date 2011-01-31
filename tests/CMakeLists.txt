@@ -3,6 +3,8 @@ set(QT_USE_QTSQL 1)
 set(QT_USE_QTTEST 1)
 include(${QT_USE_FILE})
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 # test models
 set(qdjango-models_SOURCES auth/models.cpp shares/models.cpp)
 set(qdjango-models_MOC_HEADERS auth/models.h shares/models.h)
