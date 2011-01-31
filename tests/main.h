@@ -21,6 +21,15 @@
 
 #include <QObject>
 
+#define CHECKWHERE(_where, s, v) { \
+    QDjangoQuery _sql_query(QDjango::database()); \
+    const QVariantList _sql_values = v; \
+    _where.bindValues(_sql_query); \
+    QCOMPARE(_where.sql(), s); \
+    QCOMPARE(_sql_query.boundValues().size(), _sql_values.size()); \
+    for(int _i = 0; _i < _sql_values.size(); ++_i) QCOMPARE(_sql_query.boundValue(_i), _sql_values[_i]); \
+    }
+
 class Object : public QObject
 {
     Q_OBJECT
