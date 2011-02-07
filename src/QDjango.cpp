@@ -352,7 +352,7 @@ bool QDjangoMetaModel::createTable() const
             else if (driverName == QLatin1String("QMYSQL"))
                 fieldSql += QLatin1String(" AUTO_INCREMENT");
             else if (driverName == QLatin1String("QPSQL"))
-                fieldSql = driver->escapeIdentifier(field.name, QSqlDriver::FieldName) + " SERIAL";
+                fieldSql = driver->escapeIdentifier(field.name, QSqlDriver::FieldName) + " SERIAL PRIMARY KEY";
         }
 
         // foreign key
@@ -376,6 +376,10 @@ bool QDjangoMetaModel::createTable() const
     // create indices
     foreach (const QDjangoMetaField &field, m_localFields)
     {
+        // Postgres automatically creates indices on primary keys
+        if (field.primaryKey && driverName == QLatin1String("QPSQL"))
+            continue;
+
         if (field.index)
         {
             const QByteArray indexName = m_table + "_" + field.name;
@@ -628,8 +632,20 @@ bool QDjangoMetaModel::save(QObject *model) const
         query.addBindValue(model->property(name.toLatin1()));
 
     bool ret = query.exec();
-    if (primaryKey.autoIncrement)
-        model->setProperty(primaryKey.name, query.lastInsertId());
+    if (primaryKey.autoIncrement) {
+        QVariant insertId;
+        if (db.driverName() == "QPSQL") {
+            QDjangoQuery query(db);
+            const QString seqName = driver->escapeIdentifier(m_table + "_" + primaryKey.name + "_seq", QSqlDriver::FieldName);
+            query.prepare("SELECT CURRVAL('" + seqName + "')");
+            if (!query.exec() || !query.next())
+                return false;
+            insertId = query.value(0);
+        } else {
+            insertId = query.lastInsertId();
+        }
+        model->setProperty(primaryKey.name, insertId);
+    }
     return ret;
 }
 
