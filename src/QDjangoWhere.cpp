@@ -154,6 +154,7 @@ void QDjangoWhere::bindValues(QDjangoQuery &query) const
         escaped.replace("%", "\\%");
         escaped.replace("_", "\\_");
         query.addBindValue(escaped + "%");
+        query.addBindValue("\\");
     }
     else if (m_operation == QDjangoWhere::EndsWith)
     {
@@ -161,6 +162,7 @@ void QDjangoWhere::bindValues(QDjangoQuery &query) const
         escaped.replace("%", "\\%");
         escaped.replace("_", "\\_");
         query.addBindValue("%" + escaped);
+        query.addBindValue("\\");
     }
     else if (m_operation == QDjangoWhere::Contains)
     {
@@ -168,6 +170,7 @@ void QDjangoWhere::bindValues(QDjangoQuery &query) const
         escaped.replace("%", "\\%");
         escaped.replace("_", "\\_");
         query.addBindValue("%" + escaped + "%");
+        query.addBindValue("\\");
     }
     else if (m_operation != QDjangoWhere::None)
         query.addBindValue(m_data);
@@ -240,7 +243,7 @@ QString QDjangoWhere::sql() const
         case StartsWith:
         case EndsWith:
         case Contains:
-            return m_key + " LIKE ? ESCAPE '\\'";
+            return m_key + " LIKE ? ESCAPE ?";
         case None:
             if (m_combine == NoCombine)
             {

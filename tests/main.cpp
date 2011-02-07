@@ -188,7 +188,7 @@ void TestWhere::isIn()
 void TestWhere::startsWith()
 {
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::StartsWith, "abc");
-    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE '\\'"), QVariantList() << "abc%");
+    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE ?"), QVariantList() << "abc%" << "\\");
 }
 
 /** Test "endswith" comparison.
@@ -196,7 +196,7 @@ void TestWhere::startsWith()
 void TestWhere::endsWith()
 {
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::EndsWith, "abc");
-    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE '\\'"), QVariantList() << "%abc");
+    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE ?"), QVariantList() << "%abc" << "\\");
 }
 
 /** Test "contains" comparison.
@@ -204,7 +204,7 @@ void TestWhere::endsWith()
 void TestWhere::contains()
 {
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::Contains, "abc");
-    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE '\\'"), QVariantList() << "%abc%");
+    CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE ?"), QVariantList() << "%abc%" << "\\");
 }
 
 /** Test compound where clause, using the AND operator.

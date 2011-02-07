@@ -78,17 +78,17 @@ void TestScript::testWhereConstructor()
     // starts with
     result = engine->evaluate("Q({'username__startswith': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE '\\'"), QVariantList() << "foobar%");
+    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE ?"), QVariantList() << "foobar%" << "\\");
 
     // ends with
     result = engine->evaluate("Q({'username__endswith': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE '\\'"), QVariantList() << "%foobar");
+    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE ?"), QVariantList() << "%foobar" << "\\");
 
     // contains
     result = engine->evaluate("Q({'username__contains': 'foobar'})");
     where = engine->fromScriptValue<QDjangoWhere>(result);
-    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE '\\'"), QVariantList() << "%foobar%");
+    CHECKWHERE(where, QLatin1String("username LIKE ? ESCAPE ?"), QVariantList() << "%foobar%" << "\\");
 
     // in
     result = engine->evaluate("Q({'username__in': ['foobar', 'wiz']})");
