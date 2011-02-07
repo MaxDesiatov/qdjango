@@ -51,7 +51,6 @@ public:
 
 private:
     // backend specific
-    static QString autoIncrementSql();
     static QString noLimitSql();
 
     static QDjangoMetaModel registerModel(const QObject *model);

@@ -165,20 +165,6 @@ QDjangoMetaModel QDjango::registerModel(const QObject *model)
     return globalMetaModels[name];
 }
 
-/** Returns the SQL used to declare a field as auto-increment.
- */
-QString QDjango::autoIncrementSql()
-{
-    const QString driverName = QDjango::database().driverName();
-    if (driverName == QLatin1String("QSQLITE") ||
-        driverName == QLatin1String("QSQLITE2"))
-        return QLatin1String(" AUTOINCREMENT");
-    else if (driverName == QLatin1String("QMYSQL"))
-        return QLatin1String(" AUTO_INCREMENT");
-    else
-        return QString();
-}
-
 /** Returns the empty SQL limit clause.
  */
 QString QDjango::noLimitSql()
@@ -314,6 +300,7 @@ bool QDjangoMetaModel::createTable() const
 {
     QSqlDatabase db = QDjango::database();
     QSqlDriver *driver = db.driver();
+    const QString driverName = db.driverName();
 
     QStringList propSql;
     const QString quotedTable = databaseTable(db);
@@ -331,7 +318,7 @@ bool QDjangoMetaModel::createTable() const
         else if (field.type == QVariant::Date)
             fieldSql += " DATE";
         else if (field.type == QVariant::DateTime)
-            if (db.driverName() == QLatin1String("QPSQL"))
+            if (driverName == QLatin1String("QPSQL"))
                 fieldSql += " TIMESTAMP";
             else
                 fieldSql += " DATETIME";
@@ -358,8 +345,15 @@ bool QDjangoMetaModel::createTable() const
             fieldSql += " PRIMARY KEY";
 
         // auto-increment is backend specific
-        if (field.autoIncrement)
-            fieldSql += QDjango::autoIncrementSql();
+        if (field.autoIncrement) {
+            if (driverName == QLatin1String("QSQLITE") ||
+                driverName == QLatin1String("QSQLITE2"))
+                fieldSql += QLatin1String(" AUTOINCREMENT");
+            else if (driverName == QLatin1String("QMYSQL"))
+                fieldSql += QLatin1String(" AUTO_INCREMENT");
+            else if (driverName == QLatin1String("QPSQL"))
+                fieldSql = driver->escapeIdentifier(field.name, QSqlDriver::FieldName) + " SERIAL";
+        }
 
         // foreign key
         if (!field.foreignModel.isEmpty())
