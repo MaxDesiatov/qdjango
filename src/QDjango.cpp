@@ -194,13 +194,6 @@ QString QDjango::noLimitSql()
         return QString();
 }
 
-/** Quotes a database table or column name.
- */
-QString QDjango::quote(const QString &name)
-{
-    return QLatin1String("`") + name + QLatin1String("`");
-}
-
 QDjangoMetaField::QDjangoMetaField()
     : autoIncrement(false),
     index(false),
@@ -323,6 +316,7 @@ bool QDjangoMetaModel::createTable() const
     QSqlDriver *driver = db.driver();
 
     QStringList propSql;
+    const QString quotedTable = databaseTable(db);
     foreach (const QDjangoMetaField &field, m_localFields)
     {
         QString fieldSql = driver->escapeIdentifier(field.name, QSqlDriver::FieldName);
@@ -371,8 +365,7 @@ bool QDjangoMetaModel::createTable() const
         if (!field.foreignModel.isEmpty())
         {
             const QDjangoMetaModel foreignMeta = QDjango::metaModel(field.foreignModel);
-            fieldSql += QString(" REFERENCES %1 (%2)").arg(
-                driver->escapeIdentifier(foreignMeta.m_table, QSqlDriver::TableName),
+            fieldSql += QString(" REFERENCES %1 (%2)").arg(quotedTable,
                 driver->escapeIdentifier(foreignMeta.m_primaryKey, QSqlDriver::FieldName));
         }
         propSql << fieldSql;
@@ -381,7 +374,7 @@ bool QDjangoMetaModel::createTable() const
     // create table
     QDjangoQuery createQuery(db);
     createQuery.prepare(QString("CREATE TABLE %1 (%2)").arg(
-            driver->escapeIdentifier(m_table, QSqlDriver::TableName),
+            quotedTable,
             propSql.join(", ")));
     if (!createQuery.exec())
         return false;
@@ -395,8 +388,9 @@ bool QDjangoMetaModel::createTable() const
             QDjangoQuery indexQuery(db);
             indexQuery.prepare(QString("CREATE %1 %2 ON %3 (%4)").arg(
                 field.primaryKey ? "UNIQUE INDEX" : "INDEX",
-                QDjango::quote(indexName),
-                driver->escapeIdentifier(m_table, QSqlDriver::TableName),
+                // FIXME : how should we escape an index name?
+                driver->escapeIdentifier(indexName, QSqlDriver::FieldName),
+                quotedTable,
                 driver->escapeIdentifier(field.name, QSqlDriver::FieldName)));
             if (!indexQuery.exec())
                 return false;
@@ -431,7 +425,8 @@ QString QDjangoMetaModel::databaseColumn(const QSqlDatabase &db, const QString &
     }
 
     QString realName = (name == "pk") ? m_primaryKey : name;
-    return QDjango::quote(m_table) + "." + QDjango::quote(realName);
+    return db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName) + "." +
+           db.driver()->escapeIdentifier(realName, QSqlDriver::FieldName);
 }
 
 /** Returns the quoted database table name.
@@ -450,8 +445,7 @@ bool QDjangoMetaModel::dropTable() const
     QSqlDatabase db = QDjango::database();
 
     QDjangoQuery query(db);
-    query.prepare(QString("DROP TABLE %1").arg(
-        db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName)));
+    query.prepare(QString("DROP TABLE %1").arg(databaseTable(db)));
     return query.exec();
 }
 
@@ -564,7 +558,7 @@ bool QDjangoMetaModel::remove(QObject *model) const
 
     QDjangoQuery query(db);
     query.prepare(QString("DELETE FROM %1 WHERE %2 = ?").arg(
-                  db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName),
+                  databaseTable(db),
                   db.driver()->escapeIdentifier(m_primaryKey, QSqlDriver::FieldName)));
     query.addBindValue(model->property(m_primaryKey));
     return query.exec();
@@ -579,6 +573,7 @@ bool QDjangoMetaModel::remove(QObject *model) const
 bool QDjangoMetaModel::save(QObject *model) const
 {
     QSqlDatabase db = QDjango::database();
+    QSqlDriver *driver = db.driver();
 
     QStringList fieldNames;
     QDjangoMetaField primaryKey;
@@ -589,12 +584,14 @@ bool QDjangoMetaModel::save(QObject *model) const
         fieldNames << field.name;
     }
 
+    const QString quotedTable = databaseTable(db);
     const QVariant pk = model->property(primaryKey.name);
     if (!pk.isNull() && !(primaryKey.type == QVariant::Int && !pk.toInt()))
     {
         QDjangoQuery query(db);
-        query.prepare(QString("SELECT 1 AS a FROM %1 WHERE %2 = ?")
-                      .arg(QDjango::quote(m_table), QDjango::quote(primaryKey.name)));
+        query.prepare(QString("SELECT 1 AS a FROM %1 WHERE %2 = ?").arg(
+                      quotedTable,
+                      driver->escapeIdentifier(primaryKey.name, QSqlDriver::FieldName)));
         query.addBindValue(pk);
         if (query.exec() && query.next())
         {
@@ -604,11 +601,11 @@ bool QDjangoMetaModel::save(QObject *model) const
             // perform update
             QStringList fieldAssign;
             foreach (const QString &name, fieldNames)
-                fieldAssign << QDjango::quote(name) + " = ?";
+                fieldAssign << driver->escapeIdentifier(name, QSqlDriver::FieldName) + " = ?";
 
             QDjangoQuery query(db);
             query.prepare(QString("UPDATE %1 SET %2 WHERE %3 = ?")
-                  .arg(QDjango::quote(m_table), fieldAssign.join(", "), primaryKey.name));
+                  .arg(quotedTable, fieldAssign.join(", "), primaryKey.name));
             foreach (const QString &name, fieldNames)
                 query.addBindValue(model->property(name.toLatin1()));
             query.addBindValue(pk);
@@ -625,13 +622,13 @@ bool QDjangoMetaModel::save(QObject *model) const
     QStringList fieldHolders;
     foreach (const QString &name, fieldNames)
     {
-        fieldColumns << QDjango::quote(name);
+        fieldColumns << driver->escapeIdentifier(name, QSqlDriver::FieldName);
         fieldHolders << "?";
     }
 
     QDjangoQuery query(db);
     query.prepare(QString("INSERT INTO %1 (%2) VALUES(%3)").arg(
-                  db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName),
+                  quotedTable,
                   fieldColumns.join(", "), fieldHolders.join(", ")));
     foreach (const QString &name, fieldNames)
         query.addBindValue(model->property(name.toLatin1()));
