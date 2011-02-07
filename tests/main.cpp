@@ -314,17 +314,17 @@ int main(int argc, char *argv[])
         usage();
         return EXIT_FAILURE;
     }
-    for (int i = 1; i < argc - 1; i++)
+    for (int i = 1; i < argc; i++)
     {
-        if (!strcmp(argv[i], "-c"))
+        if (!strcmp(argv[i], "-c") && i < argc - 1)
             count = QString::fromLocal8Bit(argv[++i]).toInt();
-        else if (!strcmp(argv[i], "-d"))
+        else if (!strcmp(argv[i], "-d") && i < argc - 1)
             databaseDriver = QString::fromLocal8Bit(argv[++i]);
-        else if (!strcmp(argv[i], "-n"))
+        else if (!strcmp(argv[i], "-n") && i < argc - 1)
             databaseName = QString::fromLocal8Bit(argv[++i]);
-        else if (!strcmp(argv[i], "-p"))
+        else if (!strcmp(argv[i], "-p") && i < argc - 1)
             databasePassword = QString::fromLocal8Bit(argv[++i]);
-        else if (!strcmp(argv[i], "-u"))
+        else if (!strcmp(argv[i], "-u") && i < argc - 1)
             databaseUser = QString::fromLocal8Bit(argv[++i]);
         else
         {
