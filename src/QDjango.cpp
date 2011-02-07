@@ -359,7 +359,8 @@ bool QDjangoMetaModel::createTable() const
         if (!field.foreignModel.isEmpty())
         {
             const QDjangoMetaModel foreignMeta = QDjango::metaModel(field.foreignModel);
-            fieldSql += QString(" REFERENCES %1 (%2)").arg(quotedTable,
+            fieldSql += QString(" REFERENCES %1 (%2)").arg(
+                driver->escapeIdentifier(foreignMeta.m_table, QSqlDriver::TableName),
                 driver->escapeIdentifier(foreignMeta.m_primaryKey, QSqlDriver::FieldName));
         }
         propSql << fieldSql;
