@@ -610,19 +610,19 @@ void TestRelated::testGroups()
  */
 void TestRelated::cleanup()
 {
-    QCOMPARE(QDjangoQuerySet<User>().remove(), true);
-    QCOMPARE(QDjangoQuerySet<Group>().remove(), true);
-    QCOMPARE(QDjangoQuerySet<Message>().remove(), true);
     QCOMPARE(QDjangoQuerySet<UserGroups>().remove(), true);
+    QCOMPARE(QDjangoQuerySet<Message>().remove(), true);
+    QCOMPARE(QDjangoQuerySet<Group>().remove(), true);
+    QCOMPARE(QDjangoQuerySet<User>().remove(), true);
 }
 
 /** Drop database tables after running tests.
  */
 void TestRelated::cleanupTestCase()
 {
-    QCOMPARE(QDjango::registerModel<User>().dropTable(), true);
-    QCOMPARE(QDjango::registerModel<Group>().dropTable(), true);
-    QCOMPARE(QDjango::registerModel<Message>().dropTable(), true);
     QCOMPARE(QDjango::registerModel<UserGroups>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<Message>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<Group>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<User>().dropTable(), true);
 }
 
