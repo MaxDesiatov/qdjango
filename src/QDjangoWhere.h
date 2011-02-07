@@ -75,7 +75,7 @@ public:
     void bindValues(QDjangoQuery &query) const;
     bool isAll() const;
     bool isNone() const;
-    bool resolve(const QDjangoMetaModel &model, bool *needsJoin);
+    bool resolve(const QSqlDatabase &db, const QDjangoMetaModel &model, bool *needsJoin);
     QString sql() const;
 
 private:
