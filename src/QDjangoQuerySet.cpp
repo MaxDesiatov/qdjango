@@ -31,7 +31,7 @@ QDjangoQuerySetPrivate::QDjangoQuerySetPrivate(const QString &modelName)
 {
 }
 
-QStringList QDjangoQuerySetPrivate::fieldNames(const QDjangoMetaModel &metaModel, QString &from)
+QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &metaModel, QString &from)
 {
     QStringList fields;
     foreach (const QDjangoMetaField &field, metaModel.m_localFields)
@@ -44,11 +44,11 @@ QStringList QDjangoQuerySetPrivate::fieldNames(const QDjangoMetaModel &metaModel
     {
         QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel.m_foreignFields[fkName]);
         from += QString(" INNER JOIN %1 ON %2 = %3")
-            .arg(metaForeign.databaseTable())
+            .arg(metaForeign.databaseTable(db))
             .arg(metaForeign.databaseColumn("pk"))
             .arg(metaModel.databaseColumn(fkName + "_id"));
         if (selectRelated)
-            fields += fieldNames(metaForeign, from);
+            fields += fieldNames(db, metaForeign, from);
     }
     return fields;
 }
@@ -66,14 +66,16 @@ void QDjangoQuerySetPrivate::addFilter(const QDjangoWhere &where)
 
 int QDjangoQuerySetPrivate::sqlCount() const
 {
+    QSqlDatabase db = QDjango::database();
+
     // prepare query
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QString sql = "SELECT COUNT(*) FROM " + metaModel.databaseTable();
+    QString sql = "SELECT COUNT(*) FROM " + metaModel.databaseTable(db);
     QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QDjangoQuery query(QDjango::database());
+    QDjangoQuery query(db);
     query.prepare(sql);
     whereClause.bindValues(query);
 
@@ -96,14 +98,15 @@ bool QDjangoQuerySetPrivate::sqlDelete()
         return false;
 
     // delete entries
+    QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QString from = metaModel.databaseTable();
+    QString from = metaModel.databaseTable(db);
     QString sql = "DELETE FROM " + from;
     QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QDjangoQuery query(QDjango::database());
+    QDjangoQuery query(db);
     query.prepare(sql);
     whereClause.bindValues(query);
     if (!query.exec())
@@ -124,15 +127,16 @@ bool QDjangoQuerySetPrivate::sqlFetch()
         return true;
 
     // build query
+    QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QString from = metaModel.databaseTable();
-    QStringList fields = fieldNames(metaModel, from);
+    QString from = metaModel.databaseTable(db);
+    QStringList fields = fieldNames(db, metaModel, from);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
     QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit();
-    QDjangoQuery query(QDjango::database());
+    QDjangoQuery query(db);
     query.prepare(sql);
     whereClause.bindValues(query);
 
