@@ -311,9 +311,13 @@ bool QDjangoMetaModel::createTable() const
             fieldSql += " BOOLEAN";
         else if (field.type == QVariant::ByteArray)
         {
-            fieldSql += " BLOB";
-            if (field.maxLength > 0)
-                fieldSql += QString("(%1)").arg(field.maxLength);
+            if (driverName == QLatin1String("QPSQL"))
+                fieldSql += " BYTEA";
+            else {
+                fieldSql += " BLOB";
+                if (field.maxLength > 0)
+                    fieldSql += QString("(%1)").arg(field.maxLength);
+            }
         }
         else if (field.type == QVariant::Date)
             fieldSql += " DATE";
