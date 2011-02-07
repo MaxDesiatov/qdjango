@@ -114,7 +114,8 @@ void QDjango::setDatabase(QSqlDatabase database)
 {
     if (database.driverName() != QLatin1String("QSQLITE") &&
         database.driverName() != QLatin1String("QSQLITE2") &&
-        database.driverName() != QLatin1String("QMYSQL"))
+        database.driverName() != QLatin1String("QMYSQL") &&
+        database.driverName() != QLatin1String("QPSQL"))
     {
         qWarning() << "Unsupported database driver" << database.driverName();
     }
