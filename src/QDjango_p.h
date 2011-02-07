@@ -61,7 +61,7 @@ public:
     QDjangoMetaModel(const QObject *model = 0);
 
     QString databaseColumn(const QString &name, bool *needsJoin = 0) const;
-    QString databaseTable() const;
+    QString databaseTable(const QSqlDatabase &db) const;
 
     bool isValid() const;
 
