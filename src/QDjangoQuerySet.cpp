@@ -35,7 +35,7 @@ QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDj
 {
     QStringList fields;
     foreach (const QDjangoMetaField &field, metaModel.m_localFields)
-        fields.append(metaModel.databaseColumn(field.name));
+        fields.append(metaModel.databaseColumn(db, field.name));
     if (!selectRelated && !needsJoin)
         return fields;
 
@@ -45,8 +45,8 @@ QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDj
         QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel.m_foreignFields[fkName]);
         from += QString(" INNER JOIN %1 ON %2 = %3")
             .arg(metaForeign.databaseTable(db))
-            .arg(metaForeign.databaseColumn("pk"))
-            .arg(metaModel.databaseColumn(fkName + "_id"));
+            .arg(metaForeign.databaseColumn(db, "pk"))
+            .arg(metaModel.databaseColumn(db, fkName + "_id"));
         if (selectRelated)
             fields += fieldNames(db, metaForeign, from);
     }
@@ -58,9 +58,11 @@ void QDjangoQuerySetPrivate::addFilter(const QDjangoWhere &where)
     // it is not possible to add filters once a limit has been set
     Q_ASSERT(!lowMark && !highMark);
 
+    // FIXME : this is too early to get a DB handle
+    QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QDjangoWhere q(where);
-    q.resolve(metaModel, &needsJoin);
+    q.resolve(db, metaModel, &needsJoin);
     whereClause = whereClause && q;
 }
 
@@ -74,7 +76,7 @@ int QDjangoQuerySetPrivate::sqlCount() const
     QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += sqlLimit();
+    sql += sqlLimit(db);
     QDjangoQuery query(db);
     query.prepare(sql);
     whereClause.bindValues(query);
@@ -105,7 +107,7 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += sqlLimit();
+    sql += sqlLimit(db);
     QDjangoQuery query(db);
     query.prepare(sql);
     whereClause.bindValues(query);
@@ -135,7 +137,7 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     QString where = whereClause.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += sqlLimit();
+    sql += sqlLimit(db);
     QDjangoQuery query(db);
     query.prepare(sql);
     whereClause.bindValues(query);
@@ -156,7 +158,7 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     return true;
 }
 
-QString QDjangoQuerySetPrivate::sqlLimit() const
+QString QDjangoQuerySetPrivate::sqlLimit(const QSqlDatabase &db) const
 {
     QString limit;
 
@@ -174,7 +176,7 @@ QString QDjangoQuerySetPrivate::sqlLimit() const
         } else if (field.startsWith("+")) {
             field = field.mid(1);
         }
-        bits.append(QString("%1 %2").arg(metaModel.databaseColumn(field), order));
+        bits.append(QString("%1 %2").arg(metaModel.databaseColumn(db, field), order));
     }
     if (!bits.isEmpty())
         limit += " ORDER BY " + bits.join(", ");
@@ -214,6 +216,7 @@ QList<QVariantMap> QDjangoQuerySetPrivate::sqlValues(const QStringList &fields)
     if (!sqlFetch())
         return values;
 
+    QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
 
     // build field list
@@ -229,7 +232,7 @@ QList<QVariantMap> QDjangoQuerySetPrivate::sqlValues(const QStringList &fields)
         QVariantMap map;
         foreach (const QString &field, fieldNames)
         {
-            const QString key = metaModel.databaseColumn(field);
+            const QString key = metaModel.databaseColumn(db, field);
             map[field] = props[key];
         }
         values.append(map);
@@ -244,6 +247,7 @@ QList<QVariantList> QDjangoQuerySetPrivate::sqlValuesList(const QStringList &fie
         return values;
 
     // build field list
+    QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     QStringList fieldNames;
     if (fields.isEmpty())
@@ -257,7 +261,7 @@ QList<QVariantList> QDjangoQuerySetPrivate::sqlValuesList(const QStringList &fie
         QVariantList list;
         foreach (const QString &field, fieldNames)
         {
-            const QString key = metaModel.databaseColumn(field);
+            const QString key = metaModel.databaseColumn(db, field);
             list << props.value(key);
         }
         values.append(list);

@@ -410,10 +410,11 @@ bool QDjangoMetaModel::createTable() const
  *
  *  The "pk" field will be resolved to the actual primary key name.
  *
+ * \param db
  * \param name
  * \param needsJoin
  */
-QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) const
+QString QDjangoMetaModel::databaseColumn(const QSqlDatabase &db, const QString &name, bool *needsJoin) const
 {
     // foreign key lookup
     if (name.count("__"))
@@ -425,7 +426,7 @@ QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) c
             const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[fk]);
             if (needsJoin)
                 *needsJoin = true;
-            return foreignMeta.databaseColumn(bits.join("__"));
+            return foreignMeta.databaseColumn(db, bits.join("__"));
         }
     }
 
@@ -434,6 +435,8 @@ QString QDjangoMetaModel::databaseColumn(const QString &name, bool *needsJoin) c
 }
 
 /** Returns the quoted database table name.
+ *
+ * \param db
  */
 QString QDjangoMetaModel::databaseTable(const QSqlDatabase &db) const
 {
@@ -523,10 +526,12 @@ bool QDjangoMetaModel::isValid() const
  */
 void QDjangoMetaModel::load(QObject *model, const QVariantMap &properties) const
 {
+    QSqlDatabase db = QDjango::database();
+
     // process local fields
     foreach (const QDjangoMetaField &field, m_localFields)
     {
-        const QString key = databaseColumn(field.name);
+        const QString key = databaseColumn(db, field.name);
         model->setProperty(field.name, properties.value(key));
     }
 

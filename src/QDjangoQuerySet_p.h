@@ -44,7 +44,7 @@ public:
     int sqlCount() const;
     bool sqlDelete();
     bool sqlFetch();
-    QString sqlLimit() const;
+    QString sqlLimit(const QSqlDatabase &db) const;
     bool sqlLoad(QObject *model, int index);
     QList<QVariantMap> sqlValues(const QStringList &fields);
     QList<QVariantList> sqlValuesList(const QStringList &fields);
