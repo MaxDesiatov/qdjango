@@ -211,12 +211,12 @@ void TestUser::filter()
 
     // invalid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ?"), QVariantList() << "doesnotexist");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" = ?"), QVariantList() << "doesnotexist");
     QCOMPARE(qs.size(), 0);
 
     // valid username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ?"), QVariantList() << "foouser");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" = ?"), QVariantList() << "foouser");
     QCOMPARE(qs.size(), 1);
     User *other = qs.at(0);
     QVERIFY(other != 0);
@@ -226,18 +226,18 @@ void TestUser::filter()
 
     // chain filters
     qs = qs.filter(QDjangoWhere("password", QDjangoWhere::Equals, "foopass"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ? AND `user`.`password` = ?"), QVariantList() << "foouser" << "foopass");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" = ? AND \"user\".\"password\" = ?"), QVariantList() << "foouser" << "foopass");
     QCOMPARE(qs.size(), 1);
 
     // username in list
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::IsIn, QVariantList() << "foouser" << "wizuser"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` IN (?, ?)"), QVariantList() << "foouser" << "wizuser");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" IN (?, ?)"), QVariantList() << "foouser" << "wizuser");
     QCOMPARE(qs.size(), 2);
 
     // two tests on username
     qs = users.filter(QDjangoWhere("username", QDjangoWhere::Equals, "foouser") ||
                       QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ? OR `user`.`username` = ?"), QVariantList() << "foouser" << "baruser");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" = ? OR \"user\".\"username\" = ?"), QVariantList() << "foouser" << "baruser");
     QCOMPARE(qs.size(), 2);
 }
 
@@ -288,11 +288,11 @@ void TestUser::exclude()
     QCOMPARE(users.all().size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "doesnotexist"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` != ?"), QVariantList() << "doesnotexist");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" != ?"), QVariantList() << "doesnotexist");
     QCOMPARE(qs.size(), 3);
 
     qs = users.exclude(QDjangoWhere("username", QDjangoWhere::Equals, "baruser"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` != ?"), QVariantList() << "baruser");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" != ?"), QVariantList() << "baruser");
     QCOMPARE(qs.size(), 2);
     User *other = qs.at(0);
     QVERIFY(other != 0);
@@ -301,7 +301,7 @@ void TestUser::exclude()
     delete other;
 
     qs = qs.exclude(QDjangoWhere("password", QDjangoWhere::Equals, "barpass"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` != ? AND `user`.`password` != ?"), QVariantList() << "baruser" << "barpass");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" != ? AND \"user\".\"password\" != ?"), QVariantList() << "baruser" << "barpass");
     QCOMPARE(qs.size(), 2);
 }
 
@@ -568,7 +568,7 @@ void TestRelated::filterRelated()
     // perform filtering
     QDjangoQuerySet<Message> qs = messages.filter(
         QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
-    CHECKWHERE(qs.where(), QLatin1String("`user`.`username` = ?"), QVariantList() << "foouser");
+    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" = ?"), QVariantList() << "foouser");
     QCOMPARE(qs.size(), 1);
 
     Message *msg = qs.at(0);
