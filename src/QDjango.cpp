@@ -217,7 +217,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
     m_table = QString(meta->className()).toLower().toLatin1();
 
     // parse table options
-    const int optionsIndex = meta->indexOfClassInfo("__options__");
+    const int optionsIndex = meta->indexOfClassInfo("__meta__");
     if (optionsIndex >= 0) {
         QMap<QString, QString> options = parseOptions(meta->classInfo(optionsIndex).value());
         QMapIterator<QString, QString> option(options);

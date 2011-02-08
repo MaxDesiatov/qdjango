@@ -30,10 +30,11 @@
  *  macro. You must then register the class with QDjango using
  *  QDjango::registerModel().
  *
- *  You can provide options for the model using the Q_CLASSINFO macro:
+ *  You can provide options for the model using the Q_CLASSINFO macro as
+ *  follows:
  *
  *  \code
- *  Q_CLASSINFO("__options__", "keyword1=value1 .. keywordN=valueN")
+ *  Q_CLASSINFO("__meta__", "keyword1=value1 .. keywordN=valueN")
  *  \endcode
  *
  *  The following keywords are recognised for model options:
