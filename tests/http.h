@@ -29,6 +29,7 @@ class TestHttp : public QObject
     Q_OBJECT
 
 private slots:
+    void cleanupTestCase();
     void initTestCase();
     void testGet_data();
     void testGet();
