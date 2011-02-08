@@ -32,7 +32,9 @@
  *
  *  You can provide options for the model using the Q_CLASSINFO macro:
  *
+ *  \code
  *  Q_CLASSINFO("__options__", "keyword1=value1 .. keywordN=valueN")
+ *  \endcode
  *
  *  The following keywords are recognised for model options:
  *
