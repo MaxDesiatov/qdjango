@@ -37,7 +37,7 @@ class Object : public QObject
     Q_PROPERTY(int bar READ bar WRITE setBar)
     Q_PROPERTY(int wiz READ wiz WRITE setWiz)
 
-    Q_CLASSINFO("__options__", "db_table=foo_table")
+    Q_CLASSINFO("__meta__", "db_table=foo_table")
     Q_CLASSINFO("foo", "max_length=255")
     Q_CLASSINFO("bar", "db_index=true")
     Q_CLASSINFO("wiz", "ignore_field=true")
