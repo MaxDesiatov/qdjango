@@ -48,10 +48,16 @@ QDjangoHttpResponse *TestController::respondToRequest(const QDjangoHttpRequest &
     return serveNotFound(request);
 }
 
+void TestHttp::cleanupTestCase()
+{
+    delete httpServer;
+    delete httpController;
+}
+
 void TestHttp::initTestCase()
 {
     httpController = new TestController;
-    httpServer = new QDjangoHttpServer(this);
+    httpServer = new QDjangoHttpServer;
     httpServer->setController(httpController);
     QCOMPARE(httpServer->listen(QHostAddress::LocalHost, 8123), true);
 }

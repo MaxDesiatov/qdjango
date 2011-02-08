@@ -139,6 +139,7 @@ void QDjangoHttpConnection::handleData()
     else
         response = controller->respondToRequest(*request);
     d->pendingResponses << response;
+    delete request;
 
     /* Store keep-alive flag */
     if (!keepAlive)
