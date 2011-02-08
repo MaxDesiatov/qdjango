@@ -81,7 +81,7 @@ private:
     QList<QDjangoMetaField> m_localFields;
     QMap<QByteArray, QString> m_foreignFields;
     QByteArray m_primaryKey;
-    QByteArray m_table;
+    QString m_table;
 
     friend class QDjangoQuerySetPrivate;
 };

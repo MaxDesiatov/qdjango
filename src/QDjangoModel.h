@@ -27,16 +27,26 @@
  *
  *  To declare your own model, create a class which inherits QDjangoModel
  *  and declare the database fields as properties using the Q_PROPERTY
- *  macro.
+ *  macro. You must then register the class with QDjango using
+ *  QDjango::registerModel().
  *
- *  You can provide additional information about a field using the Q_CLASSINFO
- *  macro, in the form:
+ *  You can provide options for the model using the Q_CLASSINFO macro:
+ *
+ *  Q_CLASSINFO("__options__", "keyword1=value1 .. keywordN=valueN")
+ *
+ *  The following keywords are recognised for model options:
+ *
+ *  \li \c db_table if provided, this is the name of the database table for
+ *  the model, otherwise the lowercased class name will be used
+ *
+ *  You can also provide additional information about a field using the
+ *  Q_CLASSINFO macro, in the form:
  *
  *  \code
- *  Q_PROPERTY("field_name", "keyword1=value1 .. keywordN=valueN")
+ *  Q_CLASSINFO("field_name", "keyword1=value1 .. keywordN=valueN")
  *  \endcode
  *
- *  The following keywords are recognised:
+ *  The following keywords are recognised for field options:
  *
  *  \li \c auto_increment if set to 'true', and if this field is the primary
  *  key, it will be marked as auto-increment.
@@ -47,8 +57,6 @@
  *  \li \c primary_key if set to 'true', this field will be used as the primary
  *  key. If no primary key is explicitly defined, an auto-increment integer
  *  field will be added.
- *
- *  You must then register the class with QDjango using QDjango::registerModel().
  *
  * \ingroup Database
  */
