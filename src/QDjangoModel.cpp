@@ -53,7 +53,7 @@ void QDjangoModel::setPk(const QVariant &pk)
 
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
  *
- * \param name
+ * \param name
  */
 QObject *QDjangoModel::foreignKey(const char *name) const
 {
