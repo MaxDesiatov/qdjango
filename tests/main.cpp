@@ -35,6 +35,12 @@
 #include "http.h"
 #include "script.h"
 
+Object::Object()
+    : m_bar(0),
+    m_wiz(0)
+{
+}
+
 QString Object::foo() const
 {
     return m_foo;
@@ -55,14 +61,43 @@ void Object::setBar(int bar)
     m_bar = bar;
 }
 
-void TestModel::initTestCase()
+int Object::wiz() const
+{
+    return m_wiz;
+}
+
+void Object::setWiz(int wiz)
+{
+    m_wiz = wiz;
+}
+
+void tst_QDjangoMetaModel::initTestCase()
 {
     metaModel = QDjango::registerModel<Object>();
     QCOMPARE(metaModel.isValid(), true);
     QCOMPARE(metaModel.createTable(), true);
 }
 
-void TestModel::save()
+void tst_QDjangoMetaModel::options()
+{
+    QCOMPARE(metaModel.m_table, QLatin1String("foo_table"));
+    QCOMPARE(metaModel.m_primaryKey, QByteArray("id"));
+    QCOMPARE(metaModel.m_localFields.size(), 3);
+    QCOMPARE(metaModel.m_localFields[0].name, QByteArray("id"));
+    QCOMPARE(metaModel.m_localFields[0].autoIncrement, true);
+    QCOMPARE(metaModel.m_localFields[0].primaryKey, true);
+    QCOMPARE(metaModel.m_localFields[0].index, true);
+    QCOMPARE(metaModel.m_localFields[1].name, QByteArray("foo"));
+    QCOMPARE(metaModel.m_localFields[1].autoIncrement, false);
+    QCOMPARE(metaModel.m_localFields[1].index, false);
+    QCOMPARE(metaModel.m_localFields[1].primaryKey, false);
+    QCOMPARE(metaModel.m_localFields[2].name, QByteArray("bar"));
+    QCOMPARE(metaModel.m_localFields[2].autoIncrement, false);
+    QCOMPARE(metaModel.m_localFields[2].index, true);
+    QCOMPARE(metaModel.m_localFields[2].primaryKey, false);
+}
+
+void tst_QDjangoMetaModel::save()
 {
     Object obj;
     obj.setFoo("some string");
@@ -71,7 +106,7 @@ void TestModel::save()
     QCOMPARE(obj.property("id"), QVariant(1));
 }
 
-void TestModel::cleanupTestCase()
+void tst_QDjangoMetaModel::cleanupTestCase()
 {
     metaModel.dropTable();
 }
@@ -360,7 +395,7 @@ int main(int argc, char *argv[])
         TestWhere testWhere;
         errors += QTest::qExec(&testWhere);
 
-        TestModel testModel;
+        tst_QDjangoMetaModel testModel;
         errors += QTest::qExec(&testModel);
 
         TestUser testUser;

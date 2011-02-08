@@ -35,25 +35,38 @@ class Object : public QObject
     Q_OBJECT
     Q_PROPERTY(QString foo READ foo WRITE setFoo)
     Q_PROPERTY(int bar READ bar WRITE setBar)
+    Q_PROPERTY(int wiz READ wiz WRITE setWiz)
+
+    Q_CLASSINFO("__options__", "db_table=foo_table")
+    Q_CLASSINFO("foo", "max_length=255")
+    Q_CLASSINFO("bar", "db_index=true")
+    Q_CLASSINFO("wiz", "ignore_field=true")
 
 public:
+    Object();
+
     QString foo() const;
     void setFoo(const QString &foo);
 
     int bar() const;
     void setBar(int bar);
 
+    int wiz() const;
+    void setWiz(int wiz);
+
 private:
     QString m_foo;
     int m_bar;
+    int m_wiz;
 };
 
-class TestModel : public QObject
+class tst_QDjangoMetaModel : public QObject
 {
     Q_OBJECT
 
 private slots:
     void initTestCase();
+    void options();
     void save();
     void cleanupTestCase();
 
