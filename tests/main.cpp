@@ -85,15 +85,18 @@ void tst_QDjangoMetaModel::options()
     QCOMPARE(metaModel.m_localFields.size(), 3);
     QCOMPARE(metaModel.m_localFields[0].name, QByteArray("id"));
     QCOMPARE(metaModel.m_localFields[0].autoIncrement, true);
+    QCOMPARE(metaModel.m_localFields[0].maxLength, 0);
     QCOMPARE(metaModel.m_localFields[0].primaryKey, true);
     QCOMPARE(metaModel.m_localFields[0].index, true);
     QCOMPARE(metaModel.m_localFields[1].name, QByteArray("foo"));
     QCOMPARE(metaModel.m_localFields[1].autoIncrement, false);
     QCOMPARE(metaModel.m_localFields[1].index, false);
+    QCOMPARE(metaModel.m_localFields[1].maxLength, 255);
     QCOMPARE(metaModel.m_localFields[1].primaryKey, false);
     QCOMPARE(metaModel.m_localFields[2].name, QByteArray("bar"));
     QCOMPARE(metaModel.m_localFields[2].autoIncrement, false);
     QCOMPARE(metaModel.m_localFields[2].index, true);
+    QCOMPARE(metaModel.m_localFields[2].maxLength, 0);
     QCOMPARE(metaModel.m_localFields[2].primaryKey, false);
 }
 
