@@ -189,6 +189,21 @@ QDjangoMetaField::QDjangoMetaField()
 {
 }
 
+static QMap<QString, QString> parseOptions(const char *value)
+{
+    QMap<QString, QString> options;
+    QStringList items = QString::fromUtf8(value).split(' ');
+    foreach (const QString &item, items) {
+        QStringList assign = item.split('=');
+        if (assign.size() == 2) {
+            options[assign[0].toLower()] = assign[1];
+        } else {
+            qWarning() << "Could not parse option" << item;
+        }
+    }
+    return options;
+}
+
 /** Constructs a new QDjangoMetaModel by inspecting the given model instance.
  *
  * \param model
@@ -201,6 +216,18 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
     const QMetaObject* meta = model->metaObject();
     m_table = QString(meta->className()).toLower().toLatin1();
 
+    // parse table options
+    const int optionsIndex = meta->indexOfClassInfo("__options__");
+    if (optionsIndex >= 0) {
+        QMap<QString, QString> options = parseOptions(meta->classInfo(optionsIndex).value());
+        QMapIterator<QString, QString> option(options);
+        while (option.hasNext()) {
+            option.next();
+            if (option.key() == "db_table")
+                m_table = option.value();
+        }
+    }
+
     const int count = meta->propertyCount();
     for(int i = QObject::staticMetaObject.propertyCount(); i < count; ++i)
     {
@@ -208,7 +235,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
         if (!qstrcmp(meta->property(i).name(), "pk"))
             continue;
 
-        // parse options
+        // parse field options
         bool autoIncrementOption = false;
         bool dbIndexOption = false;
         bool ignoreFieldOption = false;
@@ -217,26 +244,21 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
         const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
         if (infoIndex >= 0)
         {
-            QMetaClassInfo classInfo = meta->classInfo(infoIndex);
-            QStringList items = QString(classInfo.value()).split(' ');
-            foreach (const QString &item, items)
-            {
-                QStringList assign = item.split('=');
-                if (assign.size() == 2)
-                {
-                    const QString key = assign[0].toLower();
-                    const QString value = assign[1];
-                    if (key == "auto_increment")
-                        autoIncrementOption = (value.toLower() == "true" || value == "1");
-                    else if (key == "db_index")
-                        dbIndexOption = (value.toLower() == "true" || value == "1");
-                    else if (key == "ignore_field")
-                        ignoreFieldOption = (value.toLower() == "true" || value == "1");
-                    else if (key == "max_length")
-                        maxLengthOption = value.toInt();
-                    else if (key == "primary_key")
-                        primaryKeyOption = (value.toLower() == "true" || value == "1");
-                }
+            QMap<QString, QString> options = parseOptions(meta->classInfo(infoIndex).value());
+            QMapIterator<QString, QString> option(options);
+            while (option.hasNext()) {
+                option.next();
+                const QString value = option.value();
+                if (option.key() == "auto_increment")
+                    autoIncrementOption = (value.toLower() == "true" || value == "1");
+                else if (option.key() == "db_index")
+                    dbIndexOption = (value.toLower() == "true" || value == "1");
+                else if (option.key() == "ignore_field")
+                    ignoreFieldOption = (value.toLower() == "true" || value == "1");
+                else if (option.key() == "max_length")
+                    maxLengthOption = value.toInt();
+                else if (option.key() == "primary_key")
+                    primaryKeyOption = (value.toLower() == "true" || value == "1");
             }
         }
 
@@ -388,7 +410,7 @@ bool QDjangoMetaModel::createTable() const
 
         if (field.index)
         {
-            const QByteArray indexName = m_table + "_" + field.name;
+            const QString indexName = m_table + "_" + QString::fromLatin1(field.name);
             QDjangoQuery indexQuery(db);
             indexQuery.prepare(QString("CREATE %1 %2 ON %3 (%4)").arg(
                 field.primaryKey ? "UNIQUE INDEX" : "INDEX",
