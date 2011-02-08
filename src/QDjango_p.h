@@ -83,6 +83,7 @@ private:
     QByteArray m_primaryKey;
     QString m_table;
 
+    friend class tst_QDjangoMetaModel;
     friend class QDjangoQuerySetPrivate;
 };
 
