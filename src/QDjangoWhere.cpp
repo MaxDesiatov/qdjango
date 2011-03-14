@@ -193,28 +193,6 @@ bool QDjangoWhere::isNone() const
     return m_combine == NoCombine && m_operation == None && m_negate == true;
 }
 
-/** Resolves field names to database columns using the given \a model.
- *
- *  If the current QDjangoWhere requires a JOIN clause, \a needsJoin is set
- *  to true.
- *
- * \param db
- * \param model
- * \param needsJoin
- */
-bool QDjangoWhere::resolve(const QSqlDatabase &db, const QDjangoMetaModel &model, bool *needsJoin)
-{
-    // resolve column
-    if (m_operation != None)
-        m_key = model.databaseColumn(db, m_key, needsJoin);
-
-    // recurse into children
-    for (int i = 0; i < m_children.size(); i++)
-        if (!m_children[i].resolve(db, model, needsJoin))
-            return false;
-    return true;
-}
-
 /** Returns the SQL code corresponding for the current QDjangoWhere.
  */
 QString QDjangoWhere::sql() const

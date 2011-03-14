@@ -60,10 +60,22 @@ void QDjangoQuerySetPrivate::addFilter(const QDjangoWhere &where)
     whereClause = whereClause && where;
 }
 
+void QDjangoQuerySetPrivate::resolve(QDjangoWhere &where, const QSqlDatabase &db, const QDjangoMetaModel &model, bool &needsJoin) const
+{
+    // resolve column
+    if (where.m_operation != QDjangoWhere::None)
+        where.m_key = model.databaseColumn(db, where.m_key, &needsJoin);
+
+    // recurse into children
+    for (int i = 0; i < where.m_children.size(); i++)
+        resolve(where.m_children[i], db, model, needsJoin);
+}
+
 QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
 {
+    bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
-    resolvedWhere.resolve(db, QDjango::metaModel(m_modelName), 0);
+    resolve(resolvedWhere, db, QDjango::metaModel(m_modelName), needsJoin);
     return resolvedWhere;
 }
 
@@ -75,7 +87,7 @@ int QDjangoQuerySetPrivate::sqlCount() const
     // build query
     bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
-    resolvedWhere.resolve(db, metaModel, &needsJoin);
+    resolve(resolvedWhere, db, metaModel, needsJoin);
 
     QString from = metaModel.databaseTable(db);
     fieldNames(db, metaModel, from, needsJoin);
@@ -112,7 +124,7 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     // build query
     bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
-    resolvedWhere.resolve(db, metaModel, &needsJoin);
+    resolve(resolvedWhere, db, metaModel, needsJoin);
 
     QString from = metaModel.databaseTable(db);
     fieldNames(db, metaModel, from, needsJoin);
@@ -149,7 +161,7 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     // build query
     bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
-    resolvedWhere.resolve(db, metaModel, &needsJoin);
+    resolve(resolvedWhere, db, metaModel, needsJoin);
 
     QString from = metaModel.databaseTable(db);
     QStringList fields = fieldNames(db, metaModel, from, needsJoin);
