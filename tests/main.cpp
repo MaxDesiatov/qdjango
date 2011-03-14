@@ -25,6 +25,7 @@
 #include <QtTest>
 
 #include "QDjango.h"
+#include "QDjangoQuerySet.h"
 #include "QDjangoWhere.h"
 
 #include "main.h"
@@ -190,11 +191,18 @@ void tst_QDjangoModel::selectRelated()
         QCOMPARE(item2->save(), true);
 
         Owner owner;
-        owner.setName("test owner");
+        owner.setName("owner");
         owner.setItem1(item1);
         owner.setItem2(item2);
         QCOMPARE(owner.save(), true);
     }
+
+    // without eager loading
+    QDjangoQuerySet<Owner> qs;
+    Owner *owner = qs.get(QDjangoWhere("name", QDjangoWhere::Equals, "owner"));
+    QVERIFY(owner != 0);
+    QCOMPARE(owner->item1()->name(), QLatin1String("first"));
+    QCOMPARE(owner->item2()->name(), QLatin1String("second"));
 }
 
 /** Drop database tables after running tests.
