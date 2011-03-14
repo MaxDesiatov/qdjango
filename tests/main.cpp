@@ -203,6 +203,7 @@ void tst_QDjangoModel::selectRelated()
     QVERIFY(owner != 0);
     QCOMPARE(owner->item1()->name(), QLatin1String("first"));
     QCOMPARE(owner->item2()->name(), QLatin1String("second"));
+    delete owner;
 }
 
 /** Drop database tables after running tests.
