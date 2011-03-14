@@ -166,6 +166,12 @@ void tst_QDjangoCompiler::resolve()
     where = QDjangoWhere("item1__name", QDjangoWhere::Equals, "foo");
     compiler.resolve(where);
     CHECKWHERE(where, QLatin1String("T0.\"name\" = ?"), QVariantList() << "foo");
+
+    compiler = QDjangoCompiler("Owner");
+    where = QDjangoWhere("item1__name", QDjangoWhere::Equals, "foo")
+         && QDjangoWhere("item2__name", QDjangoWhere::Equals, "bar");
+    compiler.resolve(where);
+    CHECKWHERE(where, QLatin1String("T0.\"name\" = ? AND T1.\"name\" = ?"), QVariantList() << "foo" << "bar");
 }
 
 void tst_QDjangoMetaModel::initTestCase()
