@@ -39,17 +39,18 @@ class QDjangoCompiler
 {
 public:
     QDjangoCompiler(const QString &modelName);
+    QString fromSql();
     QStringList fieldNames(bool recurse, QDjangoMetaModel *metaModel = 0, const QString &modelPath = QString());
     void resolve(QDjangoWhere &where);
 
 private:
     QString databaseColumn(const QString &name);
-    QString referenceModel(const QString &modelPath);
+    QString referenceModel(const QString &modelPath, QDjangoMetaModel *metaModel);
 
     QSqlDatabase database;
     QSqlDriver *driver;
     QDjangoMetaModel baseModel;
-    QMap<QString, QString> modelRefs;
+    QMap<QString, QPair<QString, QDjangoMetaModel> > modelRefs;
 };
 
 /** \internal
