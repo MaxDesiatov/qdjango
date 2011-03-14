@@ -130,45 +130,12 @@ QDjangoQuerySetPrivate::QDjangoQuerySetPrivate(const QString &modelName)
 {
 }
 
-QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &metaModel, QString &from, bool &needsJoin) const
-{
-    QStringList fields;
-    foreach (const QDjangoMetaField &field, metaModel.m_localFields)
-        fields.append(metaModel.databaseColumn(db, field.name));
-    if (!selectRelated && !needsJoin)
-        return fields;
-
-    // recurse for foreign keys
-    foreach (const QByteArray &fkName, metaModel.m_foreignFields.keys())
-    {
-        QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel.m_foreignFields[fkName]);
-        from += QString(" INNER JOIN %1 ON %2 = %3")
-            .arg(metaForeign.databaseTable(db))
-            .arg(metaForeign.databaseColumn(db, "pk"))
-            .arg(metaModel.databaseColumn(db, fkName + "_id"));
-        if (selectRelated)
-            fields += fieldNames(db, metaForeign, from, needsJoin);
-    }
-    return fields;
-}
-
 void QDjangoQuerySetPrivate::addFilter(const QDjangoWhere &where)
 {
     // it is not possible to add filters once a limit has been set
     Q_ASSERT(!lowMark && !highMark);
 
     whereClause = whereClause && where;
-}
-
-void QDjangoQuerySetPrivate::resolve(QDjangoWhere &where, const QSqlDatabase &db, const QDjangoMetaModel &model, bool &needsJoin) const
-{
-    // resolve column
-    if (where.m_operation != QDjangoWhere::None)
-        where.m_key = model.databaseColumn(db, where.m_key, &needsJoin);
-
-    // recurse into children
-    for (int i = 0; i < where.m_children.size(); i++)
-        resolve(where.m_children[i], db, model, needsJoin);
 }
 
 QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
