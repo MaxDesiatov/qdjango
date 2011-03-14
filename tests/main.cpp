@@ -72,10 +72,26 @@ void Object::setWiz(int wiz)
     m_wiz = wiz;
 }
 
-Owner::Owner()
+Item::Item(QObject *parent)
+    : QDjangoModel(parent)
 {
-    setForeignKey("object1", new Object(this));
-    setForeignKey("object2", new Object(this));
+}
+
+QString Item::name() const
+{
+    return m_name;
+}
+
+void Item::setName(const QString &name)
+{
+    m_name = name;
+}
+
+Owner::Owner(QObject *parent)
+    : QDjangoModel(parent)
+{
+    setForeignKey("item1", new Item(this));
+    setForeignKey("item2", new Item(this));
 }
 
 QString Owner::name() const
@@ -88,24 +104,24 @@ void Owner::setName(const QString &name)
     m_name = name;
 }
 
-Object* Owner::object1() const
+Item* Owner::item1() const
 {
-    return qobject_cast<Object*>(foreignKey("object1"));
+    return qobject_cast<Item*>(foreignKey("item1"));
 }
 
-void Owner::setObject1(Object *object1)
+void Owner::setItem1(Item *item1)
 {
-    setForeignKey("object1", object1);
+    setForeignKey("item1", item1);
 }
 
-Object* Owner::object2() const
+Item* Owner::item2() const
 {
-    return qobject_cast<Object*>(foreignKey("object2"));
+    return qobject_cast<Item*>(foreignKey("item2"));
 }
 
-void Owner::setObject2(Object *object2)
+void Owner::setItem2(Item *item2)
 {
-    setForeignKey("object2", object2);
+    setForeignKey("item2", item2);
 }
 
 void tst_QDjangoMetaModel::initTestCase()
@@ -155,8 +171,30 @@ void tst_QDjangoMetaModel::cleanupTestCase()
  */
 void tst_QDjangoModel::initTestCase()
 {
-    QCOMPARE(QDjango::registerModel<Object>().createTable(), true);
+    QCOMPARE(QDjango::registerModel<Item>().createTable(), true);
     QCOMPARE(QDjango::registerModel<Owner>().createTable(), true);
+}
+
+/** Test eager loading of foreign keys.
+ */
+void tst_QDjangoModel::selectRelated()
+{
+    // load fixtures
+    {
+        Item *item1 = new Item;
+        item1->setName("first");
+        QCOMPARE(item1->save(), true);
+
+        Item *item2 = new Item;
+        item2->setName("second");
+        QCOMPARE(item2->save(), true);
+
+        Owner owner;
+        owner.setName("test owner");
+        owner.setItem1(item1);
+        owner.setItem2(item2);
+        QCOMPARE(owner.save(), true);
+    }
 }
 
 /** Drop database tables after running tests.
@@ -164,7 +202,7 @@ void tst_QDjangoModel::initTestCase()
 void tst_QDjangoModel::cleanupTestCase()
 {
     QCOMPARE(QDjango::registerModel<Owner>().dropTable(), true);
-    QCOMPARE(QDjango::registerModel<Object>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<Item>().dropTable(), true);
 }
 
 /** Test empty where clause.
