@@ -67,8 +67,7 @@ QString QDjangoCompiler::databaseColumn(const QString &name)
     if (fieldName == QLatin1String("pk"))
         fieldName = model.m_primaryKey;
 
-    return driver->escapeIdentifier(model.m_table, QSqlDriver::TableName) + "." +
-           driver->escapeIdentifier(fieldName, QSqlDriver::FieldName);
+    return referenceModel(modelPath) + "." + driver->escapeIdentifier(fieldName, QSqlDriver::FieldName);
 }
 
 QStringList QDjangoCompiler::fieldNames(bool recurse, QDjangoMetaModel *metaModel, const QString &modelPath)
@@ -157,10 +156,10 @@ void QDjangoQuerySetPrivate::resolve(QDjangoWhere &where, const QSqlDatabase &db
 
 QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
 {
+    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
     bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
-    QDjangoCompiler compiler(m_modelName);
-    compiler.resolve(resolvedWhere);
+    resolve(resolvedWhere, db, metaModel, needsJoin);
     return resolvedWhere;
 }
 

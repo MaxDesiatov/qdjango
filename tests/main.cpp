@@ -155,6 +155,19 @@ void tst_QDjangoCompiler::fieldNamesRecursive()
         << "T1.\"name\"");
 }
 
+void tst_QDjangoCompiler::resolve()
+{
+    QDjangoCompiler compiler("Owner");
+    QDjangoWhere where("name", QDjangoWhere::Equals, "foo");
+    compiler.resolve(where);
+    CHECKWHERE(where, QLatin1String("\"owner\".\"name\" = ?"), QVariantList() << "foo");
+
+    compiler = QDjangoCompiler("Owner");
+    where = QDjangoWhere("item1__name", QDjangoWhere::Equals, "foo");
+    compiler.resolve(where);
+    CHECKWHERE(where, QLatin1String("T0.\"name\" = ?"), QVariantList() << "foo");
+}
+
 void tst_QDjangoMetaModel::initTestCase()
 {
     metaModel = QDjango::registerModel<Object>();
