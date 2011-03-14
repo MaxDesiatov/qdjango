@@ -125,6 +125,38 @@ void Owner::setItem2(Item *item2)
     setForeignKey("item2", item2);
 }
 
+void tst_QDjangoCompiler::initTestCase()
+{
+    QDjango::registerModel<Item>();
+    QDjango::registerModel<Object>();
+}
+
+void tst_QDjangoCompiler::fieldNames()
+{
+    QDjangoMetaModel metaModel = QDjango::registerModel<Owner>();
+    QDjangoCompiler compiler("Owner");
+    QCOMPARE(compiler.fieldNames(metaModel, false, ""), QStringList()
+        << "\"owner\".\"id\""
+        << "\"owner\".\"name\""
+        << "\"owner\".\"item1_id\""
+        << "\"owner\".\"item2_id\"");
+}
+
+void tst_QDjangoCompiler::fieldNamesRecursive()
+{
+    QDjangoMetaModel metaModel = QDjango::registerModel<Owner>();
+    QDjangoCompiler compiler("Owner");
+    QCOMPARE(compiler.fieldNames(metaModel, true, ""), QStringList()
+        << "\"owner\".\"id\""
+        << "\"owner\".\"name\""
+        << "\"owner\".\"item1_id\""
+        << "\"owner\".\"item2_id\""
+        << "T0.\"id\""
+        << "T0.\"name\""
+        << "T1.\"id\""
+        << "T1.\"name\"");
+}
+
 void tst_QDjangoMetaModel::initTestCase()
 {
     metaModel = QDjango::registerModel<Object>();
@@ -530,6 +562,9 @@ int main(int argc, char *argv[])
     {
         tst_QDjangoWhere testWhere;
         errors += QTest::qExec(&testWhere);
+
+        tst_QDjangoCompiler testCompiler;
+        errors += QTest::qExec(&testCompiler);
 
         tst_QDjangoMetaModel testMetaModel;
         errors += QTest::qExec(&testMetaModel);

@@ -99,6 +99,16 @@ private:
     QString m_name;
 };
 
+class tst_QDjangoCompiler : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void fieldNames();
+    void fieldNamesRecursive();
+};
+
 /** Test QDjangoMetaModel class.
  */
 class tst_QDjangoMetaModel : public QObject

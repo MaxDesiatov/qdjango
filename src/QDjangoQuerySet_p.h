@@ -35,6 +35,25 @@ class QDjangoMetaModel;
 
 /** \internal
  */
+class QDjangoCompiler
+{
+public:
+    QDjangoCompiler(const QString &modelName);
+    QStringList fieldNames(const QDjangoMetaModel &metaModel, bool recurse, const QString &modelPath);
+    void resolve(QDjangoWhere &where);
+
+private:
+    QString databaseColumn(const QString &name);
+    QString referenceModel(const QString &modelPath);
+
+    QSqlDatabase database;
+    QSqlDriver *driver;
+    QDjangoMetaModel baseModel;
+    QMap<QString, QString> modelRefs;
+};
+
+/** \internal
+ */
 class QDjangoQuerySetPrivate
 {
 public:
