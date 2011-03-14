@@ -56,6 +56,7 @@ private:
     static QDjangoMetaModel registerModel(const QObject *model);
     static QDjangoMetaModel metaModel(const QString &name);
 
+    friend class QDjangoCompiler;
     friend class QDjangoModel;
     friend class QDjangoMetaModel;
     friend class QDjangoQuerySetPrivate;

@@ -84,6 +84,7 @@ private:
     QString m_table;
 
     friend class tst_QDjangoMetaModel;
+    friend class QDjangoCompiler;
     friend class QDjangoQuerySetPrivate;
 };
 

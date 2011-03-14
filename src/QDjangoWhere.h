@@ -93,6 +93,7 @@ private:
     QDjangoWhere::Combine m_combine;
     bool m_negate;
 
+    friend class QDjangoCompiler;
     friend class QDjangoQuerySetPrivate;
 };
 
