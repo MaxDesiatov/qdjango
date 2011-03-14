@@ -176,6 +176,36 @@ void tst_QDjangoModel::initTestCase()
     QCOMPARE(QDjango::registerModel<Owner>().createTable(), true);
 }
 
+/** Perform filtering on foreign keys.
+ */
+void tst_QDjangoModel::filterRelated()
+{
+    // load fixtures
+    {
+        Item *item1 = new Item;
+        item1->setName("first");
+        QCOMPARE(item1->save(), true);
+
+        Item *item2 = new Item;
+        item2->setName("second");
+        QCOMPARE(item2->save(), true);
+
+        Owner owner;
+        owner.setName("owner");
+        owner.setItem1(item1);
+        owner.setItem2(item2);
+        QCOMPARE(owner.save(), true);
+    }
+
+    // perform filtering
+    QDjangoQuerySet<Owner> owners;
+
+    QDjangoQuerySet<Owner> qs = owners.filter(
+        QDjangoWhere("item1__name", QDjangoWhere::Equals, "first"));
+    CHECKWHERE(qs.where(), QLatin1String("\"item\".\"name\" = ?"), QVariantList() << "first");
+    QCOMPARE(qs.count(), 1);
+}
+
 /** Test eager loading of foreign keys.
  */
 void tst_QDjangoModel::selectRelated()
@@ -204,6 +234,9 @@ void tst_QDjangoModel::selectRelated()
     QCOMPARE(owner->item1()->name(), QLatin1String("first"));
     QCOMPARE(owner->item2()->name(), QLatin1String("second"));
     delete owner;
+
+    owner = qs.selectRelated().get(QDjangoWhere("name", QDjangoWhere::Equals, "owner"));
+    QVERIFY(owner != 0);
 }
 
 /** Drop database tables after running tests.
