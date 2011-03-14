@@ -116,7 +116,7 @@ void tst_QDjangoMetaModel::cleanupTestCase()
 
 /** Test empty where clause.
  */
-void TestWhere::emptyWhere()
+void tst_QDjangoWhere::emptyWhere()
 {
     // construct empty where clause
     QDjangoWhere testQuery;
@@ -133,7 +133,7 @@ void TestWhere::emptyWhere()
 
 /** Test "=" comparison.
  */
-void TestWhere::equalsWhere()
+void tst_QDjangoWhere::equalsWhere()
 {
     QDjangoWhere testQuery;
 
@@ -148,7 +148,7 @@ void TestWhere::equalsWhere()
 
 /** Test "!=" comparison.
  */
-void TestWhere::notEqualsWhere()
+void tst_QDjangoWhere::notEqualsWhere()
 {
     QDjangoWhere testQuery;
 
@@ -163,7 +163,7 @@ void TestWhere::notEqualsWhere()
 
 /** Test ">" comparison.
  */
-void TestWhere::greaterThan()
+void tst_QDjangoWhere::greaterThan()
 {
     QDjangoWhere testQuery;
 
@@ -176,7 +176,7 @@ void TestWhere::greaterThan()
 
 /** Test ">=" comparison.
  */
-void TestWhere::greaterOrEquals()
+void tst_QDjangoWhere::greaterOrEquals()
 {
     QDjangoWhere testQuery;
 
@@ -189,7 +189,7 @@ void TestWhere::greaterOrEquals()
 
 /** Test "<" comparison.
  */
-void TestWhere::lessThan()
+void tst_QDjangoWhere::lessThan()
 {
     QDjangoWhere testQuery;
 
@@ -202,7 +202,7 @@ void TestWhere::lessThan()
 
 /** Test "<=" comparison.
  */
-void TestWhere::lessOrEquals()
+void tst_QDjangoWhere::lessOrEquals()
 {
     QDjangoWhere testQuery;
 
@@ -215,7 +215,7 @@ void TestWhere::lessOrEquals()
 
 /** Test "in" comparison.
  */
-void TestWhere::isIn()
+void tst_QDjangoWhere::isIn()
 {
     QDjangoWhere testQuery = QDjangoWhere("id", QDjangoWhere::IsIn, QVariantList() << 1 << 2);
     CHECKWHERE(testQuery, QLatin1String("id IN (?, ?)"), QVariantList() << 1 << 2);
@@ -223,7 +223,7 @@ void TestWhere::isIn()
 
 /** Test "startswith" comparison.
  */
-void TestWhere::startsWith()
+void tst_QDjangoWhere::startsWith()
 {
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::StartsWith, "abc");
     CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE ?"), QVariantList() << "abc%" << "\\");
@@ -231,7 +231,7 @@ void TestWhere::startsWith()
 
 /** Test "endswith" comparison.
  */
-void TestWhere::endsWith()
+void tst_QDjangoWhere::endsWith()
 {
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::EndsWith, "abc");
     CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE ?"), QVariantList() << "%abc" << "\\");
@@ -239,7 +239,7 @@ void TestWhere::endsWith()
 
 /** Test "contains" comparison.
  */
-void TestWhere::contains()
+void tst_QDjangoWhere::contains()
 {
     QDjangoWhere testQuery = QDjangoWhere("name", QDjangoWhere::Contains, "abc");
     CHECKWHERE(testQuery, QLatin1String("name LIKE ? ESCAPE ?"), QVariantList() << "%abc%" << "\\");
@@ -247,7 +247,7 @@ void TestWhere::contains()
 
 /** Test compound where clause, using the AND operator.
  */
-void TestWhere::andWhere()
+void tst_QDjangoWhere::andWhere()
 {
     QDjangoWhere testQuery;
 
@@ -280,7 +280,7 @@ void TestWhere::andWhere()
 
 /** Test compound where clause, using the OR operator.
  */
-void TestWhere::orWhere()
+void tst_QDjangoWhere::orWhere()
 {
     QDjangoWhere testQuery;
 
@@ -313,7 +313,7 @@ void TestWhere::orWhere()
 
 /** Test compound where clause, using both the AND and the OR operators.
  */
-void TestWhere::complexWhere()
+void tst_QDjangoWhere::complexWhere()
 {
     QDjangoWhere testQuery;
 
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < count; ++i)
     {
-        TestWhere testWhere;
+        tst_QDjangoWhere testWhere;
         errors += QTest::qExec(&testWhere);
 
         tst_QDjangoMetaModel testModel;
