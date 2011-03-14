@@ -543,26 +543,26 @@ bool QDjangoMetaModel::isValid() const
  *
  * \param model
  * \param properties
+ * \param pos
  */
-void QDjangoMetaModel::load(QObject *model, const QVariantMap &properties) const
+void QDjangoMetaModel::load(QObject *model, const QVariantList &properties, int &pos) const
 {
     QSqlDatabase db = QDjango::database();
 
     // process local fields
     foreach (const QDjangoMetaField &field, m_localFields)
-    {
-        const QString key = databaseColumn(db, field.name);
-        model->setProperty(field.name, properties.value(key));
-    }
+        model->setProperty(field.name, properties.at(pos++));
 
     // process foreign fields
+    if (pos >= properties.size())
+        return;
     foreach (const QByteArray &fkName, m_foreignFields.keys())
     {
         QObject *object = model->property(fkName + "_ptr").value<QObject*>();
         if (object)
         {
             const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[fkName]);
-            foreignMeta.load(object, properties);
+            foreignMeta.load(object, properties, pos);
         }
     }
 }

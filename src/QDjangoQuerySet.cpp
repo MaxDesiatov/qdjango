@@ -160,9 +160,9 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     // store results
     while (query.next())
     {
-        QVariantMap props;
+        QVariantList props;
         for (int i = 0; i < fields.size(); ++i)
-            props.insert(fields[i], query.value(i));
+            props << query.value(i);
         properties.append(props);
     }
     hasResults = true;
@@ -217,7 +217,8 @@ bool QDjangoQuerySetPrivate::sqlLoad(QObject *model, int index)
     }
 
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    metaModel.load(model, properties.at(index));
+    int pos = 0;
+    metaModel.load(model, properties.at(index), pos);
     return true;
 }
 
@@ -227,25 +228,32 @@ QList<QVariantMap> QDjangoQuerySetPrivate::sqlValues(const QStringList &fields)
     if (!sqlFetch())
         return values;
 
-    QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
 
     // build field list
-    QStringList fieldNames;
-    if (fields.isEmpty())
-        foreach (const QDjangoMetaField &field, metaModel.m_localFields)
-            fieldNames << field.name;
-    else
-        fieldNames = fields;
-
-    foreach (const QVariantMap &props, properties)
-    {
-        QVariantMap map;
-        foreach (const QString &field, fieldNames)
-        {
-            const QString key = metaModel.databaseColumn(db, field);
-            map[field] = props[key];
+    QMap<QString, int> fieldPos;
+    if (fields.isEmpty()) {
+        for (int i = 0; i < metaModel.m_localFields.size(); ++i)
+            fieldPos.insert(QString::fromAscii(metaModel.m_localFields[i].name), i);
+    } else {
+        foreach (const QString &name, fields) {
+            int pos = 0;
+            foreach (const QDjangoMetaField &field, metaModel.m_localFields) {
+                if (field.name == name)
+                    break;
+                pos++;
+            }
+            Q_ASSERT_X(pos < metaModel.m_localFields.size(), "QDjangoQuerySet<T>::values", "unknown field requested");
+            fieldPos.insert(name, pos);
         }
+    }
+
+    // extract values
+    foreach (const QVariantList &props, properties) {
+        QVariantMap map;
+        QMap<QString, int>::const_iterator i;
+        for (i = fieldPos.constBegin(); i != fieldPos.constEnd(); ++i)
+            map[i.key()] = props[i.value()];
         values.append(map);
     }
     return values;
@@ -257,24 +265,31 @@ QList<QVariantList> QDjangoQuerySetPrivate::sqlValuesList(const QStringList &fie
     if (!sqlFetch())
         return values;
 
-    // build field list
-    QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QStringList fieldNames;
-    if (fields.isEmpty())
-        foreach (const QDjangoMetaField &field, metaModel.m_localFields)
-            fieldNames << field.name;
-    else
-        fieldNames = fields;
 
-    foreach (const QVariantMap &props, properties)
-    {
-        QVariantList list;
-        foreach (const QString &field, fieldNames)
-        {
-            const QString key = metaModel.databaseColumn(db, field);
-            list << props.value(key);
+    // build field list
+    QList<int> fieldPos;
+    if (fields.isEmpty()) {
+        for (int i = 0; i < metaModel.m_localFields.size(); ++i)
+            fieldPos << i;
+    } else {
+        foreach (const QString &name, fields) {
+            int pos = 0;
+            foreach (const QDjangoMetaField &field, metaModel.m_localFields) {
+                if (field.name == name)
+                    break;
+                pos++;
+            }
+            Q_ASSERT_X(pos < metaModel.m_localFields.size(), "QDjangoQuerySet<T>::valuesList", "unknown field requested");
+            fieldPos << pos;
         }
+    }
+
+    // extract values
+    foreach (const QVariantList &props, properties) {
+        QVariantList list;
+        foreach (int pos, fieldPos)
+            list << props.at(pos);
         values.append(list);
     }
     return values;

@@ -58,7 +58,7 @@ public:
     int highMark;
     QDjangoWhere whereClause;
     QStringList orderBy;
-    QList<QVariantMap> properties;
+    QList<QVariantList> properties;
     bool selectRelated;
 
 private:
