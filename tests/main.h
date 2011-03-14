@@ -76,7 +76,7 @@ private:
 
 /** Test QDjangoWhere class.
  */
-class TestWhere : public QObject
+class tst_QDjangoWhere : public QObject
 {
     Q_OBJECT
 
