@@ -135,7 +135,6 @@ QDjangoQuerySet<T> QDjangoQuerySet<T>::all() const
     QDjangoQuerySet<T> other;
     other.d->lowMark = d->lowMark;
     other.d->highMark = d->highMark;
-    other.d->needsJoin = d->needsJoin;
     other.d->orderBy = d->orderBy;
     other.d->selectRelated = d->selectRelated;
     other.d->whereClause = d->whereClause;
@@ -337,7 +336,7 @@ QList<QVariantList> QDjangoQuerySet<T>::valuesList(const QStringList &fields)
 template <class T>
 QDjangoWhere QDjangoQuerySet<T>::where() const
 {
-    return d->whereClause;
+    return d->resolvedWhere(QDjango::database());
 }
 
 /** Assigns the specified queryset to this object.
