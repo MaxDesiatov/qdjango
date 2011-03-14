@@ -22,24 +22,24 @@
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
 
-class QDjangoCompiler
-{
-public:
-    QDjangoCompiler(const QString &modelName);
-    QString databaseColumn(const QString &name);
-    void resolve(QDjangoWhere &where);
-
-private:
-
-    QSqlDriver *driver;
-    QDjangoMetaModel baseModel;
-    QMap<QString, QString> modelRefs;
-};
-
 QDjangoCompiler::QDjangoCompiler(const QString &modelName)
 {
-    driver = QDjango::database().driver();
+    database = QDjango::database();
+    driver = database.driver();
     baseModel = QDjango::metaModel(modelName);
+}
+
+QString QDjangoCompiler::referenceModel(const QString &modelPath)
+{
+    if (modelPath.isEmpty())
+        return driver->escapeIdentifier(baseModel.m_table, QSqlDriver::TableName);
+
+    if (modelRefs.contains(modelPath))
+        return modelRefs.value(modelPath);
+
+    const QString modelRef = "T" + QString::number(modelRefs.size());
+    modelRefs.insert(modelPath, modelRef);
+    return modelRef;
 }
 
 QString QDjangoCompiler::databaseColumn(const QString &name)
@@ -58,8 +58,7 @@ QString QDjangoCompiler::databaseColumn(const QString &name)
         if (!modelPath.isEmpty())
             modelPath += "__";
         modelPath += bits.first();
-        if (!modelRefs.contains(modelPath))
-            modelRefs.insert(modelPath, "T" + QString::number(modelRefs.size()));
+        referenceModel(modelPath);
 
         bits.takeFirst();
     }
@@ -70,6 +69,26 @@ QString QDjangoCompiler::databaseColumn(const QString &name)
 
     return driver->escapeIdentifier(model.m_table, QSqlDriver::TableName) + "." +
            driver->escapeIdentifier(fieldName, QSqlDriver::FieldName);
+}
+
+QStringList QDjangoCompiler::fieldNames(const QDjangoMetaModel &metaModel, bool recurse, const QString &modelPath)
+{
+    QStringList fields;
+
+    // store reference
+    const QString tableName = referenceModel(modelPath);
+    foreach (const QDjangoMetaField &field, metaModel.m_localFields)
+        fields << tableName + "." + driver->escapeIdentifier(field.name, QSqlDriver::FieldName);
+    if (!recurse)
+        return fields;
+
+    // recurse for foreign keys
+    const QString pathPrefix = modelPath.isEmpty() ? QString() : (modelPath + "__");
+    foreach (const QByteArray &fkName, metaModel.m_foreignFields.keys()) {
+        QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel.m_foreignFields[fkName]);
+        fields += fieldNames(metaForeign, recurse, pathPrefix + fkName);
+    }
+    return fields;
 }
 
 void QDjangoCompiler::resolve(QDjangoWhere &where)
