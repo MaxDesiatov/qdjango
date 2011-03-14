@@ -63,7 +63,7 @@ public:
 
 private:
     Q_DISABLE_COPY(QDjangoQuerySetPrivate)
-    QStringList fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &model, QString &from, bool &needsJoin);
+    QStringList fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &model, QString &from, bool &needsJoin) const;
 
     QString m_modelName;
 

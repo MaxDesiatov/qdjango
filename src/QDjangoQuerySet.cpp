@@ -30,7 +30,7 @@ QDjangoQuerySetPrivate::QDjangoQuerySetPrivate(const QString &modelName)
 {
 }
 
-QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &metaModel, QString &from, bool &needsJoin)
+QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &metaModel, QString &from, bool &needsJoin) const
 {
     QStringList fields;
     foreach (const QDjangoMetaField &field, metaModel.m_localFields)
@@ -70,13 +70,16 @@ QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
 int QDjangoQuerySetPrivate::sqlCount() const
 {
     QSqlDatabase db = QDjango::database();
-
-    // prepare query
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QDjangoWhere resolvedWhere(whereClause);
-    resolvedWhere.resolve(db, metaModel, 0);
 
-    QString sql = "SELECT COUNT(*) FROM " + metaModel.databaseTable(db);
+    // build query
+    bool needsJoin = false;
+    QDjangoWhere resolvedWhere(whereClause);
+    resolvedWhere.resolve(db, metaModel, &needsJoin);
+
+    QString from = metaModel.databaseTable(db);
+    fieldNames(db, metaModel, from, needsJoin);
+    QString sql = "SELECT COUNT(*) FROM " + from;
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
@@ -103,13 +106,16 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     if (lowMark || highMark)
         return false;
 
-    // delete entries
     QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+
+    // build query
+    bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
-    resolvedWhere.resolve(db, metaModel, 0);
+    resolvedWhere.resolve(db, metaModel, &needsJoin);
 
     QString from = metaModel.databaseTable(db);
+    fieldNames(db, metaModel, from, needsJoin);
     QString sql = "DELETE FROM " + from;
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
@@ -118,6 +124,8 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     QDjangoQuery query(db);
     query.prepare(sql);
     resolvedWhere.bindValues(query);
+
+    // execute query
     if (!query.exec())
         return false;
 
@@ -135,9 +143,10 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     if (hasResults || whereClause.isNone())
         return true;
 
-    // build query
     QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+
+    // build query
     bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
     resolvedWhere.resolve(db, metaModel, &needsJoin);

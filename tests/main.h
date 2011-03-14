@@ -123,6 +123,7 @@ class tst_QDjangoModel : public QObject
 
 private slots:
     void initTestCase();
+    void filterRelated();
     void selectRelated();
     void cleanupTestCase();
 };
