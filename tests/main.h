@@ -61,24 +61,39 @@ private:
     int m_wiz;
 };
 
-class Owner : public QDjangoModel
+class Item : public QDjangoModel
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName)
-    Q_PROPERTY(Object* object1 READ object1 WRITE setObject1)
-    Q_PROPERTY(Object* object2 READ object2 WRITE setObject2)
 
 public:
-    Owner();
+    Item(QObject *parent = 0);
 
     QString name() const;
     void setName(const QString &name);
 
-    Object *object1() const;
-    void setObject1(Object *object2);
+private:
+    QString m_name;
+};
 
-    Object *object2() const;
-    void setObject2(Object *object2);
+class Owner : public QDjangoModel
+{
+    Q_OBJECT
+    Q_PROPERTY(QString name READ name WRITE setName)
+    Q_PROPERTY(Item* item1 READ item1 WRITE setItem1)
+    Q_PROPERTY(Item* item2 READ item2 WRITE setItem2)
+
+public:
+    Owner(QObject *parent = 0);
+
+    QString name() const;
+    void setName(const QString &name);
+
+    Item *item1() const;
+    void setItem1(Item *item1);
+
+    Item *item2() const;
+    void setItem2(Item *item2);
 
 private:
     QString m_name;
@@ -108,6 +123,7 @@ class tst_QDjangoModel : public QObject
 
 private slots:
     void initTestCase();
+    void selectRelated();
     void cleanupTestCase();
 };
 
