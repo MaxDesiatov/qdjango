@@ -41,6 +41,7 @@ public:
     QDjangoQuerySetPrivate(const QString &modelName);
 
     void addFilter(const QDjangoWhere &where);
+    QDjangoWhere resolvedWhere(const QSqlDatabase &db) const;
     int sqlCount() const;
     bool sqlDelete();
     bool sqlFetch();
@@ -56,14 +57,13 @@ public:
     int lowMark;
     int highMark;
     QDjangoWhere whereClause;
-    bool needsJoin;
     QStringList orderBy;
     QList<QVariantMap> properties;
     bool selectRelated;
 
 private:
     Q_DISABLE_COPY(QDjangoQuerySetPrivate)
-    QStringList fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &model, QString &from);
+    QStringList fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &model, QString &from, bool &needsJoin);
 
     QString m_modelName;
 

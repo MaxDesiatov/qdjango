@@ -25,13 +25,12 @@ QDjangoQuerySetPrivate::QDjangoQuerySetPrivate(const QString &modelName)
     hasResults(false),
     lowMark(0),
     highMark(0),
-    needsJoin(false),
     selectRelated(false),
     m_modelName(modelName)
 {
 }
 
-QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &metaModel, QString &from)
+QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDjangoMetaModel &metaModel, QString &from, bool &needsJoin)
 {
     QStringList fields;
     foreach (const QDjangoMetaField &field, metaModel.m_localFields)
@@ -48,7 +47,7 @@ QStringList QDjangoQuerySetPrivate::fieldNames(const QSqlDatabase &db, const QDj
             .arg(metaForeign.databaseColumn(db, "pk"))
             .arg(metaModel.databaseColumn(db, fkName + "_id"));
         if (selectRelated)
-            fields += fieldNames(db, metaForeign, from);
+            fields += fieldNames(db, metaForeign, from, needsJoin);
     }
     return fields;
 }
@@ -58,12 +57,14 @@ void QDjangoQuerySetPrivate::addFilter(const QDjangoWhere &where)
     // it is not possible to add filters once a limit has been set
     Q_ASSERT(!lowMark && !highMark);
 
-    // FIXME : this is too early to get a DB handle
-    QSqlDatabase db = QDjango::database();
-    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QDjangoWhere q(where);
-    q.resolve(db, metaModel, &needsJoin);
-    whereClause = whereClause && q;
+    whereClause = whereClause && where;
+}
+
+QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
+{
+    QDjangoWhere resolvedWhere(whereClause);
+    resolvedWhere.resolve(db, QDjango::metaModel(m_modelName), 0);
+    return resolvedWhere;
 }
 
 int QDjangoQuerySetPrivate::sqlCount() const
@@ -72,14 +73,17 @@ int QDjangoQuerySetPrivate::sqlCount() const
 
     // prepare query
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    QDjangoWhere resolvedWhere(whereClause);
+    resolvedWhere.resolve(db, metaModel, 0);
+
     QString sql = "SELECT COUNT(*) FROM " + metaModel.databaseTable(db);
-    QString where = whereClause.sql();
+    QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit(db);
     QDjangoQuery query(db);
     query.prepare(sql);
-    whereClause.bindValues(query);
+    resolvedWhere.bindValues(query);
 
     // execute query
     if (!query.exec() || !query.next())
@@ -102,15 +106,18 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     // delete entries
     QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    QDjangoWhere resolvedWhere(whereClause);
+    resolvedWhere.resolve(db, metaModel, 0);
+
     QString from = metaModel.databaseTable(db);
     QString sql = "DELETE FROM " + from;
-    QString where = whereClause.sql();
+    QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit(db);
     QDjangoQuery query(db);
     query.prepare(sql);
-    whereClause.bindValues(query);
+    resolvedWhere.bindValues(query);
     if (!query.exec())
         return false;
 
@@ -131,16 +138,20 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     // build query
     QSqlDatabase db = QDjango::database();
     const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
+    bool needsJoin = false;
+    QDjangoWhere resolvedWhere(whereClause);
+    resolvedWhere.resolve(db, metaModel, &needsJoin);
+
     QString from = metaModel.databaseTable(db);
-    QStringList fields = fieldNames(db, metaModel, from);
+    QStringList fields = fieldNames(db, metaModel, from, needsJoin);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
-    QString where = whereClause.sql();
+    QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
     sql += sqlLimit(db);
     QDjangoQuery query(db);
     query.prepare(sql);
-    whereClause.bindValues(query);
+    resolvedWhere.bindValues(query);
 
     // execute query
     if (!query.exec())
