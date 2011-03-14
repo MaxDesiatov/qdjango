@@ -18,6 +18,7 @@
  */
 
 #include "QDjango.h"
+#include "QDjangoModel.h"
 
 #include <QObject>
 
@@ -43,7 +44,7 @@ class Object : public QObject
     Q_CLASSINFO("wiz", "ignore_field=true")
 
 public:
-    Object();
+    Object(QObject *parent = 0);
 
     QString foo() const;
     void setFoo(const QString &foo);
@@ -60,6 +61,31 @@ private:
     int m_wiz;
 };
 
+class Owner : public QDjangoModel
+{
+    Q_OBJECT
+    Q_PROPERTY(QString name READ name WRITE setName)
+    Q_PROPERTY(Object* object1 READ object1 WRITE setObject1)
+    Q_PROPERTY(Object* object2 READ object2 WRITE setObject2)
+
+public:
+    Owner();
+
+    QString name() const;
+    void setName(const QString &name);
+
+    Object *object1() const;
+    void setObject1(Object *object2);
+
+    Object *object2() const;
+    void setObject2(Object *object2);
+
+private:
+    QString m_name;
+};
+
+/** Test QDjangoMetaModel class.
+ */
 class tst_QDjangoMetaModel : public QObject
 {
     Q_OBJECT
@@ -72,6 +98,17 @@ private slots:
 
 private:
     QDjangoMetaModel metaModel;
+};
+
+/** Test QDjangoModel class.
+ */
+class tst_QDjangoModel : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
 };
 
 /** Test QDjangoWhere class.

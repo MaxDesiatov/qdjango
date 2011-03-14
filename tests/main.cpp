@@ -35,8 +35,9 @@
 #include "http.h"
 #include "script.h"
 
-Object::Object()
-    : m_bar(0),
+Object::Object(QObject *parent)
+    : QObject(parent),
+    m_bar(0),
     m_wiz(0)
 {
 }
@@ -69,6 +70,42 @@ int Object::wiz() const
 void Object::setWiz(int wiz)
 {
     m_wiz = wiz;
+}
+
+Owner::Owner()
+{
+    setForeignKey("object1", new Object(this));
+    setForeignKey("object2", new Object(this));
+}
+
+QString Owner::name() const
+{
+    return m_name;
+}
+
+void Owner::setName(const QString &name)
+{
+    m_name = name;
+}
+
+Object* Owner::object1() const
+{
+    return qobject_cast<Object*>(foreignKey("object1"));
+}
+
+void Owner::setObject1(Object *object1)
+{
+    setForeignKey("object1", object1);
+}
+
+Object* Owner::object2() const
+{
+    return qobject_cast<Object*>(foreignKey("object2"));
+}
+
+void Owner::setObject2(Object *object2)
+{
+    setForeignKey("object2", object2);
 }
 
 void tst_QDjangoMetaModel::initTestCase()
@@ -112,6 +149,22 @@ void tst_QDjangoMetaModel::save()
 void tst_QDjangoMetaModel::cleanupTestCase()
 {
     metaModel.dropTable();
+}
+
+/** Create database tables before running tests.
+ */
+void tst_QDjangoModel::initTestCase()
+{
+    QCOMPARE(QDjango::registerModel<Object>().createTable(), true);
+    QCOMPARE(QDjango::registerModel<Owner>().createTable(), true);
+}
+
+/** Drop database tables after running tests.
+ */
+void tst_QDjangoModel::cleanupTestCase()
+{
+    QCOMPARE(QDjango::registerModel<Owner>().dropTable(), true);
+    QCOMPARE(QDjango::registerModel<Object>().dropTable(), true);
 }
 
 /** Test empty where clause.
@@ -398,7 +451,10 @@ int main(int argc, char *argv[])
         tst_QDjangoWhere testWhere;
         errors += QTest::qExec(&testWhere);
 
-        tst_QDjangoMetaModel testModel;
+        tst_QDjangoMetaModel testMetaModel;
+        errors += QTest::qExec(&testMetaModel);
+
+        tst_QDjangoModel testModel;
         errors += QTest::qExec(&testModel);
 
         TestUser testUser;
