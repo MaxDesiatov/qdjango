@@ -17,8 +17,71 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QSqlDriver>
+
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
+
+class QDjangoCompiler
+{
+public:
+    QDjangoCompiler(const QString &modelName);
+    QString databaseColumn(const QString &name);
+    void resolve(QDjangoWhere &where);
+
+private:
+
+    QSqlDriver *driver;
+    QDjangoMetaModel baseModel;
+    QMap<QString, QString> modelRefs;
+};
+
+QDjangoCompiler::QDjangoCompiler(const QString &modelName)
+{
+    driver = QDjango::database().driver();
+    baseModel = QDjango::metaModel(modelName);
+}
+
+QString QDjangoCompiler::databaseColumn(const QString &name)
+{
+    QDjangoMetaModel model = baseModel;
+    QString modelPath;
+    QStringList bits = name.split("__");
+    while (bits.size() > 1) {
+        const QByteArray fk = bits.first().toLatin1();
+        if (!model.m_foreignFields.contains(fk))
+            break;
+
+        model = QDjango::metaModel(model.m_foreignFields[fk]);
+
+        // store reference
+        if (!modelPath.isEmpty())
+            modelPath += "__";
+        modelPath += bits.first();
+        if (!modelRefs.contains(modelPath))
+            modelRefs.insert(modelPath, "T" + QString::number(modelRefs.size()));
+
+        bits.takeFirst();
+    }
+
+    QString fieldName = bits.join("__");
+    if (fieldName == QLatin1String("pk"))
+        fieldName = model.m_primaryKey;
+
+    return driver->escapeIdentifier(model.m_table, QSqlDriver::TableName) + "." +
+           driver->escapeIdentifier(fieldName, QSqlDriver::FieldName);
+}
+
+void QDjangoCompiler::resolve(QDjangoWhere &where)
+{
+    // resolve column
+    if (where.m_operation != QDjangoWhere::None)
+        where.m_key = databaseColumn(where.m_key);
+
+    // recurse into children
+    for (int i = 0; i < where.m_children.size(); i++)
+        resolve(where.m_children[i]);
+}
 
 QDjangoQuerySetPrivate::QDjangoQuerySetPrivate(const QString &modelName)
     : counter(1),
@@ -75,7 +138,8 @@ QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
 {
     bool needsJoin = false;
     QDjangoWhere resolvedWhere(whereClause);
-    resolve(resolvedWhere, db, QDjango::metaModel(m_modelName), needsJoin);
+    QDjangoCompiler compiler(m_modelName);
+    compiler.resolve(resolvedWhere);
     return resolvedWhere;
 }
 
