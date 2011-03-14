@@ -29,16 +29,16 @@ QDjangoCompiler::QDjangoCompiler(const QString &modelName)
     baseModel = QDjango::metaModel(modelName);
 }
 
-QString QDjangoCompiler::referenceModel(const QString &modelPath)
+QString QDjangoCompiler::referenceModel(const QString &modelPath, QDjangoMetaModel *metaModel)
 {
     if (modelPath.isEmpty())
         return driver->escapeIdentifier(baseModel.m_table, QSqlDriver::TableName);
 
     if (modelRefs.contains(modelPath))
-        return modelRefs.value(modelPath);
+        return modelRefs.value(modelPath).first;
 
     const QString modelRef = "T" + QString::number(modelRefs.size());
-    modelRefs.insert(modelPath, modelRef);
+    modelRefs.insert(modelPath, qMakePair(modelRef, *metaModel));
     return modelRef;
 }
 
@@ -46,20 +46,23 @@ QString QDjangoCompiler::databaseColumn(const QString &name)
 {
     QDjangoMetaModel model = baseModel;
     QString modelPath;
+    QString modelRef = referenceModel(QString(), &model);
+
     QStringList bits = name.split("__");
     while (bits.size() > 1) {
         const QByteArray fk = bits.first().toLatin1();
         if (!model.m_foreignFields.contains(fk))
             break;
 
-        model = QDjango::metaModel(model.m_foreignFields[fk]);
+        QDjangoMetaModel foreignModel = QDjango::metaModel(model.m_foreignFields[fk]);
 
         // store reference
         if (!modelPath.isEmpty())
             modelPath += "__";
         modelPath += bits.first();
-        referenceModel(modelPath);
+        modelRef = referenceModel(modelPath, &foreignModel);
 
+        model = foreignModel;
         bits.takeFirst();
     }
 
@@ -67,7 +70,7 @@ QString QDjangoCompiler::databaseColumn(const QString &name)
     if (fieldName == QLatin1String("pk"))
         fieldName = model.m_primaryKey;
 
-    return referenceModel(modelPath) + "." + driver->escapeIdentifier(fieldName, QSqlDriver::FieldName);
+    return modelRef + "." + driver->escapeIdentifier(fieldName, QSqlDriver::FieldName);
 }
 
 QStringList QDjangoCompiler::fieldNames(bool recurse, QDjangoMetaModel *metaModel, const QString &modelPath)
@@ -77,7 +80,7 @@ QStringList QDjangoCompiler::fieldNames(bool recurse, QDjangoMetaModel *metaMode
         metaModel = &baseModel;
 
     // store reference
-    const QString tableName = referenceModel(modelPath);
+    const QString tableName = referenceModel(modelPath, metaModel);
     foreach (const QDjangoMetaField &field, metaModel->m_localFields)
         fields << tableName + "." + driver->escapeIdentifier(field.name, QSqlDriver::FieldName);
     if (!recurse)
@@ -90,6 +93,20 @@ QStringList QDjangoCompiler::fieldNames(bool recurse, QDjangoMetaModel *metaMode
         fields += fieldNames(recurse, &metaForeign, pathPrefix + fkName);
     }
     return fields;
+}
+
+QString QDjangoCompiler::fromSql()
+{
+    QString from = baseModel.databaseTable(database);
+    foreach (const QString &name, modelRefs.keys()) {
+        from += QString(" INNER JOIN %1 %2 ON %3.%4 = %5")
+            .arg(modelRefs[name].second.databaseTable(database))
+            .arg(modelRefs[name].first)
+            .arg(modelRefs[name].first)
+            .arg(driver->escapeIdentifier(modelRefs[name].second.m_primaryKey, QSqlDriver::FieldName))
+            .arg(databaseColumn(name + "_id"));
+    }
+    return from;
 }
 
 void QDjangoCompiler::resolve(QDjangoWhere &where)

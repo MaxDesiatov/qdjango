@@ -139,6 +139,7 @@ void tst_QDjangoCompiler::fieldNames()
         << "\"owner\".\"name\""
         << "\"owner\".\"item1_id\""
         << "\"owner\".\"item2_id\"");
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\""));
 }
 
 void tst_QDjangoCompiler::fieldNamesRecursive()
@@ -153,6 +154,7 @@ void tst_QDjangoCompiler::fieldNamesRecursive()
         << "T0.\"name\""
         << "T1.\"id\""
         << "T1.\"name\"");
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\" INNER JOIN \"item\" T1 ON T1.\"id\" = \"owner\".\"item2_id\""));
 }
 
 void tst_QDjangoCompiler::resolve()
@@ -161,17 +163,20 @@ void tst_QDjangoCompiler::resolve()
     QDjangoWhere where("name", QDjangoWhere::Equals, "foo");
     compiler.resolve(where);
     CHECKWHERE(where, QLatin1String("\"owner\".\"name\" = ?"), QVariantList() << "foo");
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\""));
 
     compiler = QDjangoCompiler("Owner");
     where = QDjangoWhere("item1__name", QDjangoWhere::Equals, "foo");
     compiler.resolve(where);
     CHECKWHERE(where, QLatin1String("T0.\"name\" = ?"), QVariantList() << "foo");
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\""));
 
     compiler = QDjangoCompiler("Owner");
     where = QDjangoWhere("item1__name", QDjangoWhere::Equals, "foo")
          && QDjangoWhere("item2__name", QDjangoWhere::Equals, "bar");
     compiler.resolve(where);
     CHECKWHERE(where, QLatin1String("T0.\"name\" = ? AND T1.\"name\" = ?"), QVariantList() << "foo" << "bar");
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\" INNER JOIN \"item\" T1 ON T1.\"id\" = \"owner\".\"item2_id\""));
 }
 
 void tst_QDjangoMetaModel::initTestCase()
