@@ -39,7 +39,7 @@ class QDjangoCompiler
 {
 public:
     QDjangoCompiler(const QString &modelName);
-    QStringList fieldNames(const QDjangoMetaModel &metaModel, bool recurse, const QString &modelPath);
+    QStringList fieldNames(bool recurse, QDjangoMetaModel *metaModel = 0, const QString &modelPath = QString());
     void resolve(QDjangoWhere &where);
 
 private:

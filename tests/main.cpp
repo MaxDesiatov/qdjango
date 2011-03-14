@@ -128,14 +128,13 @@ void Owner::setItem2(Item *item2)
 void tst_QDjangoCompiler::initTestCase()
 {
     QDjango::registerModel<Item>();
-    QDjango::registerModel<Object>();
+    QDjango::registerModel<Owner>();
 }
 
 void tst_QDjangoCompiler::fieldNames()
 {
-    QDjangoMetaModel metaModel = QDjango::registerModel<Owner>();
     QDjangoCompiler compiler("Owner");
-    QCOMPARE(compiler.fieldNames(metaModel, false, ""), QStringList()
+    QCOMPARE(compiler.fieldNames(false), QStringList()
         << "\"owner\".\"id\""
         << "\"owner\".\"name\""
         << "\"owner\".\"item1_id\""
@@ -144,9 +143,8 @@ void tst_QDjangoCompiler::fieldNames()
 
 void tst_QDjangoCompiler::fieldNamesRecursive()
 {
-    QDjangoMetaModel metaModel = QDjango::registerModel<Owner>();
     QDjangoCompiler compiler("Owner");
-    QCOMPARE(compiler.fieldNames(metaModel, true, ""), QStringList()
+    QCOMPARE(compiler.fieldNames(true), QStringList()
         << "\"owner\".\"id\""
         << "\"owner\".\"name\""
         << "\"owner\".\"item1_id\""

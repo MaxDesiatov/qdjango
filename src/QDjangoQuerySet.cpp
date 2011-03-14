@@ -71,22 +71,24 @@ QString QDjangoCompiler::databaseColumn(const QString &name)
            driver->escapeIdentifier(fieldName, QSqlDriver::FieldName);
 }
 
-QStringList QDjangoCompiler::fieldNames(const QDjangoMetaModel &metaModel, bool recurse, const QString &modelPath)
+QStringList QDjangoCompiler::fieldNames(bool recurse, QDjangoMetaModel *metaModel, const QString &modelPath)
 {
     QStringList fields;
+    if (!metaModel)
+        metaModel = &baseModel;
 
     // store reference
     const QString tableName = referenceModel(modelPath);
-    foreach (const QDjangoMetaField &field, metaModel.m_localFields)
+    foreach (const QDjangoMetaField &field, metaModel->m_localFields)
         fields << tableName + "." + driver->escapeIdentifier(field.name, QSqlDriver::FieldName);
     if (!recurse)
         return fields;
 
     // recurse for foreign keys
     const QString pathPrefix = modelPath.isEmpty() ? QString() : (modelPath + "__");
-    foreach (const QByteArray &fkName, metaModel.m_foreignFields.keys()) {
-        QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel.m_foreignFields[fkName]);
-        fields += fieldNames(metaForeign, recurse, pathPrefix + fkName);
+    foreach (const QByteArray &fkName, metaModel->m_foreignFields.keys()) {
+        QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel->m_foreignFields[fkName]);
+        fields += fieldNames(recurse, &metaForeign, pathPrefix + fkName);
     }
     return fields;
 }
