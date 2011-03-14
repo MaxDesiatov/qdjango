@@ -256,7 +256,7 @@ void tst_QDjangoModel::filterRelated()
 
     QDjangoQuerySet<Owner> qs = owners.filter(
         QDjangoWhere("item1__name", QDjangoWhere::Equals, "first"));
-    CHECKWHERE(qs.where(), QLatin1String("\"item\".\"name\" = ?"), QVariantList() << "first");
+    CHECKWHERE(qs.where(), QLatin1String("T0.\"name\" = ?"), QVariantList() << "first");
     QCOMPARE(qs.count(), 1);
 }
 
@@ -289,8 +289,20 @@ void tst_QDjangoModel::selectRelated()
     QCOMPARE(owner->item2()->name(), QLatin1String("second"));
     delete owner;
 
+    // with eager loading
     owner = qs.selectRelated().get(QDjangoWhere("name", QDjangoWhere::Equals, "owner"));
     QVERIFY(owner != 0);
+    QCOMPARE(owner->item1()->name(), QLatin1String("first"));
+    QCOMPARE(owner->item2()->name(), QLatin1String("second"));
+    delete owner;
+}
+
+/** Clear database tables after each test.
+ */
+void tst_QDjangoModel::cleanup()
+{
+    QCOMPARE(QDjangoQuerySet<Owner>().remove(), true);
+    QCOMPARE(QDjangoQuerySet<Item>().remove(), true);
 }
 
 /** Drop database tables after running tests.
