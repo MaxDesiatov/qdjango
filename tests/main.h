@@ -136,6 +136,7 @@ private slots:
     void initTestCase();
     void filterRelated();
     void selectRelated();
+    void cleanup();
     void cleanupTestCase();
 };
 

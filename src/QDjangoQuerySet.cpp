@@ -173,26 +173,22 @@ void QDjangoQuerySetPrivate::resolve(QDjangoWhere &where, const QSqlDatabase &db
 
 QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
 {
-    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    bool needsJoin = false;
+    QDjangoCompiler compiler(m_modelName);
     QDjangoWhere resolvedWhere(whereClause);
-    resolve(resolvedWhere, db, metaModel, needsJoin);
+    compiler.resolve(resolvedWhere);
     return resolvedWhere;
 }
 
 int QDjangoQuerySetPrivate::sqlCount() const
 {
     QSqlDatabase db = QDjango::database();
-    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
 
     // build query
-    bool needsJoin = false;
+    QDjangoCompiler compiler(m_modelName);
     QDjangoWhere resolvedWhere(whereClause);
-    resolve(resolvedWhere, db, metaModel, needsJoin);
+    compiler.resolve(resolvedWhere);
 
-    QString from = metaModel.databaseTable(db);
-    fieldNames(db, metaModel, from, needsJoin);
-    QString sql = "SELECT COUNT(*) FROM " + from;
+    QString sql = "SELECT COUNT(*) FROM " + compiler.fromSql();
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
@@ -220,16 +216,13 @@ bool QDjangoQuerySetPrivate::sqlDelete()
         return false;
 
     QSqlDatabase db = QDjango::database();
-    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
 
     // build query
-    bool needsJoin = false;
+    QDjangoCompiler compiler(m_modelName);
     QDjangoWhere resolvedWhere(whereClause);
-    resolve(resolvedWhere, db, metaModel, needsJoin);
+    compiler.resolve(resolvedWhere);
 
-    QString from = metaModel.databaseTable(db);
-    fieldNames(db, metaModel, from, needsJoin);
-    QString sql = "DELETE FROM " + from;
+    QString sql = "DELETE FROM " + compiler.fromSql();
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
@@ -257,16 +250,14 @@ bool QDjangoQuerySetPrivate::sqlFetch()
         return true;
 
     QSqlDatabase db = QDjango::database();
-    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
 
     // build query
-    bool needsJoin = false;
+    QDjangoCompiler compiler(m_modelName);
     QDjangoWhere resolvedWhere(whereClause);
-    resolve(resolvedWhere, db, metaModel, needsJoin);
+    compiler.resolve(resolvedWhere);
 
-    QString from = metaModel.databaseTable(db);
-    QStringList fields = fieldNames(db, metaModel, from, needsJoin);
-    QString sql = "SELECT " + fields.join(", ") + " FROM " + from;
+    const QStringList fields = compiler.fieldNames(selectRelated);
+    QString sql = "SELECT " + fields.join(", ") + " FROM " + compiler.fromSql();
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
@@ -280,8 +271,7 @@ bool QDjangoQuerySetPrivate::sqlFetch()
         return false;
 
     // store results
-    while (query.next())
-    {
+    while (query.next()) {
         QVariantList props;
         for (int i = 0; i < fields.size(); ++i)
             props << query.value(i);

@@ -568,7 +568,7 @@ void TestRelated::filterRelated()
     // perform filtering
     QDjangoQuerySet<Message> qs = messages.filter(
         QDjangoWhere("user__username", QDjangoWhere::Equals, "foouser"));
-    CHECKWHERE(qs.where(), QLatin1String("\"user\".\"username\" = ?"), QVariantList() << "foouser");
+    CHECKWHERE(qs.where(), QLatin1String("T0.\"username\" = ?"), QVariantList() << "foouser");
     QCOMPARE(qs.size(), 1);
 
     Message *msg = qs.at(0);
