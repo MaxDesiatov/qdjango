@@ -75,7 +75,6 @@ public:
     void bindValues(QDjangoQuery &query) const;
     bool isAll() const;
     bool isNone() const;
-    bool resolve(const QSqlDatabase &db, const QDjangoMetaModel &model, bool *needsJoin);
     QString sql() const;
 
 private:
@@ -93,6 +92,8 @@ private:
     QList<QDjangoWhere> m_children;
     QDjangoWhere::Combine m_combine;
     bool m_negate;
+
+    friend class QDjangoQuerySetPrivate;
 };
 
 #endif
