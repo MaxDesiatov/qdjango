@@ -426,35 +426,6 @@ bool QDjangoMetaModel::createTable() const
     return true;
 }
 
-/** Returns the quoted database column name for the given field.
- *
- *  The "pk" field will be resolved to the actual primary key name.
- *
- * \param db
- * \param name
- * \param needsJoin
- */
-QString QDjangoMetaModel::databaseColumn(const QSqlDatabase &db, const QString &name, bool *needsJoin) const
-{
-    // foreign key lookup
-    if (name.count("__"))
-    {
-        QStringList bits = name.split("__");
-        const QByteArray fk = bits.takeFirst().toLatin1();
-        if (m_foreignFields.contains(fk))
-        {
-            const QDjangoMetaModel foreignMeta = QDjango::metaModel(m_foreignFields[fk]);
-            if (needsJoin)
-                *needsJoin = true;
-            return foreignMeta.databaseColumn(db, bits.join("__"));
-        }
-    }
-
-    QString realName = (name == "pk") ? m_primaryKey : name;
-    return db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName) + "." +
-           db.driver()->escapeIdentifier(realName, QSqlDriver::FieldName);
-}
-
 /** Returns the quoted database table name.
  *
  * \param db
