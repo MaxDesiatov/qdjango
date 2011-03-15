@@ -22,10 +22,9 @@
 #include "QDjango.h"
 #include "QDjangoQuerySet.h"
 
-QDjangoCompiler::QDjangoCompiler(const QString &modelName)
+QDjangoCompiler::QDjangoCompiler(const QString &modelName, const QSqlDatabase &db)
 {
-    database = QDjango::database();
-    driver = database.driver();
+    driver = db.driver();
     baseModel = QDjango::metaModel(modelName);
 }
 
@@ -173,7 +172,7 @@ void QDjangoQuerySetPrivate::addFilter(const QDjangoWhere &where)
 
 QDjangoWhere QDjangoQuerySetPrivate::resolvedWhere(const QSqlDatabase &db) const
 {
-    QDjangoCompiler compiler(m_modelName);
+    QDjangoCompiler compiler(m_modelName, db);
     QDjangoWhere resolvedWhere(whereClause);
     compiler.resolve(resolvedWhere);
     return resolvedWhere;
@@ -184,7 +183,7 @@ int QDjangoQuerySetPrivate::sqlCount() const
     QSqlDatabase db = QDjango::database();
 
     // build query
-    QDjangoCompiler compiler(m_modelName);
+    QDjangoCompiler compiler(m_modelName, db);
     QDjangoWhere resolvedWhere(whereClause);
     compiler.resolve(resolvedWhere);
 
@@ -219,7 +218,7 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     QSqlDatabase db = QDjango::database();
 
     // build query
-    QDjangoCompiler compiler(m_modelName);
+    QDjangoCompiler compiler(m_modelName, db);
     QDjangoWhere resolvedWhere(whereClause);
     compiler.resolve(resolvedWhere);
 
@@ -254,7 +253,7 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     QSqlDatabase db = QDjango::database();
 
     // build query
-    QDjangoCompiler compiler(m_modelName);
+    QDjangoCompiler compiler(m_modelName, db);
     QDjangoWhere resolvedWhere(whereClause);
     compiler.resolve(resolvedWhere);
 

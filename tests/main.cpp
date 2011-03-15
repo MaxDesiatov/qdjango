@@ -133,7 +133,7 @@ void tst_QDjangoCompiler::initTestCase()
 
 void tst_QDjangoCompiler::fieldNames()
 {
-    QDjangoCompiler compiler("Owner");
+    QDjangoCompiler compiler("Owner", QDjango::database());
     QCOMPARE(compiler.fieldNames(false), QStringList()
         << "\"owner\".\"id\""
         << "\"owner\".\"name\""
@@ -144,7 +144,7 @@ void tst_QDjangoCompiler::fieldNames()
 
 void tst_QDjangoCompiler::fieldNamesRecursive()
 {
-    QDjangoCompiler compiler("Owner");
+    QDjangoCompiler compiler("Owner", QDjango::database());
     QCOMPARE(compiler.fieldNames(true), QStringList()
         << "\"owner\".\"id\""
         << "\"owner\".\"name\""
@@ -159,38 +159,42 @@ void tst_QDjangoCompiler::fieldNamesRecursive()
 
 void tst_QDjangoCompiler::orderLimit()
 {
-    QDjangoCompiler compiler("Owner");
+    QSqlDatabase db = QDjango::database();
+
+    QDjangoCompiler compiler("Owner", db);
     QCOMPARE(compiler.orderLimitSql(QStringList("name"), 0, 0), QLatin1String(" ORDER BY \"owner\".\"name\" ASC"));
     QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\""));
 
-    compiler = QDjangoCompiler("Owner");
+    compiler = QDjangoCompiler("Owner", db);
     QCOMPARE(compiler.orderLimitSql(QStringList("-name"), 0, 0), QLatin1String(" ORDER BY \"owner\".\"name\" DESC"));
     QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\""));
 
-    compiler = QDjangoCompiler("Owner");
+    compiler = QDjangoCompiler("Owner", db);
     QCOMPARE(compiler.orderLimitSql(QStringList("item1__name"), 0, 0), QLatin1String(" ORDER BY T0.\"name\" ASC"));
     QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\""));
 
-    compiler = QDjangoCompiler("Owner");
+    compiler = QDjangoCompiler("Owner", db);
     QCOMPARE(compiler.orderLimitSql(QStringList() << "item1__name" << "item2__name", 0, 0), QLatin1String(" ORDER BY T0.\"name\" ASC, T1.\"name\" ASC"));
     QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\" INNER JOIN \"item\" T1 ON T1.\"id\" = \"owner\".\"item2_id\""));
 }
 
 void tst_QDjangoCompiler::resolve()
 {
-    QDjangoCompiler compiler("Owner");
+    QSqlDatabase db = QDjango::database();
+
+    QDjangoCompiler compiler("Owner", db);
     QDjangoWhere where("name", QDjangoWhere::Equals, "foo");
     compiler.resolve(where);
     CHECKWHERE(where, QLatin1String("\"owner\".\"name\" = ?"), QVariantList() << "foo");
     QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\""));
 
-    compiler = QDjangoCompiler("Owner");
+    compiler = QDjangoCompiler("Owner", db);
     where = QDjangoWhere("item1__name", QDjangoWhere::Equals, "foo");
     compiler.resolve(where);
     CHECKWHERE(where, QLatin1String("T0.\"name\" = ?"), QVariantList() << "foo");
     QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\""));
 
-    compiler = QDjangoCompiler("Owner");
+    compiler = QDjangoCompiler("Owner", db);
     where = QDjangoWhere("item1__name", QDjangoWhere::Equals, "foo")
          && QDjangoWhere("item2__name", QDjangoWhere::Equals, "bar");
     compiler.resolve(where);
