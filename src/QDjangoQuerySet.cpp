@@ -97,10 +97,10 @@ QStringList QDjangoCompiler::fieldNames(bool recurse, QDjangoMetaModel *metaMode
 
 QString QDjangoCompiler::fromSql()
 {
-    QString from = baseModel.databaseTable(database);
+    QString from = driver->escapeIdentifier(baseModel.m_table, QSqlDriver::TableName);
     foreach (const QString &name, modelRefs.keys()) {
         from += QString(" INNER JOIN %1 %2 ON %3.%4 = %5")
-            .arg(modelRefs[name].second.databaseTable(database))
+            .arg(driver->escapeIdentifier(modelRefs[name].second.m_table, QSqlDriver::TableName))
             .arg(modelRefs[name].first)
             .arg(modelRefs[name].first)
             .arg(driver->escapeIdentifier(modelRefs[name].second.m_primaryKey, QSqlDriver::FieldName))

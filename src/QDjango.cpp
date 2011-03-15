@@ -326,7 +326,7 @@ bool QDjangoMetaModel::createTable() const
     const QString driverName = db.driverName();
 
     QStringList propSql;
-    const QString quotedTable = databaseTable(db);
+    const QString quotedTable = db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName);
     foreach (const QDjangoMetaField &field, m_localFields)
     {
         QString fieldSql = driver->escapeIdentifier(field.name, QSqlDriver::FieldName);
@@ -426,15 +426,6 @@ bool QDjangoMetaModel::createTable() const
     return true;
 }
 
-/** Returns the quoted database table name.
- *
- * \param db
- */
-QString QDjangoMetaModel::databaseTable(const QSqlDatabase &db) const
-{
-    return db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName);
-}
-
 /** Drops the database table for this QDjangoMetaModel.
  */
 bool QDjangoMetaModel::dropTable() const
@@ -442,7 +433,8 @@ bool QDjangoMetaModel::dropTable() const
     QSqlDatabase db = QDjango::database();
 
     QDjangoQuery query(db);
-    query.prepare(QString("DROP TABLE %1").arg(databaseTable(db)));
+    query.prepare(QString("DROP TABLE %1").arg(
+        db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName)));
     return query.exec();
 }
 
@@ -555,7 +547,7 @@ bool QDjangoMetaModel::remove(QObject *model) const
 
     QDjangoQuery query(db);
     query.prepare(QString("DELETE FROM %1 WHERE %2 = ?").arg(
-                  databaseTable(db),
+                  db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName),
                   db.driver()->escapeIdentifier(m_primaryKey, QSqlDriver::FieldName)));
     query.addBindValue(model->property(m_primaryKey));
     return query.exec();
@@ -581,7 +573,7 @@ bool QDjangoMetaModel::save(QObject *model) const
         fieldNames << field.name;
     }
 
-    const QString quotedTable = databaseTable(db);
+    const QString quotedTable = db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName);
     const QVariant pk = model->property(primaryKey.name);
     if (!pk.isNull() && !(primaryKey.type == QVariant::Int && !pk.toInt()))
     {

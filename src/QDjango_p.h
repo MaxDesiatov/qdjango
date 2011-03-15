@@ -59,9 +59,6 @@ class QDjangoMetaModel
 {
 public:
     QDjangoMetaModel(const QObject *model = 0);
-
-    QString databaseTable(const QSqlDatabase &db) const;
-
     bool isValid() const;
 
     bool createTable() const;
