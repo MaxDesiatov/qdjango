@@ -277,6 +277,12 @@ void tst_QDjangoModel::filterRelated()
         QDjangoWhere("item1__name", QDjangoWhere::Equals, "first"));
     CHECKWHERE(qs.where(), QLatin1String("T0.\"name\" = ?"), QVariantList() << "first");
     QCOMPARE(qs.count(), 1);
+    QCOMPARE(qs.size(), 1);
+
+    Owner *owner = qs.at(0);
+    QVERIFY(owner != 0);
+    QCOMPARE(owner->name(), QLatin1String("owner"));
+    delete owner;
 }
 
 /** Test eager loading of foreign keys.
