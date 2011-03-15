@@ -188,11 +188,12 @@ int QDjangoQuerySetPrivate::sqlCount() const
     QDjangoWhere resolvedWhere(whereClause);
     compiler.resolve(resolvedWhere);
 
+    const QString where = resolvedWhere.sql();
+    const QString limit = compiler.orderLimitSql(orderBy, lowMark, highMark);
     QString sql = "SELECT COUNT(*) FROM " + compiler.fromSql();
-    QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += compiler.orderLimitSql(orderBy, lowMark, highMark);
+    sql += limit;
     QDjangoQuery query(db);
     query.prepare(sql);
     resolvedWhere.bindValues(query);
@@ -222,11 +223,12 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     QDjangoWhere resolvedWhere(whereClause);
     compiler.resolve(resolvedWhere);
 
+    const QString where = resolvedWhere.sql();
+    const QString limit = compiler.orderLimitSql(orderBy, lowMark, highMark);
     QString sql = "DELETE FROM " + compiler.fromSql();
-    QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += compiler.orderLimitSql(orderBy, lowMark, highMark);
+    sql += limit;
     QDjangoQuery query(db);
     query.prepare(sql);
     resolvedWhere.bindValues(query);
@@ -257,11 +259,12 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     compiler.resolve(resolvedWhere);
 
     const QStringList fields = compiler.fieldNames(selectRelated);
+    const QString where = resolvedWhere.sql();
+    const QString limit = compiler.orderLimitSql(orderBy, lowMark, highMark);
     QString sql = "SELECT " + fields.join(", ") + " FROM " + compiler.fromSql();
-    QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += compiler.orderLimitSql(orderBy, lowMark, highMark);
+    sql += limit;
     QDjangoQuery query(db);
     query.prepare(sql);
     resolvedWhere.bindValues(query);
