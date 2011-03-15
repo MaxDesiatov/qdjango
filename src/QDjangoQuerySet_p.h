@@ -41,6 +41,7 @@ public:
     QDjangoCompiler(const QString &modelName);
     QString fromSql();
     QStringList fieldNames(bool recurse, QDjangoMetaModel *metaModel = 0, const QString &modelPath = QString());
+    QString orderLimitSql(const QStringList orderBy, int lowMark, int highMark);
     void resolve(QDjangoWhere &where);
 
 private:
@@ -65,7 +66,6 @@ public:
     int sqlCount() const;
     bool sqlDelete();
     bool sqlFetch();
-    QString sqlLimit(const QSqlDatabase &db) const;
     bool sqlLoad(QObject *model, int index);
     QList<QVariantMap> sqlValues(const QStringList &fields);
     QList<QVariantList> sqlValuesList(const QStringList &fields);
