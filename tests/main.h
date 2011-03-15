@@ -107,6 +107,7 @@ private slots:
     void initTestCase();
     void fieldNames();
     void fieldNamesRecursive();
+    void orderLimit();
     void resolve();
 };
 

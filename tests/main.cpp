@@ -157,6 +157,25 @@ void tst_QDjangoCompiler::fieldNamesRecursive()
     QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\" INNER JOIN \"item\" T1 ON T1.\"id\" = \"owner\".\"item2_id\""));
 }
 
+void tst_QDjangoCompiler::orderLimit()
+{
+    QDjangoCompiler compiler("Owner");
+    QCOMPARE(compiler.orderLimitSql(QStringList("name"), 0, 0), QLatin1String(" ORDER BY \"owner\".\"name\" ASC"));
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\""));
+
+    compiler = QDjangoCompiler("Owner");
+    QCOMPARE(compiler.orderLimitSql(QStringList("-name"), 0, 0), QLatin1String(" ORDER BY \"owner\".\"name\" DESC"));
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\""));
+
+    compiler = QDjangoCompiler("Owner");
+    QCOMPARE(compiler.orderLimitSql(QStringList("item1__name"), 0, 0), QLatin1String(" ORDER BY T0.\"name\" ASC"));
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\""));
+
+    compiler = QDjangoCompiler("Owner");
+    QCOMPARE(compiler.orderLimitSql(QStringList() << "item1__name" << "item2__name", 0, 0), QLatin1String(" ORDER BY T0.\"name\" ASC, T1.\"name\" ASC"));
+    QCOMPARE(compiler.fromSql(), QLatin1String("\"owner\" INNER JOIN \"item\" T0 ON T0.\"id\" = \"owner\".\"item1_id\" INNER JOIN \"item\" T1 ON T1.\"id\" = \"owner\".\"item2_id\""));
+}
+
 void tst_QDjangoCompiler::resolve()
 {
     QDjangoCompiler compiler("Owner");

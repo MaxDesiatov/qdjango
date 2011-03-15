@@ -109,6 +109,39 @@ QString QDjangoCompiler::fromSql()
     return from;
 }
 
+QString QDjangoCompiler::orderLimitSql(const QStringList orderBy, int lowMark, int highMark)
+{
+    QString limit;
+
+    // order
+    QStringList bits;
+    QString field;
+    foreach (field, orderBy) {
+        QString order = "ASC";
+        if (field.startsWith("-")) {
+            order = "DESC";
+            field = field.mid(1);
+        } else if (field.startsWith("+")) {
+            field = field.mid(1);
+        }
+        bits.append(QString("%1 %2").arg(databaseColumn(field), order));
+    }
+    if (!bits.isEmpty())
+        limit += " ORDER BY " + bits.join(", ");
+
+    // limits
+    if (highMark > 0)
+        limit += QString(" LIMIT %1").arg(highMark - lowMark);
+    if (lowMark > 0)
+    {
+        // no-limit is backend specific
+        if (highMark <= 0)
+            limit += QDjango::noLimitSql();
+        limit += QString(" OFFSET %1").arg(lowMark);
+    }
+    return limit;
+}
+
 void QDjangoCompiler::resolve(QDjangoWhere &where)
 {
     // resolve column
@@ -159,7 +192,7 @@ int QDjangoQuerySetPrivate::sqlCount() const
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += sqlLimit(db);
+    sql += compiler.orderLimitSql(orderBy, lowMark, highMark);
     QDjangoQuery query(db);
     query.prepare(sql);
     resolvedWhere.bindValues(query);
@@ -193,7 +226,7 @@ bool QDjangoQuerySetPrivate::sqlDelete()
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += sqlLimit(db);
+    sql += compiler.orderLimitSql(orderBy, lowMark, highMark);
     QDjangoQuery query(db);
     query.prepare(sql);
     resolvedWhere.bindValues(query);
@@ -228,7 +261,7 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     QString where = resolvedWhere.sql();
     if (!where.isEmpty())
         sql += " WHERE " + where;
-    sql += sqlLimit(db);
+    sql += compiler.orderLimitSql(orderBy, lowMark, highMark);
     QDjangoQuery query(db);
     query.prepare(sql);
     resolvedWhere.bindValues(query);
@@ -246,42 +279,6 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     }
     hasResults = true;
     return true;
-}
-
-QString QDjangoQuerySetPrivate::sqlLimit(const QSqlDatabase &db) const
-{
-    QString limit;
-
-    // order
-    const QDjangoMetaModel metaModel = QDjango::metaModel(m_modelName);
-    QStringList bits;
-    QString field;
-    foreach (field, orderBy)
-    {
-        QString order = "ASC";
-        if (field.startsWith("-"))
-        {
-            order = "DESC";
-            field = field.mid(1);
-        } else if (field.startsWith("+")) {
-            field = field.mid(1);
-        }
-        bits.append(QString("%1 %2").arg(metaModel.databaseColumn(db, field), order));
-    }
-    if (!bits.isEmpty())
-        limit += " ORDER BY " + bits.join(", ");
-
-    // limits
-    if (highMark > 0)
-        limit += QString(" LIMIT %1").arg(highMark - lowMark);
-    if (lowMark > 0)
-    {
-        // no-limit is backend specific
-        if (highMark <= 0)
-            limit += QDjango::noLimitSql();
-        limit += QString(" OFFSET %1").arg(lowMark);
-    }
-    return limit;
 }
 
 bool QDjangoQuerySetPrivate::sqlLoad(QObject *model, int index)
