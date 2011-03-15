@@ -38,7 +38,7 @@ class QDjangoMetaModel;
 class QDjangoCompiler
 {
 public:
-    QDjangoCompiler(const QString &modelName);
+    QDjangoCompiler(const QString &modelName, const QSqlDatabase &db);
     QString fromSql();
     QStringList fieldNames(bool recurse, QDjangoMetaModel *metaModel = 0, const QString &modelPath = QString());
     QString orderLimitSql(const QStringList orderBy, int lowMark, int highMark);
@@ -48,7 +48,6 @@ private:
     QString databaseColumn(const QString &name);
     QString referenceModel(const QString &modelPath, QDjangoMetaModel *metaModel);
 
-    QSqlDatabase database;
     QSqlDriver *driver;
     QDjangoMetaModel baseModel;
     QMap<QString, QPair<QString, QDjangoMetaModel> > modelRefs;
