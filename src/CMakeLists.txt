@@ -56,9 +56,9 @@ set(qdjango-http_MOC_HEADERS
 qt4_wrap_cpp(qdjango-http_MOC_SOURCES ${qdjango-http_MOC_HEADERS})
 add_library(qdjango-http ${LIBRARY_TYPE} ${qdjango-http_SOURCES} ${qdjango-http_MOC_SOURCES})
 set_target_properties(qdjango-http PROPERTIES SOVERSION 0)
-target_link_libraries(qdjango-http ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+target_link_libraries(qdjango-http ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 # QDjango script library
 add_library(qdjango-script ${LIBRARY_TYPE} QDjangoScript.cpp)
 set_target_properties(qdjango-script PROPERTIES SOVERSION 0)
-target_link_libraries(qdjango-script qdjango ${QT_QTSCRIPT_LIBRARY})
+target_link_libraries(qdjango-script qdjango ${QT_QTSCRIPT_LIBRARY} ${QT_QTCORE_LIBRARY})
