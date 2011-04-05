@@ -41,6 +41,7 @@ public:
     static bool getBasicAuth(const QDjangoHttpRequest &request, QString &username, QString &password);
 
     // common responses
+    static QDjangoHttpResponse *serveAuthorizationRequired(const QDjangoHttpRequest &request, const QString &realm = QString("Secure Area"));
     static QDjangoHttpResponse *serveBadRequest(const QDjangoHttpRequest &request);
     static QDjangoHttpResponse *serveInternalServerError(const QDjangoHttpRequest &request);
     static QDjangoHttpResponse *serveNotFound(const QDjangoHttpRequest &request);
