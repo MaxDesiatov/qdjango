@@ -71,6 +71,14 @@ QDjangoHttpResponse *QDjangoHttpController::serveError(const QDjangoHttpRequest 
     return response;
 }
 
+QDjangoHttpResponse *QDjangoHttpController::serveAuthorizationRequired(const QDjangoHttpRequest &request, const QString &realm)
+{
+    QDjangoHttpResponse *response = new QDjangoHttpResponse;
+    response->setStatusCode(QDjangoHttpResponse::AuthorizationRequired);
+    response->setHeader("WWW-Authenticate", QString("Basic realm=\"%1\"").arg(realm));
+    return response;
+}
+
 /** Respond to a malformed HTTP request.
  *
  * \param request
