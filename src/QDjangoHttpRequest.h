@@ -20,6 +20,8 @@
 #ifndef QDJANGO_HTTP_REQUEST_H
 #define QDJANGO_HTTP_REQUEST_H
 
+class QByteArray;
+class QString;
 class QDjangoHttpRequest;
 class QDjangoHttpRequestPrivate;
 

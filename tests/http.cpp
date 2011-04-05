@@ -94,5 +94,6 @@ void TestHttp::testGet()
 
     QCOMPARE(int(reply->error()), err);
     QCOMPARE(reply->readAll(), body);
+    delete reply;
 }
 
