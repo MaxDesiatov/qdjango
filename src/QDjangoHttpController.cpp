@@ -21,6 +21,8 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QRegExp>
+#include <QStringList>
 #include <QUrl>
 
 #include "QDjangoHttpController.h"
@@ -39,6 +41,22 @@ QDateTime httpDateTime(const QString &str)
     QDateTime dt = QDateTime::fromString(str.left(25), "ddd, dd MMM yyyy HH:mm:ss");
     dt.setTimeSpec(Qt::UTC);
     return dt;
+}
+
+bool QDjangoHttpController::getBasicAuth(const QDjangoHttpRequest &request, QString &username, QString &password)
+{
+    QRegExp authRx("^Basic (.+)$");
+    const QString authHeader = request.header("Authorization");
+    if (authRx.exactMatch(authHeader)) {
+        const QString authValue = QString::fromUtf8(QByteArray::fromBase64(authRx.cap(1).toAscii()));
+        const QStringList bits = authValue.split(":");
+        if (bits.size() == 2 && !bits[0].isEmpty() && !bits[1].isEmpty()) {
+            username = bits[0];
+            password = bits[1];
+            return true;
+        }
+    }
+    return false;
 }
 
 QDjangoHttpResponse *QDjangoHttpController::serveError(const QDjangoHttpRequest &request, int code, const QString &text)
