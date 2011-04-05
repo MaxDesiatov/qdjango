@@ -37,11 +37,8 @@ QDateTime httpDateTime(const QString &str);
 class QDjangoHttpController
 {
 public:
-    /** \brief Responds to an HTTP request.
-     *
-     * Reimplement this method when creating a subclass of QDjangoHttpController.
-     */
-    virtual QDjangoHttpResponse *respondToRequest(const QDjangoHttpRequest &request) = 0;
+    // get basic authorization credentials
+    static bool getBasicAuth(const QDjangoHttpRequest &request, QString &username, QString &password);
 
     // common responses
     static QDjangoHttpResponse *serveBadRequest(const QDjangoHttpRequest &request);
@@ -49,6 +46,12 @@ public:
     static QDjangoHttpResponse *serveNotFound(const QDjangoHttpRequest &request);
     static QDjangoHttpResponse *serveRedirect(const QDjangoHttpRequest &request, const QUrl &url, bool permanent = false);
     static QDjangoHttpResponse *serveStatic(const QDjangoHttpRequest &request, const QString &filePath, const QDateTime &expires = QDateTime());
+
+    /** \brief Responds to an HTTP request.
+     *
+     * Reimplement this method when creating a subclass of QDjangoHttpController.
+     */
+    virtual QDjangoHttpResponse *respondToRequest(const QDjangoHttpRequest &request) = 0;
 
 private:
     static QDjangoHttpResponse *serveError(const QDjangoHttpRequest &request, int code, const QString &text);
