@@ -119,6 +119,9 @@ void QDjangoHttpResponse::setStatusCode(int code)
     case AuthorizationRequired:
         d->header.setStatusLine(code, "Authorization Required");
         break;
+    case Forbidden:
+        d->header.setStatusLine(code, "Forbidden");
+        break;
     case NotFound:
         d->header.setStatusLine(code, "Not Found");
         break;

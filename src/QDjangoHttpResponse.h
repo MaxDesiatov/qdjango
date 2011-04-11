@@ -42,6 +42,7 @@ public:
         NotModified             = 304,
         BadRequest              = 400,
         AuthorizationRequired   = 401,
+        Forbidden               = 403,
         NotFound                = 404,
         MethodNotAllowed        = 405,
         InternalServerError     = 500,
