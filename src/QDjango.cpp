@@ -99,7 +99,7 @@ QSqlDatabase QDjango::database()
     QObject::connect(thread, SIGNAL(finished()), globalDatabase, SLOT(threadFinished()));
     QSqlDatabase db = QSqlDatabase::cloneDatabase(globalDatabase->reference,
         QLatin1String(connectionPrefix) + QString::number(globalDatabase->connectionId++));
-    Q_ASSERT(db.open());
+    db.open();
     globalDatabase->copies.insert(thread, db);
     return db;
 }
