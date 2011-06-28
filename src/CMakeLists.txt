@@ -59,6 +59,8 @@ set_target_properties(qdjango-http PROPERTIES SOVERSION 0)
 target_link_libraries(qdjango-http ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 # QDjango script library
-add_library(qdjango-script ${LIBRARY_TYPE} QDjangoScript.cpp)
-set_target_properties(qdjango-script PROPERTIES SOVERSION 0)
-target_link_libraries(qdjango-script qdjango ${QT_QTSCRIPT_LIBRARY} ${QT_QTCORE_LIBRARY})
+if(QT_QTSCRIPT_FOUND)
+    add_library(qdjango-script ${LIBRARY_TYPE} QDjangoScript.cpp)
+    set_target_properties(qdjango-script PROPERTIES SOVERSION 0)
+    target_link_libraries(qdjango-script qdjango ${QT_QTSCRIPT_LIBRARY} ${QT_QTCORE_LIBRARY})
+endif()
