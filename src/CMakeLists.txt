@@ -52,6 +52,7 @@ set(qdjango-http_SOURCES
     QDjangoHttpServer.cpp)
 set(qdjango-http_MOC_HEADERS
     QDjangoHttpResponse.h
+    QDjangoHttpServer.h)
     QDjangoHttpServer_p.h)
 qt4_wrap_cpp(qdjango-http_MOC_SOURCES ${qdjango-http_MOC_HEADERS})
 add_library(qdjango-http ${LIBRARY_TYPE} ${qdjango-http_SOURCES} ${qdjango-http_MOC_SOURCES})
