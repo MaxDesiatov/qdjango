@@ -30,6 +30,7 @@
 #include <QObject>
 
 class QDjangoHttpConnectionPrivate;
+class QDjangoHttpResponse;
 class QDjangoHttpServer;
 
 /** \internal
@@ -43,7 +44,13 @@ public:
     ~QDjangoHttpConnection();
 
 signals:
+    /** This signal is emitted when the connection is closed.
+     */
     void closed();
+
+    /** This signal is emitted when a request completes.
+     */
+    void requestFinished(QDjangoHttpResponse *response);
 
 private slots:
     void bytesWritten(qint64 bytes);

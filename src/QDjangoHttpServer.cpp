@@ -165,6 +165,9 @@ void QDjangoHttpConnection::writeResponse()
         d->socket->write(response->d->header.toString().toUtf8());
         d->socket->write(response->d->body);
 
+        /* Emit signal */
+        emit requestFinished(response);
+
         /* Destroy response */
         d->pendingResponses.removeAll(response);
         response->deleteLater();
@@ -212,6 +215,10 @@ void QDjangoHttpServer::incomingConnection(int socketDescriptor)
     bool check;
     check = connect(connection, SIGNAL(closed()),
                     connection, SLOT(deleteLater()));
+    Q_ASSERT(check);
+
+    check = connect(connection, SIGNAL(requestFinished(QDjangoHttpResponse*)),
+                    this, SIGNAL(requestFinished(QDjangoHttpResponse*)));
     Q_ASSERT(check);
 }
 

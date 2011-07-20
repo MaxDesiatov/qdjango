@@ -23,6 +23,7 @@
 #include <QTcpServer>
 
 class QDjangoHttpController;
+class QDjangoHttpResponse;
 class QDjangoHttpServer;
 class QDjangoHttpServerPrivate;
 
@@ -40,6 +41,11 @@ public:
 
     QDjangoHttpController *controller() const;
     void setController(QDjangoHttpController *controller);
+
+signals:
+    /** This signal is emitted when a request completes.
+     */
+    void requestFinished(QDjangoHttpResponse *response);
 
 protected:
     void incomingConnection(int socketDescriptor);
