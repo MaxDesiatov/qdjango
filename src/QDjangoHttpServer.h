@@ -23,6 +23,7 @@
 #include <QTcpServer>
 
 class QDjangoHttpController;
+class QDjangoHttpRequest;
 class QDjangoHttpResponse;
 class QDjangoHttpServer;
 class QDjangoHttpServerPrivate;
@@ -35,6 +36,8 @@ class QDjangoHttpServerPrivate;
  */
 class QDjangoHttpServer : public QTcpServer
 {
+    Q_OBJECT
+
 public:
     QDjangoHttpServer(QObject *parent = 0);
     ~QDjangoHttpServer();
