@@ -35,6 +35,8 @@
 // maximum request body size is 10 MB
 #define MAX_BODY_SIZE (10 * 1024 * 1024)
 
+typedef QPair<QDjangoHttpRequest*,QDjangoHttpResponse*> QDjangoHttpJob;
+
 class QDjangoHttpConnectionPrivate
 {
 public:
@@ -42,7 +44,7 @@ public:
     QDjangoHttpServer *server;
     QTcpSocket *socket;
     QDjangoHttpRequest *pendingRequest;
-    QList<QDjangoHttpResponse*> pendingResponses;
+    QList<QDjangoHttpJob> pendingJobs;
     int requestCount;
 };
 
@@ -80,8 +82,10 @@ QDjangoHttpConnection::~QDjangoHttpConnection()
 {
     if (d->pendingRequest)
         delete d->pendingRequest;
-    foreach (QDjangoHttpResponse *response, d->pendingResponses)
-        delete response;
+    foreach (const QDjangoHttpJob &job, d->pendingJobs) {
+        delete job.first;
+        delete job.second;
+    }
     delete d;
 }
 
@@ -93,7 +97,7 @@ QDjangoHttpConnection::~QDjangoHttpConnection()
 void QDjangoHttpConnection::bytesWritten(qint64 bytes)
 {
     if (!d->socket->bytesToWrite()) {
-        if (!d->pendingResponses.isEmpty()) {
+        if (!d->pendingJobs.isEmpty()) {
             writeResponse();
         } else if (d->closeAfterResponse) {
 #ifdef DEBUG_HTTP
@@ -138,8 +142,7 @@ void QDjangoHttpConnection::handleData()
         response = QDjangoHttpController::serveNotFound(*request);
     else
         response = controller->respondToRequest(*request);
-    d->pendingResponses << response;
-    delete request;
+    d->pendingJobs << qMakePair(request, response);
 
     /* Store keep-alive flag */
     if (!keepAlive)
@@ -151,8 +154,11 @@ void QDjangoHttpConnection::handleData()
 
 void QDjangoHttpConnection::writeResponse()
 {
-    while (!d->pendingResponses.isEmpty()) {
-        QDjangoHttpResponse *response = d->pendingResponses.first();
+    while (!d->pendingJobs.isEmpty() &&
+            d->pendingJobs.first().second->isReady()) {
+        const QDjangoHttpJob job = d->pendingJobs.takeFirst();
+        QDjangoHttpRequest *request = job.first;
+        QDjangoHttpResponse *response = job.second;
         if (!response->isReady())
             return;
 
@@ -166,10 +172,10 @@ void QDjangoHttpConnection::writeResponse()
         d->socket->write(response->d->body);
 
         /* Emit signal */
-        emit requestFinished(response);
+        emit requestFinished(request, response);
 
         /* Destroy response */
-        d->pendingResponses.removeAll(response);
+        delete request;
         response->deleteLater();
     }
 }
@@ -217,8 +223,8 @@ void QDjangoHttpServer::incomingConnection(int socketDescriptor)
                     connection, SLOT(deleteLater()));
     Q_ASSERT(check);
 
-    check = connect(connection, SIGNAL(requestFinished(QDjangoHttpResponse*)),
-                    this, SIGNAL(requestFinished(QDjangoHttpResponse*)));
+    check = connect(connection, SIGNAL(requestFinished(QDjangoHttpRequest*,QDjangoHttpResponse*)),
+                    this, SIGNAL(requestFinished(QDjangoHttpResponse*,QDjangoHttpResponse*)));
     Q_ASSERT(check);
 }
 
