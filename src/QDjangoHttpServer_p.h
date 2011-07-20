@@ -30,6 +30,7 @@
 #include <QObject>
 
 class QDjangoHttpConnectionPrivate;
+class QDjangoHttpRequest;
 class QDjangoHttpResponse;
 class QDjangoHttpServer;
 
@@ -50,7 +51,7 @@ signals:
 
     /** This signal is emitted when a request completes.
      */
-    void requestFinished(QDjangoHttpResponse *response);
+    void requestFinished(QDjangoHttpRequest *request, QDjangoHttpResponse *response);
 
 private slots:
     void bytesWritten(qint64 bytes);

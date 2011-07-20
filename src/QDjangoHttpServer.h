@@ -45,7 +45,7 @@ public:
 signals:
     /** This signal is emitted when a request completes.
      */
-    void requestFinished(QDjangoHttpResponse *response);
+    void requestFinished(QDjangoHttpRequest *request, QDjangoHttpResponse *response);
 
 protected:
     void incomingConnection(int socketDescriptor);
