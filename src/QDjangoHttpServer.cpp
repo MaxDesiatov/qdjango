@@ -224,7 +224,7 @@ void QDjangoHttpServer::incomingConnection(int socketDescriptor)
     Q_ASSERT(check);
 
     check = connect(connection, SIGNAL(requestFinished(QDjangoHttpRequest*,QDjangoHttpResponse*)),
-                    this, SIGNAL(requestFinished(QDjangoHttpResponse*,QDjangoHttpResponse*)));
+                    this, SIGNAL(requestFinished(QDjangoHttpRequest*,QDjangoHttpResponse*)));
     Q_ASSERT(check);
 }
 
