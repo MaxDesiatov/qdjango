@@ -174,7 +174,10 @@ QDjangoHttpResponse *QDjangoHttpController::serveStatic(const QDjangoHttpRequest
         delete response;
         return serveInternalServerError(request);
     }
-    response->setBody(file.readAll());
+    if (request.method() == QLatin1String("HEAD"))
+        response->setHeader("Content-Length", QString::number(file.size()));
+    else
+        response->setBody(file.readAll());
     return response;
 }
 
