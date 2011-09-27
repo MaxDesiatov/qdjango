@@ -4,6 +4,11 @@ TEMPLATE = lib
 
 CONFIG += staticlib
 
+macx: {
+    CONFIG -= staticlib
+    CONFIG += lib_bundle
+}
+
 # Target definition
 TARGET = $$QDJANGO_LIBRARY_NAME
 VERSION = $$QDJANGO_VERSION
