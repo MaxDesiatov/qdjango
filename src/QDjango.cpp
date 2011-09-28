@@ -2,17 +2,17 @@
  * QDjango
  * Copyright (C) 2010-2011 Bolloré telecom
  * See AUTHORS file for a full list of contributors.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -128,12 +128,15 @@ void QDjango::setDatabase(QSqlDatabase database)
 }
 
 /** Creates the database tables for all registered models.
+ *  Also checks if table with the same name as model's exist.  If it does,
+ *  this function ignores this model.
  */
 bool QDjango::createTables()
 {
     bool ret = true;
     foreach (const QString &key, globalMetaModels.keys())
-        if (!globalMetaModels[key].createTable())
+        if (!globalMetaModels[key].tableExists() &&
+            !globalMetaModels[key].createTable())
             ret = false;
     return ret;
 }
@@ -314,7 +317,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QObject *model)
         m_localFields.prepend(field);
         m_primaryKey = field.name;
     }
- 
+
 }
 
 /** Creates the database table for this QDjangoMetaModel.
@@ -441,7 +444,7 @@ bool QDjangoMetaModel::dropTable() const
 /** Retrieves the QDjangoModel pointed to by the given foreign-key.
  *
  * \param model
- * \param name
+ * \param name
  */
 QObject *QDjangoMetaModel::foreignKey(const QObject *model, const char *name) const
 {
@@ -640,4 +643,7 @@ bool QDjangoMetaModel::save(QObject *model) const
     return ret;
 }
 
-
+bool QDjangoMetaModel::tableExists() const
+{
+    return QDjango::database().tables().contains(m_table);
+}
