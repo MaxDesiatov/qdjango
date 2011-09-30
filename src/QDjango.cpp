@@ -365,8 +365,11 @@ bool QDjangoMetaModel::createTable() const
             else
                 fieldSql += " TEXT";
         }
+        else if (field.type == QVariant::Map)
+            fieldSql += " BLOB";
         else {
-            qWarning() << "Unhandled type" << field.type << "for property" << field.name;
+            qWarning() << "Unhandled type" << field.type
+                       << "for property" << field.name;
             continue;
         }
 
@@ -623,14 +626,20 @@ bool QDjangoMetaModel::save(QObject *model) const
                   quotedTable,
                   fieldColumns.join(", "), fieldHolders.join(", ")));
     foreach (const QString &name, fieldNames)
-        query.addBindValue(model->property(name.toLatin1()));
+    {
+        QVariant value = model->property(name.toLatin1());
+        query.addBindValue(value);
+    }
 
     bool ret = query.exec();
     if (primaryKey.autoIncrement) {
         QVariant insertId;
         if (db.driverName() == "QPSQL") {
             QDjangoQuery query(db);
-            const QString seqName = driver->escapeIdentifier(m_table + "_" + primaryKey.name + "_seq", QSqlDriver::FieldName);
+            const QString seqName =
+                    driver->escapeIdentifier(m_table + "_" +
+                                             primaryKey.name + "_seq",
+                                             QSqlDriver::FieldName);
             query.prepare("SELECT CURRVAL('" + seqName + "')");
             if (!query.exec() || !query.next())
                 return false;
