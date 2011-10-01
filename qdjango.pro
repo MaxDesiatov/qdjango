@@ -2,7 +2,7 @@ include(qdjango.pri)
 
 TEMPLATE = subdirs
 
-SUBDIRS = src
+SUBDIRS = src tests
 
 android {
 } else {
