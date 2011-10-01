@@ -628,7 +628,15 @@ bool QDjangoMetaModel::save(QObject *model) const
     foreach (const QString &name, fieldNames)
     {
         QVariant value = model->property(name.toLatin1());
-        query.addBindValue(value);
+        if (value.type() == QVariant::Map)
+        {
+            QByteArray ba;
+            QDataStream ds(&ba);
+            ds << value;
+            query.addBindValue(ba);
+        }
+        else
+            query.addBindValue(value);
     }
 
     bool ret = query.exec();
