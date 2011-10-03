@@ -631,7 +631,7 @@ bool QDjangoMetaModel::save(QObject *model) const
         if (value.type() == QVariant::Map)
         {
             QByteArray ba;
-            QDataStream ds(&ba);
+            QDataStream ds(&ba, QIODevice::WriteOnly);
             ds << value;
             query.addBindValue(ba);
         }

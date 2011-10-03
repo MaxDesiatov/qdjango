@@ -1,6 +1,10 @@
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 
+#include <QtSql>
+
+#include <QDjango.h>
+
 class Model : public QObject
 {
     Q_OBJECT
@@ -25,18 +29,25 @@ class QVariantMapTest : public QObject
 public:
     QVariantMapTest();
 
+private:
+    QSqlDatabase _db;
+
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
     void testCase1();
 };
 
-QVariantMapTest::QVariantMapTest()
-{
-}
+QVariantMapTest::QVariantMapTest() :
+    _db(QSqlDatabase::addDatabase("QSQLITE"))
+{}
 
 void QVariantMapTest::initTestCase()
 {
+    _db.setDatabaseName("test.db");
+    QVERIFY(_db.open());
+
+    QDjango::setDatabase(_db);
 }
 
 void QVariantMapTest::cleanupTestCase()
@@ -45,7 +56,9 @@ void QVariantMapTest::cleanupTestCase()
 
 void QVariantMapTest::testCase1()
 {
-    QVERIFY2(true, "Failure");
+    QVariantMap map;
+
+
 }
 
 QTEST_APPLESS_MAIN(QVariantMapTest);

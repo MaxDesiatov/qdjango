@@ -1,8 +1,4 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2011-10-01T05:48:14
-#
-#-------------------------------------------------
+include(../qdjango.pri)
 
 QT       += sql testlib
 
@@ -14,6 +10,10 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+INCLUDEPATH += $$QDJANGO_INCLUDE_DIR
 
 SOURCES += tst_qvariantmaptest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
+QMAKE_LFLAGS += -F$$QDJANGO_LIBRARY_DIR
+LIBS += -framework qdjango
