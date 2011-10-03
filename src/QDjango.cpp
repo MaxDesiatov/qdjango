@@ -628,7 +628,7 @@ bool QDjangoMetaModel::save(QObject *model) const
     foreach (const QString &name, fieldNames)
     {
         QVariant value = model->property(name.toLatin1());
-        if (value.type() == QVariant::Map)
+        if (QVariant::Map == value.type())
         {
             QByteArray ba;
             QDataStream ds(&ba, QIODevice::WriteOnly);

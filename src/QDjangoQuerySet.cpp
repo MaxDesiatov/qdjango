@@ -2,17 +2,17 @@
  * QDjango
  * Copyright (C) 2010-2011 Bolloré telecom
  * See AUTHORS file for a full list of contributors.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -276,7 +276,22 @@ bool QDjangoQuerySetPrivate::sqlFetch()
     while (query.next()) {
         QVariantList props;
         for (int i = 0; i < fields.size(); ++i)
-            props << query.value(i);
+        {
+            QVariant value = query.value(i);
+            QByteArray ba = value.toByteArray();
+
+            if (ba.size() > 0)
+            {
+                QDataStream ds(ba);
+                QVariant baValue;
+                ds >> baValue;
+
+                if (QVariant::Map == baValue.type())
+                    value = baValue;
+            }
+
+            props << value;
+        }
         properties.append(props);
     }
     hasResults = true;
