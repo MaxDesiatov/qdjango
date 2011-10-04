@@ -67,6 +67,7 @@ public:
 
     void load(QObject *model, const QVariantList &props, int &pos) const;
     bool remove(QObject *model) const;
+    bool save(QObject *model, QVariant &outPk) const;
     bool save(QObject *model) const;
 
     QObject *foreignKey(const QObject *model, const char *name) const;

@@ -567,6 +567,20 @@ bool QDjangoMetaModel::remove(QObject *model) const
  */
 bool QDjangoMetaModel::save(QObject *model) const
 {
+    QVariant dummy;
+    return save(model, dummy);
+}
+
+/** Saves the given QObject to the database.
+ *
+ * \param model
+ * \param insertId
+ *
+ * \return primary key of stored model if saving succeeded, invalid QVariant
+ * otherwise
+ */
+bool QDjangoMetaModel::save(QObject *model, QVariant &outPk) const
+{
     QSqlDatabase db = QDjango::database();
     QSqlDriver *driver = db.driver();
 
@@ -604,6 +618,7 @@ bool QDjangoMetaModel::save(QObject *model) const
             foreach (const QString &name, fieldNames)
                 query.addBindValue(model->property(name.toLatin1()));
             query.addBindValue(pk);
+            outPk = pk;
             return query.exec();
         }
     }
@@ -656,6 +671,7 @@ bool QDjangoMetaModel::save(QObject *model) const
             insertId = query.lastInsertId();
         }
         model->setProperty(primaryKey.name, insertId);
+        outPk = insertId;
     }
     return ret;
 }
