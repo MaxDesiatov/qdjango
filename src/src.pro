@@ -23,5 +23,3 @@ SOURCES += \
     QDjangoModel.cpp \
     QDjangoQuerySet.cpp \
     QDjangoWhere.cpp
-
-
