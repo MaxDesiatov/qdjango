@@ -574,12 +574,11 @@ bool QDjangoMetaModel::save(QObject *model) const
 /** Saves the given QObject to the database.
  *
  * \param model
- * \param insertId
+ * \param inOutPk
  *
- * \return primary key of stored model if saving succeeded, invalid QVariant
- * otherwise
+ * \return true if saving succeeded, false otherwise
  */
-bool QDjangoMetaModel::save(QObject *model, QVariant &outPk) const
+bool QDjangoMetaModel::save(QObject *model, QVariant &inOutPk) const
 {
     QSqlDatabase db = QDjango::database();
     QSqlDriver *driver = db.driver();
@@ -593,14 +592,18 @@ bool QDjangoMetaModel::save(QObject *model, QVariant &outPk) const
         fieldNames << field.name;
     }
 
-    const QString quotedTable = db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName);
-    const QVariant pk = model->property(primaryKey.name);
+    const QString quotedTable =
+        db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName);
+    QVariant pk = model->property(primaryKey.name);
+    if (pk.isNull())
+        pk = inOutPk;
     if (!pk.isNull() && !(primaryKey.type == QVariant::Int && !pk.toInt()))
     {
         QDjangoQuery query(db);
         query.prepare(QString("SELECT 1 AS a FROM %1 WHERE %2 = ?").arg(
                       quotedTable,
-                      driver->escapeIdentifier(primaryKey.name, QSqlDriver::FieldName)));
+                      driver->escapeIdentifier(primaryKey.name,
+                                               QSqlDriver::FieldName)));
         query.addBindValue(pk);
         if (query.exec() && query.next())
         {
@@ -610,7 +613,9 @@ bool QDjangoMetaModel::save(QObject *model, QVariant &outPk) const
             // perform update
             QStringList fieldAssign;
             foreach (const QString &name, fieldNames)
-                fieldAssign << driver->escapeIdentifier(name, QSqlDriver::FieldName) + " = ?";
+                fieldAssign << driver->escapeIdentifier(name,
+                                                        QSqlDriver::FieldName)
+                               + " = ?";
 
             QDjangoQuery query(db);
             query.prepare(QString("UPDATE %1 SET %2 WHERE %3 = ?")
@@ -618,7 +623,7 @@ bool QDjangoMetaModel::save(QObject *model, QVariant &outPk) const
             foreach (const QString &name, fieldNames)
                 query.addBindValue(model->property(name.toLatin1()));
             query.addBindValue(pk);
-            outPk = pk;
+            inOutPk = pk;
             return query.exec();
         }
     }
@@ -671,7 +676,7 @@ bool QDjangoMetaModel::save(QObject *model, QVariant &outPk) const
             insertId = query.lastInsertId();
         }
         model->setProperty(primaryKey.name, insertId);
-        outPk = insertId;
+        inOutPk = insertId;
     }
     return ret;
 }
