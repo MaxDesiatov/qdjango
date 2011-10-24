@@ -1,13 +1,11 @@
 include(../qdjango.pri)
 
 TEMPLATE = lib
-
 CONFIG += staticlib
 
 # Target definition
 TARGET = $$QDJANGO_LIBRARY_NAME
 VERSION = $$QDJANGO_VERSION
-DESTDIR = $$QDJANGO_LIBRARY_DIR
 
 # Plugins
 DEFINES += QT_STATICPLUGIN
@@ -23,5 +21,4 @@ SOURCES += \
     QDjangoModel.cpp \
     QDjangoQuerySet.cpp \
     QDjangoWhere.cpp
-
 
