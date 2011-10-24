@@ -4,9 +4,11 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 # Target definition
-DESTDIR = $$OUT_PWD
 TARGET = $$QDJANGO_LIBRARY_NAME
 VERSION = $$QDJANGO_VERSION
+win32 {
+    DESTDIR = $$OUT_PWD
+}
 
 # Plugins
 DEFINES += QT_STATICPLUGIN
