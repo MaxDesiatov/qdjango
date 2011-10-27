@@ -621,7 +621,18 @@ bool QDjangoMetaModel::save(QObject *model, QVariant &inOutPk) const
             query.prepare(QString("UPDATE %1 SET %2 WHERE %3 = ?")
                   .arg(quotedTable, fieldAssign.join(", "), primaryKey.name));
             foreach (const QString &name, fieldNames)
-                query.addBindValue(model->property(name.toLatin1()));
+            {
+                QVariant value = model->property(name.toLatin1());
+                if (QVariant::Map == value.type())
+                {
+                    QByteArray ba;
+                    QDataStream ds(&ba, QIODevice::WriteOnly);
+                    ds << value;
+                    query.addBindValue(ba);
+                }
+                else
+                    query.addBindValue(value);
+            }
             query.addBindValue(pk);
             inOutPk = pk;
             return query.exec();
