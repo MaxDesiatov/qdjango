@@ -67,6 +67,7 @@ public:
 
     void load(QObject *model, const QVariantList &props, int &pos) const;
     bool remove(QObject *model) const;
+    bool removeById(const QVariant &id) const;
     bool save(QObject *model, QVariant &outPk) const;
     bool save(QObject *model) const;
 
