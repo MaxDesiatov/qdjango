@@ -559,6 +559,22 @@ bool QDjangoMetaModel::remove(QObject *model) const
     return query.exec();
 }
 
+/** Removes the object for given id from the database.
+ *
+ * \param id
+ */
+bool QDjangoMetaModel::removeById(const QVariant &id) const
+{
+    QSqlDatabase db = QDjango::database();
+
+    QDjangoQuery query(db);
+    query.prepare(QString("DELETE FROM %1 WHERE %2 = ?").arg(
+                  db.driver()->escapeIdentifier(m_table, QSqlDriver::TableName),
+                  db.driver()->escapeIdentifier(m_primaryKey, QSqlDriver::FieldName)));
+    query.addBindValue(id);
+    return query.exec();
+}
+
 /** Saves the given QObject to the database.
  *
  * \param model
