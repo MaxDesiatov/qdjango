@@ -472,6 +472,73 @@ void TestUser::valuesList()
     QCOMPARE(list[2][1], QVariant("wizpass"));
 }
 
+void TestUser::constIterator()
+{
+    loadFixtures();
+    QVERIFY(not QTest::currentTestFailed());
+
+    const QDjangoQuerySet<User> users = QDjangoQuerySet<User>().orderBy(QStringList("username"));
+    const QDjangoQuerySet<User>::ConstIterator first = users.constBegin();
+    const QDjangoQuerySet<User>::ConstIterator last = users.constEnd();
+
+    QVERIFY(first != last);
+    QVERIFY(first <  last);
+    QVERIFY(first <= last);
+    QVERIFY(last  >= first);
+    QVERIFY(last  >  first);
+
+    QCOMPARE(int(last - first), +3);
+    QCOMPARE(int(first - last), -3);
+
+    QDjangoQuerySet<User>::ConstIterator it = first;
+
+    QVERIFY(it != last);
+    QVERIFY(it == first);
+    QCOMPARE(int(last - it), 3);
+    QCOMPARE(int(it - first), 0);
+
+    QCOMPARE(it->username(), QLatin1String("baruser"));
+    QCOMPARE((++it)->username(), QLatin1String("foouser"));
+    QCOMPARE(it->username(), QLatin1String("foouser"));
+    QCOMPARE((it++)->username(), QLatin1String("foouser"));
+    QCOMPARE(it->username(), QLatin1String("wizuser"));
+
+    QVERIFY((it - 2) == first);
+    QCOMPARE(int(it - first), 2);
+    QCOMPARE(int(last - it), 1);
+
+    QVERIFY((it -= 2) == first);
+    QCOMPARE(int(it - first), 0);
+    QCOMPARE(int(last - it), 3);
+
+    QCOMPARE((*it).username(), QLatin1String("baruser"));
+    QCOMPARE((*(it + 2)).username(), QLatin1String("wizuser"));
+    QVERIFY(it == first);
+
+    QCOMPARE((*(it += 1)).username(), QLatin1String("foouser"));
+    QCOMPARE(int(it - first), 1);
+
+    QTest::ignoreMessage(QtWarningMsg, "QDjangoQuerySet out of bounds");
+    QVERIFY(&*(it += 2) == 0);
+    QCOMPARE(int(last - it), 0);
+    QVERIFY(it == last);
+
+    QCOMPARE((it += -3)->username(), QLatin1String("baruser"));
+    QVERIFY(it == first);
+
+    QCOMPARE((it -= -2)->username(), QLatin1String("wizuser"));
+    QCOMPARE(int(last - it), 1);
+
+    QCOMPARE((it--)->username(), QLatin1String("wizuser"));
+    QCOMPARE(it->username(), QLatin1String("foouser"));
+    QCOMPARE(int(last - it), 2);
+
+    QCOMPARE((--it)->username(), QLatin1String("baruser"));
+    QCOMPARE(it->username(), QLatin1String("baruser"));
+    QCOMPARE(int(last - it), 3);
+}
+
+
 /** Clear database table after each test.
  */
 void TestUser::cleanup()
