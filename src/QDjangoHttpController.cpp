@@ -43,6 +43,10 @@ QDateTime httpDateTime(const QString &str)
     return dt;
 }
 
+/** Extract basic credentials from an HTTP \a request.
+ *
+ * Returns \b true if credentials were provider, \b false otherwise.
+ */
 bool QDjangoHttpController::getBasicAuth(const QDjangoHttpRequest &request, QString &username, QString &password)
 {
     QRegExp authRx("^Basic (.+)$");
@@ -71,6 +75,11 @@ QDjangoHttpResponse *QDjangoHttpController::serveError(const QDjangoHttpRequest 
     return response;
 }
 
+/** Respond to an HTTP \a request with an authorization error.
+ *
+ * \param request
+ * \param realm
+ */
 QDjangoHttpResponse *QDjangoHttpController::serveAuthorizationRequired(const QDjangoHttpRequest &request, const QString &realm)
 {
     QDjangoHttpResponse *response = new QDjangoHttpResponse;
