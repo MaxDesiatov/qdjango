@@ -182,7 +182,6 @@ public:
                     || m_querySet > other.m_querySet;
         }
 
-
         /** The prefix ++ operator (\c ++it) advances the iterator to the next item in the set
          *  and returns an iterator to the new current item.
          *
@@ -213,7 +212,6 @@ public:
          *  \sa operator-() and operator+=()
          */
         const_iterator operator+(int i) const { return const_iterator(m_querySet, m_offset + i); }
-
 
         /** Makes the iterator go back by \p i items.
          * (If \p i is negative, the iterator goes forward.)
