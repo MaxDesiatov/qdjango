@@ -47,13 +47,13 @@ template <class T>
     class QDjangoQuerySet
 {
 public:
-    /** The QDjangoQuerySet<T>::const_iterator class provides an STL-style const iterator
+    /** The QDjangoQuerySet::const_iterator class provides an STL-style const iterator
      *  for QDjangoQuerySet.
      *
-     *  QDjangoQuerySet<T>::const_iterator allows you to iterate over a QDjangoQuerySet.
+     *  QDjangoQuerySet::const_iterator allows you to iterate over a QDjangoQuerySet.
      *  As a const iterator it doesn't permit you to modify the QDjangoQuerySet.
      *
-     *  The default QList::const_iterator constructor creates an uninitialized iterator. You must
+     *  The default QDjangoQuerySet::const_iterator constructor creates an uninitialized iterator. You must
      *  initialize it using a QDjangoQuerySet function like QDjangoQuerySet::constBegin(), or
      *  QDjangoQuerySet::constEnd() before you can start iterating. Here's a typical loop that
      *  prints all the objects stored in a set:
@@ -76,10 +76,12 @@ public:
          */
         typedef std::bidirectional_iterator_tag  iterator_category;
 
+        /** \cond */
         typedef qptrdiff difference_type;
         typedef T value_type;
         typedef T *pointer;
         typedef T &reference;
+        /** \endcond */
 
         /** Constructs an uninitialized iterator.
          *
@@ -200,7 +202,8 @@ public:
          */
         const_iterator operator++(int) { const_iterator n(*this); ++m_offset; return n; }
 
-        /** Advances the iterator by \p i items. (If \ p is negative, the iterator goes backward.)
+        /** Advances the iterator by \p i items.
+         * (If \p i is negative, the iterator goes backward.)
          *
          *  \sa operator-=() and operator+().
          */
