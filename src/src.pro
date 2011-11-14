@@ -1,7 +1,6 @@
 include(../qdjango.pri)
 
 TEMPLATE = lib
-
 CONFIG += staticlib
 
 macx: {
@@ -12,7 +11,9 @@ macx: {
 # Target definition
 TARGET = $$QDJANGO_LIBRARY_NAME
 VERSION = $$QDJANGO_VERSION
-DESTDIR = $$QDJANGO_LIBRARY_DIR
+win32 {
+    DESTDIR = $$OUT_PWD
+}
 
 # Plugins
 DEFINES += QT_STATICPLUGIN
@@ -28,5 +29,4 @@ SOURCES += \
     QDjangoModel.cpp \
     QDjangoQuerySet.cpp \
     QDjangoWhere.cpp
-
 

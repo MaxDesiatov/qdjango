@@ -1,0 +1,5 @@
+Jeremy Lainé <jeremy.laine@bolloretelecom.eu>
+ * Principal developer of QDjango.
+
+Mathias Hasselmann <mathias@openismus.com>
+ * Support for QDjangoQuerySet iterators.

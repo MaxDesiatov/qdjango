@@ -39,6 +39,7 @@ private slots:
     void subLimit();
     void values();
     void valuesList();
+    void constIterator();
     void cleanup();
     void cleanupTestCase();
 
