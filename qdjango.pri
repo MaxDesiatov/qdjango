@@ -3,6 +3,7 @@
 QT += sql
 
 QDJANGO_INCLUDE_DIR = $$PWD/src
+QDJANGO_LIBRARY_DIR = $$PWD/src
 QDJANGO_LIBRARY_NAME = qdjango
 
 # Libraries for apps which use QDjango
