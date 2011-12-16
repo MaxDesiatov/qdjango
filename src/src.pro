@@ -5,7 +5,7 @@ CONFIG += staticlib
 
 macx: {
     CONFIG -= staticlib
-    CONFIG += lib_bundle
+    CONFIG += lib_bundle x86
 }
 
 # Target definition

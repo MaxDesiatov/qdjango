@@ -2,8 +2,6 @@ include(../qdjango.pri)
 
 QT       += sql testlib
 
-QT       -= gui
-
 TARGET = tst_qvariantmaptest
 CONFIG   += console
 CONFIG   -= app_bundle
@@ -17,6 +15,7 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 QMAKE_LFLAGS += -F$$QDJANGO_LIBRARY_DIR
 macx {
+    CONFIG += x86
     LIBS += -framework qdjango
 }
 
