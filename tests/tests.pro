@@ -14,9 +14,14 @@ SOURCES += tst_qvariantmaptest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 QMAKE_LFLAGS += -F$$QDJANGO_LIBRARY_DIR
+
 macx {
     CONFIG += x86
     LIBS += -framework qdjango
+}
+
+unix:!macx {
+    LIBS += -L../src -lqdjango
 }
 
 win32 {
