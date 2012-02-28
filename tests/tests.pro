@@ -24,6 +24,11 @@ unix:!macx {
     LIBS += -L../src -lqdjango
 }
 
-win32 {
+win32:!win32-g++-4.6 {
     LIBS += $$QDJANGO_LIBRARY_DIR/qdjango.lib
 }
+
+win32-g++-4.6 {
+    LIBS += $$QDJANGO_LIBRARY_DIR/libqdjango.a
+}
+
