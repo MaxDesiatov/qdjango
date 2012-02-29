@@ -15,6 +15,11 @@ win32 {
     DESTDIR = $$OUT_PWD
 }
 
+win32-g++-4.6 {
+    CONFIG -= staticlib
+    CONFIG += dll
+}
+
 # Plugins
 DEFINES += QT_STATICPLUGIN
 HEADERS += \
