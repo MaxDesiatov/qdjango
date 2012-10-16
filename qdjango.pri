@@ -40,3 +40,5 @@ isEmpty(PREFIX) {
 isEmpty(LIBDIR) {
     LIBDIR=lib
 }
+
+CONFIG += x86
